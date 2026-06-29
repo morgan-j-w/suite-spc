@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Success - Preference Centre</title>
+  <meta name="description" content="You have successfully subscribed to our communications.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-brand">
+          <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit;">
+            <div class="header-logo">A</div>
+            <div>
+              <div class="header-title">Acme Inc</div>
+              <div class="header-tagline">Your trusted partner</div>
+            </div>
+          </a>
+        </div>
+        <div class="header-actions">
+          <select id="theme-select" class="theme-select">
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="orange">Orange</option>
+            <option value="purple">Purple</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" style="display: flex; flex: 1; align-items: center; justify-content: center;">
+      <div class="card success-card">
+        <div class="card-content" style="padding: 2.5rem;">
+          <div class="success-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          
+          <h1 class="success-title">You are Subscribed!</h1>
+          <p class="success-description">
+            Thank you for subscribing. You will start receiving updates based on your preferences.
+          </p>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <p class="text-sm text-muted mb-4">Save this link to manage your preferences anytime:</p>
+            <div class="preferences-url" id="preferences-url">Loading...</div>
+            <button id="copy-url-btn" class="btn btn-outline btn-full" style="margin-top: 0.75rem;">Copy URL</button>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <a id="manage-preferences-link" href="preferences.html" class="btn btn-primary btn-full">Manage Preferences</a>
+            <a href="index.html" class="btn btn-secondary btn-full">Back to Home</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>Acme Inc</h3>
+          <p>Your trusted partner for all your needs.</p>
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Contact Us</a>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        &copy; 2024 Acme Inc. All rights reserved.
+      </div>
+    </footer>
+  </div>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
