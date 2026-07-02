@@ -6,6 +6,7 @@ export type ProfileFieldType =
   | 'number'
   | 'textarea'
   | 'select'
+  | 'multiSelect'
   | 'country'
   | 'state_au'
   | 'radio'
@@ -37,18 +38,20 @@ export interface CustomProfileField {
   placeholder?: string
   helpText?: string
   visibleWhen?: FieldVisibilityRule[]
-  options?: { value: string; label: string }[] // For select, radio, and checkboxGroup types
+  options?: { value: string; label: string }[] // For select, multiSelect, radio, and checkboxGroup types
   min?: number // For number and range types
   max?: number // For number and range types
   step?: number // For number and range types
   ratingMax?: number // For rating type, defaults to 5
-  textAlign?: 'left' | 'center' | 'right' | 'justify' // For the paragraph type
+  // Set on fields the builder seeds by default (e.g. Email) that a centre can't function
+  // without -- hides the remove control rather than letting it be deleted by mistake.
+  locked?: boolean
 }
 
 // Field types that are user-defined choice lists (need an options editor). Radio, checkbox,
 // and toggle are all "groups" of one or more options — a group with a single option is just
 // a single radio/checkbox/toggle, so there's no separate non-group variant of these.
-const CHOICE_FIELD_TYPES: ProfileFieldType[] = ['select', 'radio', 'checkboxGroup', 'toggle']
+const CHOICE_FIELD_TYPES: ProfileFieldType[] = ['select', 'multiSelect', 'radio', 'checkboxGroup', 'toggle']
 export const isChoiceFieldType = (type: ProfileFieldType) => CHOICE_FIELD_TYPES.includes(type)
 
 // Field types with a built-in, non-editable option list
@@ -63,7 +66,7 @@ export const isDisplayFieldType = (type: ProfileFieldType) => type === 'heading'
 // email, phone, number, textarea, date, range) produce arbitrary values that are too
 // fragile to match against, so they're excluded as condition sources.
 const CONDITION_SOURCE_FIELD_TYPES: ProfileFieldType[] = [
-  'checkbox', 'checkboxGroup', 'radio', 'select', 'country', 'state_au', 'toggle',
+  'checkbox', 'checkboxGroup', 'radio', 'select', 'multiSelect', 'country', 'state_au', 'toggle',
 ]
 export const isConditionSourceFieldType = (type: ProfileFieldType) => CONDITION_SOURCE_FIELD_TYPES.includes(type)
 
@@ -74,8 +77,8 @@ export const isBooleanFieldType = (type: ProfileFieldType) => BOOLEAN_FIELD_TYPE
 
 // The real system this tool models only stores answers as one of these four shapes,
 // regardless of which input widget collected them — used to label fields in the
-// "Add Existing Field" picker the way they'll actually be saved.
-export type SimplifiedFieldType = 'Text' | 'Number' | 'Single Choice' | 'Date'
+// field-reuse autocomplete the way they'll actually be saved.
+export type SimplifiedFieldType = 'Text' | 'Number' | 'Single select' | 'Date'
 
 const SIMPLIFIED_FIELD_TYPE_MAP: Partial<Record<ProfileFieldType, SimplifiedFieldType>> = {
   text: 'Text',
@@ -85,13 +88,14 @@ const SIMPLIFIED_FIELD_TYPE_MAP: Partial<Record<ProfileFieldType, SimplifiedFiel
   number: 'Number',
   range: 'Number',
   rating: 'Number',
-  select: 'Single Choice',
-  country: 'Single Choice',
-  state_au: 'Single Choice',
-  radio: 'Single Choice',
-  checkbox: 'Single Choice',
-  checkboxGroup: 'Single Choice',
-  toggle: 'Single Choice',
+  select: 'Single select',
+  multiSelect: 'Single select',
+  country: 'Single select',
+  state_au: 'Single select',
+  radio: 'Single select',
+  checkbox: 'Single select',
+  checkboxGroup: 'Single select',
+  toggle: 'Single select',
   date: 'Date',
 }
 
@@ -174,7 +178,6 @@ export const standardFieldCatalog: StandardFieldDef[] = [
     label: 'Email',
     type: 'email',
     placeholder: 'you@example.com',
-    helpText: 'We will use this to send confirmations and updates.',
   },
   { id: 'phone', label: 'Mobile', type: 'phone', placeholder: '+1 (555) 000-0000' },
   { id: 'country', label: 'Country', type: 'country' },
@@ -196,13 +199,30 @@ export interface ProfileFieldSection {
   visibleWhen?: FieldVisibilityRule[]
 }
 
-// Centres start with no sections — the builder shows the tool as a new user would see it, and
-// standard fields (including Email/First Name/Last Name) must be added deliberately via
+// Every centre needs a way to identify the subscriber, so Email is seeded in and locked
+// against removal -- everything else (First Name, Last Name, etc.) stays opt-in via
 // "Add Standard Field" rather than being hardcoded in from the start.
-export const defaultProfileFieldSections: ProfileFieldSection[] = []
+export const defaultProfileFieldSections: ProfileFieldSection[] = [
+  {
+    id: 'default-contact-info',
+    title: 'Your Details',
+    fields: [{ id: 'email', label: 'Email', type: 'email', required: false, placeholder: 'you@example.com', locked: true }],
+  },
+]
 
 export function flattenProfileFields(sections: ProfileFieldSection[]): CustomProfileField[] {
   return sections.flatMap((section) => section.fields)
+}
+
+// Used by any code that adds fields in bulk (e.g. future import flows) to strip out
+// any incoming field whose id already exists somewhere on the form, preventing duplicate
+// id collisions that would break data binding and accessibility label associations.
+export function deduplicateIncomingFields(
+  incoming: CustomProfileField[],
+  existing: CustomProfileField[]
+): CustomProfileField[] {
+  const existingIds = new Set(existing.map((f) => f.id))
+  return incoming.filter((f) => !existingIds.has(f.id))
 }
 
 // Answers to categories, keyed by category id. Checkbox categories store a map of
@@ -265,6 +285,7 @@ export const fieldTypeBadge: Record<ProfileFieldType, { label: string; className
   number: { label: 'Number', className: blue },
   textarea: { label: 'Textarea', className: blue },
   select: { label: 'Dropdown', className: purple },
+  multiSelect: { label: 'Multi Select', className: purple },
   country: { label: 'Country', className: purple },
   state_au: { label: 'State (AU)', className: purple },
   radio: { label: 'Radio', className: purple },

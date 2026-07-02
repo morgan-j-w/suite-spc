@@ -19,9 +19,12 @@ interface MultiSelectProps {
   onChange: (values: string[]) => void
   placeholder?: string
   className?: string
+  // See Input's controlColor -- same adaptive border override for arbitrary card backgrounds
+  // (e.g. the subscription centre widget's style presets).
+  controlColor?: string
 }
 
-export function MultiSelect({ id, options, selected, onChange, placeholder = 'Select options', className }: MultiSelectProps) {
+export function MultiSelect({ id, options, selected, onChange, placeholder = 'Select options', className, controlColor }: MultiSelectProps) {
   const [open, setOpen] = useState(false)
 
   const toggle = (value: string) => {
@@ -39,7 +42,14 @@ export function MultiSelect({ id, options, selected, onChange, placeholder = 'Se
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn('w-full justify-between font-normal', className)}
+          className={cn(
+            'w-full justify-between font-normal',
+            controlColor
+              ? 'border-[var(--control-color,var(--input))] aria-expanded:border-2 aria-expanded:border-[var(--control-color)]'
+              : 'aria-expanded:ring-[3px] aria-expanded:ring-ring/50 aria-expanded:border-ring',
+            className
+          )}
+          style={controlColor ? ({ '--control-color': controlColor } as React.CSSProperties) : undefined}
         >
           <span className="truncate text-left">
             {selectedLabels.length ? (

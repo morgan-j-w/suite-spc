@@ -9,10 +9,10 @@ import { defaultStatusPages, type StatusPageContent } from '@/lib/subscription-c
 import { ensureSeedCentre } from '@/lib/subscription-centre-store'
 
 export default function NotFound() {
-  const [content, setContent] = useState<StatusPageContent>(defaultStatusPages.error)
+  const [content, setContent] = useState<StatusPageContent>(defaultStatusPages.managePreferences.notFound)
 
   useEffect(() => {
-    setContent(ensureSeedCentre().statusPages.error)
+    setContent(ensureSeedCentre().statusPages.managePreferences.notFound)
   }, [])
 
   return (

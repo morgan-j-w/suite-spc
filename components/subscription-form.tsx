@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { SubscriberProfile, CategoryAnswers, buildDefaultAnswers, flattenProfileFields, isCategoryAnswered, isCategoryVisible, isProfileFieldAnswered, isProfileFieldVisible } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { ensureSeedCentre } from '@/lib/subscription-centre-store'
 import { SubscriptionCentreWidget } from '@/components/subscription-centre-widget'
 import { SubmitButton } from '@/components/submit-button'
-import { Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Loader2, Mail } from 'lucide-react'
 
 const EMPTY_PROFILE: SubscriberProfile = {
   email: '',
@@ -26,6 +28,7 @@ export function SubscriptionForm() {
   const [answers, setAnswers] = useState<CategoryAnswers>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [alreadySubscribedToken, setAlreadySubscribedToken] = useState<string | null>(null)
 
   useEffect(() => {
     const active = ensureSeedCentre()
@@ -63,6 +66,11 @@ export function SubscriptionForm() {
 
       const data = await response.json()
 
+      if (response.status === 409) {
+        setAlreadySubscribedToken(data.token)
+        return
+      }
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to subscribe')
       }
@@ -75,8 +83,24 @@ export function SubscriptionForm() {
     }
   }
 
+  if (alreadySubscribedToken) {
+    const content = centre.statusPages.subscribe.alreadySubscribed
+    return (
+      <div className="mx-auto max-w-2xl text-center">
+        <div className="rounded-lg border bg-card p-8">
+          <Mail className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h2 className="mt-4 text-xl font-semibold">{content.heading}</h2>
+          <p className="mt-2 text-muted-foreground">{content.message}</p>
+          <Button asChild className="mt-6">
+            <Link href={`/preferences/${alreadySubscribedToken}`}>Manage Preferences</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-8">
+    <form onSubmit={handleSubmit} aria-label="Subscription form" className="sc-form mx-auto max-w-2xl space-y-8">
       <SubscriptionCentreWidget
         centre={centre}
         profile={profile}

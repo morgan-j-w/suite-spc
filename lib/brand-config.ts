@@ -1,4 +1,4 @@
-// Brand configuration - Edit these values to customize your preference centre
+// Brand configuration - Edit these values to customise your preference centre
 export const brandConfig = {
   // Brand identity
   name: 'Acme Inc',
@@ -32,13 +32,13 @@ export const brandConfig = {
 // Color theme configuration
 export type ColorTheme = 'blue' | 'green' | 'orange' | 'purple' | 'neutral' | 'coastal'
 
-export const colorThemes: Record<ColorTheme, { name: string; description: string }> = {
-  blue: { name: 'Client theme 1', description: 'Trust-building blue tones' },
-  green: { name: 'Client theme 2', description: 'Fresh, eco-friendly greens' },
-  orange: { name: 'Client theme 3', description: 'Warm, inviting orange tones' },
-  purple: { name: 'Client theme 4', description: 'Bold, creative purple' },
-  neutral: { name: 'Client theme 5', description: 'Clean grays and blacks' },
-  coastal: { name: 'Client theme 6', description: 'Ocean blues with marigold accents' },
+export const colorThemes: Record<ColorTheme, { name: string }> = {
+  blue:    { name: 'Client theme 1' },
+  green:   { name: 'Client theme 2' },
+  orange:  { name: 'Client theme 3' },
+  purple:  { name: 'Client theme 4' },
+  neutral: { name: 'Client theme 5' },
+  coastal: { name: 'Client theme 6' },
 }
 
 // Default theme - change this to set the default color scheme

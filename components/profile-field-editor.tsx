@@ -28,26 +28,16 @@ import {
   isStandardFieldId,
   standardFieldCatalog,
 } from '@/lib/subscription-types'
-import { renderFormattedText } from '@/lib/format-text'
 import { getFieldLibrary, upsertFieldInLibrary } from '@/lib/field-library-store'
+import { RichTextEditor } from '@/components/rich-text-editor'
+import { AddFieldDialog } from '@/components/add-field-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { MultiSelect } from '@/components/multi-select'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Plus,
@@ -61,10 +51,8 @@ import {
   Phone,
   Hash,
   AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
   ChevronDown,
+  ChevronsUpDown,
   Globe,
   MapPin,
   CircleDot,
@@ -75,17 +63,6 @@ import {
   Star,
   Heading,
   Pilcrow,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Subscript,
-  Superscript,
-  List,
-  ListOrdered,
-  Link as LinkIcon,
-  Palette,
-  Minus,
   type LucideIcon,
 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
@@ -95,85 +72,10 @@ import { ConditionalBadge, ConditionalVisibilityNote } from '@/components/condit
 const TEXT_LIKE_TYPES: ProfileFieldType[] = ['text', 'email', 'phone', 'number', 'textarea']
 const NUMERIC_RANGE_TYPES: ProfileFieldType[] = ['number', 'range']
 
-type TextEl = HTMLInputElement | HTMLTextAreaElement
-
-// Wraps the current selection in `before`/`after` markers (e.g. ** for bold), falling back
-// to `placeholder` text when nothing is selected, and restores focus + a sensible selection
-// afterwards so the toolbar feels like a real inline editor rather than a one-shot insert.
-function wrapSelection(el: TextEl | null, value: string, onChange: (next: string) => void, before: string, after: string, placeholder = '') {
-  if (!el) return
-  const start = el.selectionStart ?? value.length
-  const end = el.selectionEnd ?? value.length
-  const selected = value.slice(start, end) || placeholder
-  const next = value.slice(0, start) + before + selected + after + value.slice(end)
-  onChange(next)
-  requestAnimationFrame(() => {
-    el.focus()
-    el.setSelectionRange(start + before.length, start + before.length + selected.length)
-  })
-}
-
-// Inserts [link text](https://) and selects the URL placeholder so it's ready to type over.
-function insertLink(el: TextEl | null, value: string, onChange: (next: string) => void) {
-  if (!el) return
-  const start = el.selectionStart ?? value.length
-  const end = el.selectionEnd ?? value.length
-  const linkText = value.slice(start, end) || 'link text'
-  const url = 'https://'
-  const next = value.slice(0, start) + `[${linkText}](${url})` + value.slice(end)
-  onChange(next)
-  requestAnimationFrame(() => {
-    el.focus()
-    const urlStart = start + linkText.length + 3
-    el.setSelectionRange(urlStart, urlStart + url.length)
-  })
-}
-
-const BULLET_PREFIX = /^-\s+/
-const NUMBERED_PREFIX = /^\d+\.\s+/
-
-// Toggles a "- " or "1. " prefix across every line the selection touches -- list buttons
-// work on whole lines rather than an arbitrary character range like the other formatters.
-function toggleListPrefix(el: TextEl | null, value: string, onChange: (next: string) => void, kind: 'bullet' | 'numbered') {
-  if (!el) return
-  const start = el.selectionStart ?? value.length
-  const end = el.selectionEnd ?? value.length
-  const lineStart = value.lastIndexOf('\n', start - 1) + 1
-  const nextNewline = value.indexOf('\n', end)
-  const lineEnd = nextNewline === -1 ? value.length : nextNewline
-
-  const prefixRe = kind === 'bullet' ? BULLET_PREFIX : NUMBERED_PREFIX
-  const lines = value.slice(lineStart, lineEnd).split('\n')
-  const alreadyListed = lines.every((line) => prefixRe.test(line))
-
-  const nextLines = lines.map((line, i) => {
-    const stripped = line.replace(BULLET_PREFIX, '').replace(NUMBERED_PREFIX, '')
-    if (alreadyListed) return stripped
-    return kind === 'bullet' ? `- ${stripped}` : `${i + 1}. ${stripped}`
-  })
-
-  const nextBlock = nextLines.join('\n')
-  const next = value.slice(0, lineStart) + nextBlock + value.slice(lineEnd)
-  onChange(next)
-  requestAnimationFrame(() => {
-    el.focus()
-    el.setSelectionRange(lineStart, lineStart + nextBlock.length)
-  })
-}
-
-// Inserts a "---" horizontal rule on its own line at the cursor, replacing any selection.
-function insertHorizontalRule(el: TextEl | null, value: string, onChange: (next: string) => void) {
-  if (!el) return
-  const start = el.selectionStart ?? value.length
-  const end = el.selectionEnd ?? value.length
-  const insertion = '\n---\n'
-  const next = value.slice(0, start) + insertion + value.slice(end)
-  onChange(next)
-  requestAnimationFrame(() => {
-    const pos = start + insertion.length
-    el.focus()
-    el.setSelectionRange(pos, pos)
-  })
+// One-line plain-text snippet for the collapsed card preview -- paragraph content is now
+// rich HTML, so showing it raw would print literal tags instead of readable text.
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
 interface FieldTypeOption {
@@ -183,46 +85,47 @@ interface FieldTypeOption {
   icon: LucideIcon
 }
 
-const FIELD_TYPE_GROUPS: { groupLabel: string; options: FieldTypeOption[] }[] = [
+export const FIELD_TYPE_GROUPS: { groupLabel: string; options: FieldTypeOption[] }[] = [
   {
     groupLabel: 'Text',
     options: [
-      { type: 'text', label: 'Text input', description: 'Free text, one line', icon: Type },
-      { type: 'email', label: 'Email input', description: 'Validates an email address', icon: Mail },
-      { type: 'phone', label: 'Phone input', description: 'For phone numbers', icon: Phone },
-      { type: 'number', label: 'Number input', description: 'Numeric values only', icon: Hash },
-      { type: 'textarea', label: 'Textarea', description: 'Free text, multiple lines', icon: AlignLeft },
+      { type: 'text', label: 'Text input', description: 'Short answer — a single line of text', icon: Type },
+      { type: 'email', label: 'Email input', description: 'Collects an email address', icon: Mail },
+      { type: 'phone', label: 'Phone input', description: 'Collects a phone number', icon: Phone },
+      { type: 'number', label: 'Number input', description: 'Accepts numbers only', icon: Hash },
+      { type: 'textarea', label: 'Textarea', description: 'Long answer — multiple lines of text', icon: AlignLeft },
     ],
   },
   {
     groupLabel: 'Choice',
     options: [
-      { type: 'select', label: 'Dropdown (select)', description: 'Pick one option from a list', icon: ChevronDown },
-      { type: 'country', label: 'Country select', description: 'Built-in list of countries', icon: Globe },
-      { type: 'state_au', label: 'State (AU)', description: 'Built-in list of AU states & territories', icon: MapPin },
-      { type: 'radio', label: 'Radio buttons', description: 'Group of radio buttons, pick one', icon: CircleDot },
-      { type: 'checkboxGroup', label: 'Checkbox', description: 'Group of checkboxes, pick any number', icon: ListChecks },
-      { type: 'toggle', label: 'Toggle', description: 'Group of on/off switches', icon: ToggleLeft },
+      { type: 'select', label: 'Dropdown (select)', description: 'Single choice from a dropdown', icon: ChevronDown },
+      { type: 'multiSelect', label: 'Multi Select', description: 'Multiple choices from a dropdown', icon: ChevronsUpDown },
+      { type: 'country', label: 'Country select', description: 'Country picker, pre-built list', icon: Globe },
+      { type: 'state_au', label: 'State (AU)', description: 'Australian state/territory picker, pre-built list', icon: MapPin },
+      { type: 'radio', label: 'Radio buttons', description: 'Single choice, options shown inline', icon: CircleDot },
+      { type: 'checkboxGroup', label: 'Checkbox', description: 'Multiple choices, options shown inline', icon: ListChecks },
+      { type: 'toggle', label: 'Toggle', description: 'On/off toggle per option', icon: ToggleLeft },
     ],
   },
   {
     groupLabel: 'Other',
     options: [
-      { type: 'date', label: 'Date input', description: 'A date picker', icon: Calendar },
-      { type: 'range', label: 'Range slider', description: 'Pick a number along a slider', icon: SlidersHorizontal },
-      { type: 'rating', label: 'Rating', description: 'A star rating scale', icon: Star },
+      { type: 'date', label: 'Date input', description: 'Date picker — day, month, year', icon: Calendar },
+      { type: 'range', label: 'Range slider', description: 'Numeric range via a slider', icon: SlidersHorizontal },
+      { type: 'rating', label: 'Rating', description: 'Star rating, e.g. 1–5', icon: Star },
     ],
   },
   {
     groupLabel: 'Display',
     options: [
-      { type: 'heading', label: 'Section heading', description: 'A heading with no input', icon: Heading },
-      { type: 'paragraph', label: 'Paragraph', description: 'Plain text with no input', icon: Pilcrow },
+      { type: 'heading', label: 'Section heading', description: 'Visual section heading, no answer', icon: Heading },
+      { type: 'paragraph', label: 'Paragraph', description: 'Rich text block, no answer', icon: Pilcrow },
     ],
   },
 ]
 
-const FIELD_TYPE_ICONS = FIELD_TYPE_GROUPS.reduce<Partial<Record<ProfileFieldType, LucideIcon>>>((acc, group) => {
+export const FIELD_TYPE_ICONS = FIELD_TYPE_GROUPS.reduce<Partial<Record<ProfileFieldType, LucideIcon>>>((acc, group) => {
   group.options.forEach((opt) => {
     acc[opt.type] = opt.icon
   })
@@ -238,26 +141,10 @@ interface ProfileFieldEditorProps {
 }
 
 export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSections = [] }: ProfileFieldEditorProps) {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isAddStandardDialogOpen, setIsAddStandardDialogOpen] = useState(false)
-  const [isAddExistingDialogOpen, setIsAddExistingDialogOpen] = useState(false)
-  const [selectedExistingIds, setSelectedExistingIds] = useState<string[]>([])
-  const [fieldLibrary, setFieldLibrary] = useState<CustomProfileField[]>([])
+  const [isAddFieldDialogOpen, setIsAddFieldDialogOpen] = useState(false)
   const [expandedFieldId, setExpandedFieldId] = useState<string | null>(null)
   const [justAddedFieldId, setJustAddedFieldId] = useState<string | null>(null)
   const justAddedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Load on mount so the "Add Existing Field" button's disabled state is correct right away
-  // (an initially-disabled trigger could otherwise never be clicked to open the dialog that
-  // would load it), then refresh whenever the picker reopens to pick up fields created or
-  // edited elsewhere (another section, another centre) earlier in the same session.
-  useEffect(() => {
-    setFieldLibrary(getFieldLibrary())
-  }, [])
-
-  useEffect(() => {
-    if (isAddExistingDialogOpen) setFieldLibrary(getFieldLibrary())
-  }, [isAddExistingDialogOpen])
 
   const flashJustAdded = (id: string) => {
     if (justAddedTimerRef.current) clearTimeout(justAddedTimerRef.current)
@@ -272,35 +159,12 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
     (def) => !fields.some((f) => f.id === def.id) && !fieldsInOtherSections.some((f) => f.id === def.id)
   )
 
-  // Library fields, excluding display-only types (headings/paragraphs aren't reusable
-  // questions) and ones this section already has. Added fields are cloned with a fresh id
-  // (see handleAddExistingFields), so "already has" matches on label + type, not id.
-  const availableExistingFields = fieldLibrary.filter(
-    (f) =>
-      getSimplifiedFieldType(f.type) !== null &&
-      !fields.some((existing) => existing.label === f.label && existing.type === f.type)
-  )
-
-  const toggleExistingSelection = (id: string) => {
-    setSelectedExistingIds((prev) => (prev.includes(id) ? prev.filter((existingId) => existingId !== id) : [...prev, id]))
-  }
-
-  const handleAddExistingFields = () => {
-    // Cloned with a fresh id, not the source field's id -- two fields must never share an id
-    // (it's relied on as a unique key for DOM ids, conditional-visibility lookups, and answer
-    // storage). This does mean the clone starts as an independent question with its own
-    // answer, not one kept in sync with the original.
-    const toAdd = availableExistingFields
-      .filter((f) => selectedExistingIds.includes(f.id))
-      .map((f) => ({ ...f, id: uuidv4(), visibleWhen: undefined, options: f.options ? [...f.options] : undefined }))
-    if (toAdd.length === 0) return
-    onFieldsChange([...fields, ...toAdd])
-    setIsAddExistingDialogOpen(false)
-    setSelectedExistingIds([])
-    flashJustAdded(toAdd[toAdd.length - 1].id)
-  }
+  const allFieldIds = new Set([...fields, ...fieldsInOtherSections].map((f) => f.id))
 
   const handlePickStandardField = (def: StandardFieldDef) => {
+    // Belt-and-suspenders: availableStandardFields already filters these out,
+    // but guard here too so any future import or programmatic path can't slip a duplicate through.
+    if (allFieldIds.has(def.id)) return
     const field: CustomProfileField = {
       id: def.id,
       label: def.label,
@@ -311,9 +175,9 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
       options: def.options,
     }
     onFieldsChange([...fields, field])
-    setIsAddStandardDialogOpen(false)
     setExpandedFieldId(def.id)
     flashJustAdded(def.id)
+    setIsAddFieldDialogOpen(false)
   }
 
   const handlePickFieldType = (type: ProfileFieldType) => {
@@ -328,9 +192,9 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
     }
     onFieldsChange([...fields, field])
     if (!isDisplayFieldType(type)) upsertFieldInLibrary(field)
-    setIsAddDialogOpen(false)
     setExpandedFieldId(id)
     flashJustAdded(id)
+    setIsAddFieldDialogOpen(false)
   }
 
   const handleUpdateField = (fieldId: string, patch: Partial<CustomProfileField>) => {
@@ -345,6 +209,7 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
   }
 
   const handleRemoveField = (fieldId: string) => {
+    if (fields.find((f) => f.id === fieldId)?.locked) return
     onFieldsChange(fields.filter((f) => f.id !== fieldId))
     if (expandedFieldId === fieldId) setExpandedFieldId(null)
   }
@@ -365,154 +230,6 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Add Field Buttons - Prominent at top */}
-      <div className="flex gap-2">
-        <Dialog open={isAddStandardDialogOpen} onOpenChange={setIsAddStandardDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="flex-1 gap-2" disabled={availableStandardFields.length === 0}>
-              <Plus className="h-4 w-4" />
-              Add Standard Field
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Standard Field</DialogTitle>
-              <DialogDescription>
-                Standard fields are system-defined — pick one to add it, then edit whether it&apos;s required.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid max-h-[60vh] grid-cols-2 gap-2 overflow-y-auto pr-1">
-              {availableStandardFields.map((def) => {
-                const Icon = FIELD_TYPE_ICONS[def.type]
-                return (
-                  <button
-                    key={def.id}
-                    type="button"
-                    onClick={() => handlePickStandardField(def)}
-                    className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-muted/40"
-                  >
-                    {Icon && <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />}
-                    <div>
-                      <p className="text-sm font-medium">{def.label}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{fieldTypeBadge[def.type].label}</p>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddStandardDialogOpen(false)}>
-                Cancel
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog
-          open={isAddExistingDialogOpen}
-          onOpenChange={(open) => {
-            setIsAddExistingDialogOpen(open)
-            if (!open) setSelectedExistingIds([])
-          }}
-        >
-          {availableExistingFields.length === 0 ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="flex-1 cursor-not-allowed">
-                  <Button variant="outline" className="w-full gap-2" disabled>
-                    <Plus className="h-4 w-4" />
-                    Add Existing Field
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                Your field library is empty — create a custom field anywhere and it'll show up here for reuse.
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1 gap-2">
-                <Plus className="h-4 w-4" />
-                Add Existing Field
-              </Button>
-            </DialogTrigger>
-          )}
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Existing Field</DialogTitle>
-              <DialogDescription>Reuse a field from your library. Select one or more.</DialogDescription>
-            </DialogHeader>
-            <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
-              {availableExistingFields.map((field) => (
-                <label
-                  key={field.id}
-                  className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary hover:bg-muted/40"
-                >
-                  <Checkbox
-                    checked={selectedExistingIds.includes(field.id)}
-                    onCheckedChange={() => toggleExistingSelection(field.id)}
-                  />
-                  <span className="flex-1 text-sm font-medium">{field.label || 'Untitled field'}</span>
-                  <Badge variant="outline">{getSimplifiedFieldType(field.type)}</Badge>
-                </label>
-              ))}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddExistingDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddExistingFields} disabled={selectedExistingIds.length === 0}>
-                Add {selectedExistingIds.length > 0 ? `(${selectedExistingIds.length})` : ''}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="flex-1 gap-2">
-              <Plus className="h-4 w-4" />
-              Add New Custom Field
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Add New Custom Field</DialogTitle>
-              <DialogDescription>Pick a field type to add it to this section.</DialogDescription>
-            </DialogHeader>
-            <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-1">
-              {FIELD_TYPE_GROUPS.map((group) => (
-                <div key={group.groupLabel} className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.groupLabel}</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {group.options.map((opt) => (
-                      <button
-                        key={opt.type}
-                        type="button"
-                        onClick={() => handlePickFieldType(opt.type)}
-                        className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-muted/40"
-                      >
-                        <opt.icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">{opt.label}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{opt.description}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Existing Fields */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-3">
@@ -533,12 +250,22 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
       </DndContext>
 
       {fields.length === 0 && (
-        <div className="rounded-lg border-2 border-dashed bg-muted/30 p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            No fields yet. Click &quot;Add Standard Field&quot; for things like Email or Name, or &quot;Add New Custom Field&quot; for anything else.
-          </p>
+        <div className="rounded-lg border-2 border-dashed bg-muted/30 px-6 py-5 text-center">
+          <p className="text-sm text-muted-foreground">No fields yet.</p>
         </div>
       )}
+
+      <Button variant="outline" className="w-full gap-2" onClick={() => setIsAddFieldDialogOpen(true)}>
+        <Plus className="h-4 w-4" />
+        Add Field
+      </Button>
+      <AddFieldDialog
+        open={isAddFieldDialogOpen}
+        onOpenChange={setIsAddFieldDialogOpen}
+        availableStandardFields={availableStandardFields}
+        onPickStandardField={handlePickStandardField}
+        onPickFieldType={handlePickFieldType}
+      />
     </div>
   )
 }
@@ -583,14 +310,14 @@ function FieldCard({ field, fields, isExpanded, isJustAdded, onToggleExpand, onU
       ref={setRefs}
       style={style}
       className={cn(
-        'group relative rounded-lg border bg-card p-4 transition-shadow duration-700 hover:shadow-md',
+        'group relative rounded-lg border bg-card transition-shadow duration-700 hover:shadow-md',
         field.visibleWhen?.length && 'border-l-4 border-l-amber-400',
         isDragging && 'z-50 shadow-lg ring-2 ring-primary/20',
         isJustAdded && 'ring-2 ring-primary ring-offset-2'
       )}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-1 items-start gap-3">
+      <div className="flex items-center justify-between gap-4 px-4 py-3">
+        <div className="flex flex-1 items-center gap-3">
           <button
             type="button"
             className={cn(
@@ -605,32 +332,11 @@ function FieldCard({ field, fields, isExpanded, isJustAdded, onToggleExpand, onU
           >
             <GripVertical className="h-4 w-4" />
           </button>
-          <div className="min-w-0 flex-1 pt-1.5">
-            {isExpanded ? (
-              <FieldEditForm field={field} fields={fields} onUpdateField={onUpdateField} />
-            ) : (
-              <>
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-medium">
-                    {isDisplayFieldType(field.type)
-                      ? renderFormattedText(field.label || 'Untitled field')
-                      : field.label || 'Untitled field'}
-                  </p>
-                  {field.required && <span className="text-xs font-medium text-destructive">Required</span>}
-                </div>
-                {(field.helpText || field.visibleWhen?.length) && (
-                  <div className="mt-1 space-y-1">
-                    {field.helpText && <p className="text-xs text-muted-foreground">{field.helpText}</p>}
-                    {field.visibleWhen?.length ? (
-                      <ConditionalVisibilityNote
-                        rule={field.visibleWhen[0]}
-                        getFieldLabel={(fieldId) => fields.find((item) => item.id === fieldId)?.label || fieldId}
-                      />
-                    ) : null}
-                  </div>
-                )}
-              </>
-            )}
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <p className={cn('text-sm font-medium', !field.label && 'text-muted-foreground', field.type === 'paragraph' && 'line-clamp-2')}>
+              {stripHtml(field.label) || 'Untitled field'}
+            </p>
+            {field.required && <span className="text-xs font-medium text-destructive">Required</span>}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -641,20 +347,149 @@ function FieldCard({ field, fields, isExpanded, isJustAdded, onToggleExpand, onU
             {!isExpanded && field.visibleWhen?.length ? <ConditionalBadge /> : null}
           </div>
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleExpand}>
-              {isExpanded ? <Check className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={onRemove}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {isExpanded ? (
+              <Button variant="default" size="sm" className="h-8 gap-1.5 px-3 text-xs font-medium" onClick={onToggleExpand}>
+                <Check className="h-3.5 w-3.5" />
+                Done
+              </Button>
+            ) : (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleExpand}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+            {!field.locked && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={onRemove}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
+      {!isExpanded && (field.helpText || field.visibleWhen?.length) && (
+        <div className="ml-11 px-4 pb-3 space-y-1">
+          {field.helpText && <p className="text-xs text-muted-foreground">{field.helpText}</p>}
+          {field.visibleWhen?.length ? (
+            <ConditionalVisibilityNote
+              rule={field.visibleWhen[0]}
+              getFieldLabel={(fieldId) => fields.find((item) => item.id === fieldId)?.label || fieldId}
+            />
+          ) : null}
+        </div>
+      )}
+      {isExpanded && (
+        <div className="border-t bg-muted/30 p-4">
+          <div className="rounded-lg border bg-white p-5 shadow-sm">
+            <FieldEditForm field={field} fields={fields} onUpdateField={onUpdateField} />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface FieldLabelAutocompleteProps {
+  field: CustomProfileField
+  onUpdateField: (patch: Partial<CustomProfileField>) => void
+  id: string
+  placeholder: string
+  autoFocus: boolean
+  asInput?: boolean
+}
+
+// Suggests existing fields of the same simplified type (Text/Number/Single select/Date) as the
+// user types a label, so reusing a question's label/placeholder/help text/options is as easy
+// as picking it from the list instead of rebuilding it from scratch. The widget type itself is
+// never touched -- it was already chosen before this autocomplete appeared. Styled to blend in
+// as plain text until hovered/focused, since this now lives directly in the card header rather
+// than a separate "Field Label" row in the edit form below.
+function FieldLabelAutocomplete({ field, onUpdateField, id, placeholder, autoFocus, asInput }: FieldLabelAutocompleteProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [fieldLibrary, setFieldLibrary] = useState<CustomProfileField[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setFieldLibrary(getFieldLibrary())
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const bucket = getSimplifiedFieldType(field.type)
+  const searchTerm = field.label.trim().toLowerCase()
+  const suggestions = bucket
+    ? fieldLibrary
+        .filter((f) => f.id !== field.id && getSimplifiedFieldType(f.type) === bucket)
+        // An exact label match means this field was already built from (or matches) that
+        // library entry -- re-suggesting it would just clone identical content into itself.
+        .filter((f) => f.label.trim().toLowerCase() !== searchTerm)
+        .filter((f) => !searchTerm || f.label.toLowerCase().includes(searchTerm))
+        .slice(0, 6)
+    : []
+
+  const handleSelect = (source: CustomProfileField) => {
+    // Deliberately doesn't copy `type` -- the user already chose a concrete widget (e.g. Range
+    // slider) before this autocomplete ever appeared, and a same-bucket suggestion can be a
+    // different concrete type (e.g. Annual Revenue is a plain Number field), so cloning it
+    // wholesale would silently swap their chosen widget out from under them.
+    onUpdateField({
+      label: source.label,
+      placeholder: source.placeholder,
+      helpText: source.helpText,
+      required: source.required,
+      options: source.options ? [...source.options] : undefined,
+      min: source.min,
+      max: source.max,
+      step: source.step,
+      ratingMax: source.ratingMax,
+    })
+    setIsOpen(false)
+  }
+
+  return (
+    <div ref={containerRef} className="relative min-w-0 flex-1">
+      <input
+        id={id}
+        value={field.label}
+        onChange={(e) => {
+          onUpdateField({ label: e.target.value })
+          setIsOpen(true)
+        }}
+        onFocus={() => setIsOpen(true)}
+        placeholder={placeholder}
+        autoFocus={autoFocus}
+        autoComplete="off"
+        aria-label="Field label"
+        className={asInput
+          ? 'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]'
+          : 'h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm font-medium shadow-none outline-none transition-colors hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring'
+        }
+      />
+      {isOpen && suggestions.length > 0 && (
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+          <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Reuse an existing field</p>
+          {suggestions.map((source) => (
+            <button
+              key={source.id}
+              type="button"
+              onClick={() => handleSelect(source)}
+              className="flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+            >
+              <span className="truncate">{source.label || 'Untitled field'}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">{fieldTypeBadge[source.type].label}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -667,44 +502,12 @@ interface FieldEditFormProps {
 
 function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
   const [newOption, setNewOption] = useState('')
-  const labelRef = useRef<TextEl>(null)
-  const colorInputRef = useRef<HTMLInputElement>(null)
-  // Tracks the range to recolor and the ORIGINAL plain text inside it. Native color inputs
-  // fire onChange repeatedly while the user drags the picker, so each firing must replace
-  // this exact range with a fresh wrap of the original text -- re-wrapping the textarea's
-  // *current* value (which already contains the previous wrap) would nest tags infinitely.
-  const colorEditRef = useRef<{ start: number; end: number; original: string } | null>(null)
   const standardEdit = isStandardFieldId(field.id)
   const type = field.type
   const isHeading = type === 'heading'
   const isParagraph = type === 'paragraph'
   const isDisplay = isHeading || isParagraph
   const updateLabel = (next: string) => onUpdateField({ label: next })
-
-  const openColorPicker = () => {
-    if (!labelRef.current) return
-    const start = labelRef.current.selectionStart ?? field.label.length
-    const end = labelRef.current.selectionEnd ?? field.label.length
-    colorEditRef.current = { start, end, original: field.label.slice(start, end) || 'colored text' }
-    colorInputRef.current?.click()
-  }
-
-  const applyColor = (hex: string) => {
-    const el = labelRef.current
-    const edit = colorEditRef.current
-    if (!el || !edit) return
-    const { start, end, original } = edit
-    const before = `[color=${hex}]`
-    const after = '[/color]'
-    const wrapped = before + original + after
-    const next = field.label.slice(0, start) + wrapped + field.label.slice(end)
-    updateLabel(next)
-    colorEditRef.current = { start, end: start + wrapped.length, original }
-    requestAnimationFrame(() => {
-      el.focus()
-      el.setSelectionRange(start + before.length, start + before.length + original.length)
-    })
-  }
 
   const handleAddOption = () => {
     if (!newOption.trim()) return
@@ -755,199 +558,33 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor={`field-label-${field.id}`}>
-          {isHeading ? 'Heading Text *' : isParagraph ? 'Paragraph Text *' : 'Field Label *'}
-        </Label>
-        {isParagraph && (
-          <div className="flex flex-wrap items-center gap-1">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Bold"
-              onClick={() => wrapSelection(labelRef.current, field.label, updateLabel, '**', '**', 'bold text')}
-            >
-              <Bold className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Italic"
-              onClick={() => wrapSelection(labelRef.current, field.label, updateLabel, '*', '*', 'italic text')}
-            >
-              <Italic className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Underline"
-              onClick={() => wrapSelection(labelRef.current, field.label, updateLabel, '__', '__', 'underlined text')}
-            >
-              <Underline className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Strikethrough"
-              onClick={() => wrapSelection(labelRef.current, field.label, updateLabel, '~~', '~~', 'strikethrough text')}
-            >
-              <Strikethrough className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Subscript"
-              onClick={() => wrapSelection(labelRef.current, field.label, updateLabel, '~', '~', 'sub')}
-            >
-              <Subscript className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Superscript"
-              onClick={() => wrapSelection(labelRef.current, field.label, updateLabel, '^', '^', 'sup')}
-            >
-              <Superscript className="h-3.5 w-3.5" />
-            </Button>
-
-            <div className="mx-0.5 h-5 w-px bg-border" />
-
-            <input
-              ref={colorInputRef}
-              type="color"
-              className="sr-only"
-              onChange={(e) => applyColor(e.target.value)}
-              tabIndex={-1}
-            />
-            <Button type="button" variant="outline" size="icon" className="h-7 w-7" title="Text color" onClick={openColorPicker}>
-              <Palette className="h-3.5 w-3.5" />
-            </Button>
-
-            <div className="mx-0.5 h-5 w-px bg-border" />
-
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Bullet list"
-              onClick={() => toggleListPrefix(labelRef.current, field.label, updateLabel, 'bullet')}
-            >
-              <List className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Numbered list"
-              onClick={() => toggleListPrefix(labelRef.current, field.label, updateLabel, 'numbered')}
-            >
-              <ListOrdered className="h-3.5 w-3.5" />
-            </Button>
-
-            <div className="mx-0.5 h-5 w-px bg-border" />
-
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Link"
-              onClick={() => insertLink(labelRef.current, field.label, updateLabel)}
-            >
-              <LinkIcon className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-7 w-7"
-              title="Horizontal rule"
-              onClick={() => insertHorizontalRule(labelRef.current, field.label, updateLabel)}
-            >
-              <Minus className="h-3.5 w-3.5" />
-            </Button>
-
-            <div className="mx-0.5 h-5 w-px bg-border" />
-
-            <div className="flex gap-1">
-              <Button
-                type="button"
-                variant={(field.textAlign || 'left') === 'left' ? 'default' : 'outline'}
-                size="icon"
-                className="h-7 w-7"
-                title="Align left"
-                onClick={() => onUpdateField({ textAlign: 'left' })}
-              >
-                <AlignLeft className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                type="button"
-                variant={field.textAlign === 'center' ? 'default' : 'outline'}
-                size="icon"
-                className="h-7 w-7"
-                title="Align center"
-                onClick={() => onUpdateField({ textAlign: 'center' })}
-              >
-                <AlignCenter className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                type="button"
-                variant={field.textAlign === 'right' ? 'default' : 'outline'}
-                size="icon"
-                className="h-7 w-7"
-                title="Align right"
-                onClick={() => onUpdateField({ textAlign: 'right' })}
-              >
-                <AlignRight className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                type="button"
-                variant={field.textAlign === 'justify' ? 'default' : 'outline'}
-                size="icon"
-                className="h-7 w-7"
-                title="Justify"
-                onClick={() => onUpdateField({ textAlign: 'justify' })}
-              >
-                <AlignJustify className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
-        )}
-        {isParagraph ? (
-          <Textarea
-            ref={labelRef as React.RefObject<HTMLTextAreaElement>}
-            id={`field-label-${field.id}`}
+      {isParagraph && (
+        <div className="space-y-2">
+          <Label htmlFor={`field-label-${field.id}`}>Paragraph Text *</Label>
+          <RichTextEditor
             value={field.label}
-            onChange={(e) => onUpdateField({ label: e.target.value })}
-            placeholder="e.g., A few quick questions to personalize your experience."
-            rows={3}
-            autoFocus={!field.label}
+            onChange={updateLabel}
+            placeholder="e.g., A few quick questions to personalise your experience."
           />
-        ) : (
-          <Input
-            ref={labelRef as React.RefObject<HTMLInputElement>}
+        </div>
+      )}
+
+      {!isParagraph && (
+        <div className="space-y-2">
+          <Label htmlFor={`field-label-${field.id}`}>
+            {isHeading ? 'Heading Text' : 'Label'}
+            <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+          </Label>
+          <FieldLabelAutocomplete
+            field={field}
+            onUpdateField={onUpdateField}
             id={`field-label-${field.id}`}
-            value={field.label}
-            onChange={(e) => onUpdateField({ label: e.target.value })}
             placeholder={isHeading ? 'e.g., Tell us about yourself' : 'e.g., Department'}
             autoFocus={!field.label}
+            asInput
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {!isDisplay && (
         <div className="space-y-2">
@@ -1115,7 +752,7 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
       )}
 
       {!isDisplay && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 border-t pt-3">
           <Checkbox
             id={`field-required-${field.id}`}
             checked={field.required}

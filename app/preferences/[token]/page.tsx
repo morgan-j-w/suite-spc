@@ -28,7 +28,7 @@ export default async function PreferencesPage({ params }: PreferencesPageProps) 
             Manage Your Preferences
           </h1>
           <p className="mt-3 text-pretty text-muted-foreground">
-            Update your profile and customize what communications you receive from us.
+            Update your profile and customise what communications you receive from us.
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Subscriber since{' '}

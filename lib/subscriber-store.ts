@@ -62,10 +62,11 @@ export async function getSubscriberByToken(token: string): Promise<Subscriber | 
   return subscribers.get(token) || null
 }
 
-// Get subscriber by email
-export async function getSubscriberByEmail(email: string): Promise<Subscriber | null> {
+// Get subscriber by email, scoped to a centre -- the same email can have a separate
+// subscription on a different centre's list, so a global match would be a false positive.
+export async function getSubscriberByEmail(centreId: string, email: string): Promise<Subscriber | null> {
   for (const subscriber of subscribers.values()) {
-    if (subscriber.profile.email.toLowerCase() === email.toLowerCase()) {
+    if (subscriber.centreId === centreId && subscriber.profile.email.toLowerCase() === email.toLowerCase()) {
       return subscriber
     }
   }

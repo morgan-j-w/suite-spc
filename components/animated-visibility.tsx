@@ -1,23 +1,36 @@
-import type { ReactNode } from 'react'
+'use client'
+
+import { useState, useEffect, type ReactNode } from 'react'
 
 interface AnimatedVisibilityProps {
   visible: boolean
   children: ReactNode
 }
 
-// Animates a conditional field/category/section in or out instead of having it pop in
-// instantly. Stays mounted (so it can transition) but uses `inert` to keep it out of the
-// tab order and unclickable while collapsed. The grid-template-rows 0fr/1fr trick lets the
-// height transition smoothly without measuring the content -- the inner overflow-hidden div
-// is what allows the row track to actually shrink to 0 despite the content's intrinsic size.
+// Fades content in/out without overflow-hidden so focus rings and box-shadows on child
+// controls (sliders, checkboxes) are never clipped. Unmounts fully when hidden so the
+// element leaves the layout and takes no space -- no gaps where hidden fields used to be.
 export function AnimatedVisibility({ visible, children }: AnimatedVisibilityProps) {
+  const [mounted, setMounted] = useState(visible)
+
+  useEffect(() => {
+    if (visible) {
+      setMounted(true)
+    } else {
+      const t = setTimeout(() => setMounted(false), 300)
+      return () => clearTimeout(t)
+    }
+  }, [visible])
+
+  if (!mounted) return null
+
   return (
     <div
-      className="grid transition-[grid-template-rows,opacity] duration-300 ease-in-out"
-      style={{ gridTemplateRows: visible ? '1fr' : '0fr', opacity: visible ? 1 : 0 }}
+      className="transition-opacity duration-300 ease-in-out"
+      style={{ opacity: visible ? 1 : 0 }}
       inert={!visible}
     >
-      <div className="overflow-hidden">{children}</div>
+      {children}
     </div>
   )
 }

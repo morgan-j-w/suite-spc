@@ -1,10 +1,13 @@
 import { v4 as uuidv4 } from 'uuid'
 import {
   createSubscriptionCentre,
+  defaultStatusPages,
   defaultSubmitButtonAlignment,
   defaultSubmitButtonStyleIndex,
   defaultSubmitButtonText,
   defaultUnsubscribeFeedback,
+  type StatusPageContent,
+  type StatusPages,
   type SubscriptionCentre,
 } from '@/lib/subscription-centre'
 
@@ -20,6 +23,55 @@ function migrateCardStyleIndex(raw: { cardStyleId?: string; cardStyleIndex?: num
   if (raw.cardStyleId === 'style-3') return 2
   if (raw.cardStyleId === 'style-1') return 0
   return undefined
+}
+
+// Centres saved before status pages were grouped by flow have a flat shape (success/
+// alreadyUnsubscribed/unsubscribeConfirm/error) instead of today's subscribe/
+// managePreferences/unsubscribe/resubscribe groups. Map the old fields onto their closest
+// new home, and fill in anything that has no old equivalent (e.g. the new "saved
+// preferences" message) from the defaults.
+function migrateStatusPages(raw: any): StatusPages {
+  const old = raw as Partial<{
+    success: StatusPageContent
+    alreadyUnsubscribed: StatusPageContent
+    unsubscribeConfirm: StatusPageContent
+    error: StatusPageContent
+  }>
+
+  if (raw?.subscribe?.success) {
+    // Already the new shape -- still merge over defaults in case a future field gets
+    // added and this centre predates it.
+    return {
+      subscribe: { ...defaultStatusPages.subscribe, ...raw.subscribe },
+      managePreferences: { ...defaultStatusPages.managePreferences, ...raw.managePreferences },
+      unsubscribe: { ...defaultStatusPages.unsubscribe, ...raw.unsubscribe },
+      resubscribe: { ...defaultStatusPages.resubscribe, ...raw.resubscribe },
+      unsubscribeRequest: { ...defaultStatusPages.unsubscribeRequest, ...raw.unsubscribeRequest },
+      manageRequest: { ...defaultStatusPages.manageRequest, ...raw.manageRequest },
+    }
+  }
+
+  return {
+    subscribe: {
+      success: old?.success ?? defaultStatusPages.subscribe.success,
+      alreadySubscribed: defaultStatusPages.subscribe.alreadySubscribed,
+    },
+    managePreferences: {
+      saved: defaultStatusPages.managePreferences.saved,
+      notFound: old?.error ?? defaultStatusPages.managePreferences.notFound,
+    },
+    unsubscribe: {
+      success: defaultStatusPages.unsubscribe.success,
+      error: defaultStatusPages.unsubscribe.error,
+    },
+    resubscribe: {
+      prompt: old?.alreadyUnsubscribed ?? defaultStatusPages.resubscribe.prompt,
+      success: defaultStatusPages.resubscribe.success,
+      error: defaultStatusPages.resubscribe.error,
+    },
+    unsubscribeRequest: defaultStatusPages.unsubscribeRequest,
+    manageRequest: defaultStatusPages.manageRequest,
+  }
 }
 
 // Centres saved before Form Field sections existed have a flat `profileFields` array and no
@@ -81,9 +133,13 @@ function normalizeCentre(raw: any): SubscriptionCentre {
     ...centre,
     sectionOrder: [...kept, ...missing],
     mailGroups,
+    catchAllMailGroupId: centre.catchAllMailGroupId ?? null,
+    statusPages: migrateStatusPages(centre.statusPages),
     submitButtonText: centre.submitButtonText ?? defaultSubmitButtonText,
     submitButtonStyleIndex: centre.submitButtonStyleIndex ?? defaultSubmitButtonStyleIndex,
     submitButtonAlignment: centre.submitButtonAlignment ?? defaultSubmitButtonAlignment,
+    formLayout: (centre.formLayout === 'columns' ? 'inline' : centre.formLayout) ?? 'stacked',
+    formLabelWidth: centre.formLabelWidth ?? 33,
     unsubscribeFeedback: centre.unsubscribeFeedback ?? {
       ...defaultUnsubscribeFeedback,
       options: defaultUnsubscribeFeedback.options.map((o) => ({ ...o })),

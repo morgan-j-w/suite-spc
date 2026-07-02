@@ -13,7 +13,7 @@ import { ensureSeedCentre, getCentre } from '@/lib/subscription-centre-store'
 function SuccessPageContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
-  const [content, setContent] = useState<StatusPageContent>(defaultStatusPages.success)
+  const [content, setContent] = useState<StatusPageContent>(defaultStatusPages.subscribe.success)
   const [isLoading, setIsLoading] = useState(Boolean(token))
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function SuccessPageContent() {
         if (!response.ok) return
         const { subscriber } = (await response.json()) as { subscriber: Subscriber }
         const centre = getCentre(subscriber.centreId) || ensureSeedCentre()
-        if (!cancelled) setContent(centre.statusPages.success)
+        if (!cancelled) setContent(centre.statusPages.subscribe.success)
       })
       .catch(() => {})
       .finally(() => {

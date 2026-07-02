@@ -5,14 +5,23 @@ import * as SliderPrimitive from '@radix-ui/react-slider'
 
 import { cn } from '@/lib/utils'
 
+interface SliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {
+  // Lets callers rendering onto an arbitrary, runtime-chosen card background (e.g. the
+  // subscription centre widget's style presets) override the track fill/thumb border color so
+  // it stays legible against that specific background, instead of the fixed theme --primary.
+  controlColor?: string
+}
+
 function Slider({
   className,
   defaultValue,
   value,
   min = 0,
   max = 100,
+  controlColor,
+  style,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: SliderProps) {
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -34,6 +43,7 @@ function Slider({
         'relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col',
         className,
       )}
+      style={controlColor ? ({ '--control-color': controlColor, ...style } as React.CSSProperties) : style}
       {...props}
     >
       <SliderPrimitive.Track
@@ -42,14 +52,14 @@ function Slider({
       >
         <SliderPrimitive.Range
           data-slot="slider-range"
-          className="bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+          className="bg-[var(--control-color,var(--primary))] absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
         />
       </SliderPrimitive.Track>
       {Array.from({ length: _values.length }, (_, index) => (
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
-          className="border-primary ring-ring/50 block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+          className="border-[var(--control-color,var(--primary))] ring-ring/50 block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
     </SliderPrimitive.Root>

@@ -11,10 +11,11 @@ export async function POST(request: NextRequest) {
       preferences: CategoryAnswers
     }
 
-    // Validate required fields
-    if (!profile.email || !profile.firstName || !profile.lastName) {
+    // Which fields besides email are required is configurable per centre (and already
+    // enforced client-side) -- the server only enforces the one field every centre has.
+    if (!profile.email) {
       return NextResponse.json(
-        { error: 'Email, first name, and last name are required' },
+        { error: 'Email is required' },
         { status: 400 }
       )
     }
@@ -28,13 +29,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if email already exists
-    const existingSubscriber = await getSubscriberByEmail(profile.email)
-    if (existingSubscriber) {
+    // Check if email already has an active subscription on this centre
+    const existingSubscriber = await getSubscriberByEmail(centreId, profile.email)
+    if (existingSubscriber && existingSubscriber.isActive) {
       return NextResponse.json(
-        { 
+        {
           error: 'This email is already subscribed',
-          token: existingSubscriber.token 
+          token: existingSubscriber.token,
         },
         { status: 409 }
       )

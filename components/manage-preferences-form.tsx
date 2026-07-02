@@ -61,7 +61,7 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
         throw new Error(data.error || 'Failed to save preferences')
       }
 
-      setSuccessMessage('Your preferences have been saved successfully!')
+      setSuccessMessage(centre.statusPages.managePreferences.saved.message)
       setTimeout(() => setSuccessMessage(null), 5000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -85,20 +85,26 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
       }
 
       setSubscriber((prev) => ({ ...prev, isActive: true }))
-      setSuccessMessage('Welcome back! You have been resubscribed successfully.')
+      setSuccessMessage(centre.statusPages.resubscribe.success.message)
       setTimeout(() => setSuccessMessage(null), 5000)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } catch {
+      setError(centre.statusPages.resubscribe.error.message)
     }
   }
 
   if (!subscriber.isActive) {
     return (
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-2xl space-y-4 text-center">
+        {error && (
+          <div className="flex items-center gap-3 rounded-lg bg-destructive/10 p-4 text-left text-sm text-destructive">
+            <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+            {error}
+          </div>
+        )}
         <div className="rounded-lg border bg-card p-8">
           <AlertTriangle className="mx-auto h-12 w-12 text-amber-500" />
-          <h2 className="mt-4 text-xl font-semibold">{centre.statusPages.alreadyUnsubscribed.heading}</h2>
-          <p className="mt-2 text-muted-foreground">{centre.statusPages.alreadyUnsubscribed.message}</p>
+          <h2 className="mt-4 text-xl font-semibold">{centre.statusPages.resubscribe.prompt.heading}</h2>
+          <p className="mt-2 text-muted-foreground">{centre.statusPages.resubscribe.prompt.message}</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button onClick={handleResubscribe}>Resubscribe</Button>
             <Button variant="outline" asChild>
@@ -126,13 +132,15 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
         </div>
       )}
 
-      <SubscriptionCentreWidget
-        centre={centre}
-        profile={profile}
-        onProfileChange={setProfile}
-        answers={answers}
-        onAnswersChange={setAnswers}
-      />
+      <div role="form" aria-label="Manage your preferences" className="sc-form">
+        <SubscriptionCentreWidget
+          centre={centre}
+          profile={profile}
+          onProfileChange={setProfile}
+          answers={answers}
+          onAnswersChange={setAnswers}
+        />
+      </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
         <Button variant="destructive" asChild>

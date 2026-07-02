@@ -1,8 +1,9 @@
+import Link from 'next/link'
 import { SubscriptionForm } from '@/components/subscription-form'
 
 export const metadata = {
   title: 'Subscribe - Preference Centre',
-  description: 'Subscribe to our communications and customize your preferences.',
+  description: 'Subscribe to our communications and customise your preferences.',
 }
 
 export default function SubscribePage() {
@@ -15,8 +16,19 @@ export default function SubscribePage() {
             Subscribe to Our Updates
           </h1>
           <p className="mt-3 text-pretty text-muted-foreground">
-            Stay informed with the latest news, updates, and exclusive content. Customize your preferences to receive
+            Stay informed with the latest news, updates, and exclusive content. Customise your preferences to receive
             only what matters to you.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Already a subscriber? You can{' '}
+            <Link href="/manage-preferences" className="font-medium underline underline-offset-4">
+              manage your preferences
+            </Link>{' '}
+            or{' '}
+            <Link href="/unsubscribe" className="font-medium underline underline-offset-4">
+              unsubscribe
+            </Link>
+            .
           </p>
         </div>
 

@@ -25,8 +25,9 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
   const [error, setError] = useState<string | null>(null)
   const [subscriberEmail, setSubscriberEmail] = useState<string>('')
   const [confirmChecked, setConfirmChecked] = useState(false)
-  const [unsubscribeContent, setUnsubscribeContent] = useState<StatusPageContent>(defaultStatusPages.unsubscribeConfirm)
-  const [errorContent, setErrorContent] = useState<StatusPageContent>(defaultStatusPages.error)
+  const [successContent, setSuccessContent] = useState<StatusPageContent>(defaultStatusPages.unsubscribe.success)
+  const [errorContent, setErrorContent] = useState<StatusPageContent>(defaultStatusPages.managePreferences.notFound)
+  const [submitErrorContent, setSubmitErrorContent] = useState<StatusPageContent>(defaultStatusPages.unsubscribe.error)
   const [feedbackConfig, setFeedbackConfig] = useState<UnsubscribeFeedbackForm>(defaultUnsubscribeFeedback)
   const [selectedReasons, setSelectedReasons] = useState<string[]>([])
   const [otherText, setOtherText] = useState('')
@@ -36,7 +37,7 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
       try {
         const response = await fetch(`/api/preferences/${token}`)
         if (!response.ok) {
-          setErrorContent(ensureSeedCentre().statusPages.error)
+          setErrorContent(ensureSeedCentre().statusPages.managePreferences.notFound)
           if (response.status === 404) {
             setError('Subscription not found. The link may be invalid or expired.')
           } else {
@@ -47,14 +48,15 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
         const { subscriber } = (await response.json()) as { subscriber: Subscriber }
         setSubscriberEmail(subscriber.profile.email)
         const centre = getCentre(subscriber.centreId) || ensureSeedCentre()
-        setUnsubscribeContent(centre.statusPages.unsubscribeConfirm)
+        setSuccessContent(centre.statusPages.unsubscribe.success)
+        setSubmitErrorContent(centre.statusPages.unsubscribe.error)
         setFeedbackConfig(centre.unsubscribeFeedback)
         if (!subscriber.isActive) {
           setIsUnsubscribed(true)
         }
       } catch {
         setError('Something went wrong. Please try again later.')
-        setErrorContent(ensureSeedCentre().statusPages.error)
+        setErrorContent(ensureSeedCentre().statusPages.managePreferences.notFound)
       } finally {
         setIsLoading(false)
       }
@@ -86,8 +88,8 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
       }
 
       setIsUnsubscribed(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } catch {
+      setError(submitErrorContent.message)
     } finally {
       setIsSubmitting(false)
     }
@@ -133,9 +135,11 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
               <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <CardTitle>You&apos;ve been unsubscribed</CardTitle>
+            <CardTitle>{successContent.heading}</CardTitle>
             <CardDescription className="text-balance">
-              {subscriberEmail} has been removed from all mailing lists. We&apos;re sorry to see you go.
+              {successContent.message}{' '}
+              <span className="font-medium text-foreground">{subscriberEmail}</span> will no longer receive emails from
+              us.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
@@ -166,17 +170,20 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
             <MailX className="h-8 w-8 text-destructive" />
           </div>
-          <CardTitle>{unsubscribeContent.heading}</CardTitle>
+          <CardTitle>Unsubscribe</CardTitle>
           <CardDescription className="text-balance">
-            {unsubscribeContent.message} You are about to unsubscribe{' '}
+            You are about to unsubscribe{' '}
             <span className="font-medium text-foreground">{subscriberEmail}</span> from all our communications.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {error && (
-            <div className="flex items-center gap-3 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
+            <div className="flex items-start gap-3 rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
               <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-              {error}
+              <div>
+                <p className="font-medium">{submitErrorContent.heading}</p>
+                <p>{error}</p>
+              </div>
             </div>
           )}
 

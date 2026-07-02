@@ -5,12 +5,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { deleteCentre, getCentre, saveCentre } from '@/lib/subscription-centre-store'
-import { type Category, type ProfileFieldSection } from '@/lib/subscription-types'
+import { type Category, type ProfileFieldSection, flattenProfileFields } from '@/lib/subscription-types'
 import type { MailGroup, StatusPages, SubmitButtonAlignment, SubscriptionCentre, UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
-import { BuildSectionsEditor } from '@/components/build-sections-editor'
-import { ThemePresetPicker } from '@/components/theme-preset-picker'
-import { StylePreviewList } from '@/components/style-preview-list'
+import { FormFieldsEditor } from '@/components/form-fields-editor'
+import { MailgroupsEditor } from '@/components/mailgroups-editor'
+import { PreviewEditor } from '@/components/preview-editor'
 import { StatusPagesEditor } from '@/components/status-pages-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,18 +23,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Eye, FileText, LayoutGrid, Loader2, Palette, Trash2 } from 'lucide-react'
+import { ArrowLeft, Download, FileText, LayoutTemplate, Loader2, Mail, Palette, Trash2 } from 'lucide-react'
 
 interface BuilderPageProps {
   params: Promise<{ id: string }>
 }
 
-type BuilderSection = 'build' | 'theme' | 'status'
+type BuilderSection = 'fields' | 'mailgroups' | 'preview' | 'status'
 
-const SECTIONS: { id: BuilderSection; label: string; icon: typeof LayoutGrid }[] = [
-  { id: 'build', label: 'Build', icon: LayoutGrid },
-  { id: 'theme', label: 'Theme', icon: Palette },
+const SECTIONS: { id: BuilderSection; label: string; icon: typeof LayoutTemplate }[] = [
+  { id: 'fields', label: 'Form Fields', icon: LayoutTemplate },
+  { id: 'mailgroups', label: 'Mailgroups', icon: Mail },
   { id: 'status', label: 'Status Pages', icon: FileText },
+  { id: 'preview', label: 'Preview', icon: Palette },
 ]
 
 export default function BuilderEditorPage({ params }: BuilderPageProps) {
@@ -42,7 +43,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const router = useRouter()
   const [centre, setCentre] = useState<SubscriptionCentre | null | undefined>(undefined)
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
-  const [activeSection, setActiveSection] = useState<BuilderSection>('build')
+  const [activeSection, setActiveSection] = useState<BuilderSection>('fields')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
       <div className="px-4 py-12 text-center">
         <p className="text-muted-foreground">This subscription centre could not be found.</p>
         <Button asChild variant="outline" className="mt-4">
-          <Link href="/builder">Back</Link>
+          <Link href="/">Back</Link>
         </Button>
       </div>
     )
@@ -98,6 +99,10 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setCentre((prev) => (prev ? { ...prev, mailGroups: [...prev.mailGroups, group] } : prev))
   }
 
+  const handleCatchAllMailGroupIdChange = (catchAllMailGroupId: string | null) => {
+    setCentre((prev) => (prev ? { ...prev, catchAllMailGroupId } : prev))
+  }
+
   const handleSubmitButtonTextChange = (submitButtonText: string) => {
     setCentre((prev) => (prev ? { ...prev, submitButtonText } : prev))
   }
@@ -110,24 +115,65 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setCentre((prev) => (prev ? { ...prev, submitButtonAlignment } : prev))
   }
 
+  const handleFormLayoutChange = (formLayout: 'stacked' | 'inline') => {
+    setCentre((prev) => (prev ? { ...prev, formLayout } : prev))
+  }
+
+  const handleFormLabelWidthChange = (formLabelWidth: number) => {
+    setCentre((prev) => (prev ? { ...prev, formLabelWidth } : prev))
+  }
+
   const isDirty = savedSnapshot !== null && JSON.stringify(centre) !== savedSnapshot
 
+  // A centre needs some way to actually put a subscriber into a mailgroup -- either a
+  // mailgroup card option on the form, or the hidden parent mailgroup from the Mailgroups tab.
+  const hasMailGroupCard = centre.categories.some((category) => category.options.some((option) => option.mailGroupId))
+  const hasCatchAllMailGroup = Boolean(centre.catchAllMailGroupId)
+  const canSave = hasMailGroupCard || hasCatchAllMailGroup
+
   const handleSave = () => {
+    if (!canSave) {
+      toast.error('Add a mailgroup card to the form, or choose a parent mailgroup in Mailgroups, before saving.')
+      return
+    }
     saveCentre(centre)
     setSavedSnapshot(JSON.stringify(centre))
     toast.success('Saved')
   }
 
-  const handlePreview = () => {
-    saveCentre(centre)
-    setSavedSnapshot(JSON.stringify(centre))
-    window.open(`/builder/${centre.id}/preview`, '_blank', 'noopener,noreferrer')
-  }
-
   const handleDelete = () => {
     deleteCentre(centre.id)
     setIsDeleteDialogOpen(false)
-    router.push('/builder')
+    router.push('/')
+  }
+
+  // A JSON spec of everything shown on the Preview tab -- fields, mailgroup categories,
+  // theme, and submit button -- for a dev team to implement the form elsewhere. Deliberately
+  // excludes Status Pages copy and builder-only metadata (id, createdAt, updatedAt), since
+  // those aren't part of "the form" itself.
+  const handleExportSpec = () => {
+    const spec = {
+      name: centre.name,
+      theme: centre.themePresetId,
+      sectionOrder: centre.sectionOrder,
+      formFieldSections: centre.profileFieldSections,
+      mailgroupCategories: centre.categories,
+      mailGroups: centre.mailGroups,
+      catchAllMailGroupId: centre.catchAllMailGroupId,
+      submitButton: {
+        text: centre.submitButtonText,
+        styleIndex: centre.submitButtonStyleIndex,
+        alignment: centre.submitButtonAlignment,
+      },
+    }
+    const fileSlug = centre.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'subscription-centre'
+    const blob = new Blob([JSON.stringify(spec, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${fileSlug}-form-spec.json`
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -137,23 +183,22 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
             <div className="shrink-0 md:w-44">
               <Button asChild variant="ghost" size="sm" className="-ml-2 gap-2">
-                <Link href="/builder">
+                <Link href="/">
                   <ArrowLeft className="h-4 w-4" />
                   Back to Dashboard
                 </Link>
               </Button>
             </div>
-            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-3">
               <Input
                 value={centre.name}
                 onChange={(e) => setCentre((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
-                className="h-9 max-w-md flex-1 text-base font-semibold"
+                className="h-9 w-full bg-white text-base font-semibold md:max-w-md md:flex-1"
               />
               <div className="flex items-center gap-2">
-              {isDirty && <span className="text-sm text-amber-600">Unsaved changes</span>}
-              <Button variant="outline" size="sm" className="gap-2" onClick={handlePreview}>
-                <Eye className="h-4 w-4" />
-                Preview
+              <Button variant="outline" size="sm" className="gap-2" onClick={handleExportSpec}>
+                <Download className="h-4 w-4" />
+                Export for Dev
               </Button>
               <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <Button variant="outline" size="sm" className="gap-2 text-destructive hover:text-destructive" onClick={() => setIsDeleteDialogOpen(true)}>
@@ -177,7 +222,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="sm" onClick={handleSave} disabled={!isDirty}>
                 Save
               </Button>
               </div>
@@ -189,7 +234,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
       <div className="mx-auto max-w-5xl space-y-6 px-4 pb-8 pt-6">
         <div className="flex flex-col gap-6 md:flex-row">
           <div className="shrink-0 md:w-44">
-            <nav className="flex gap-1 md:fixed md:top-[85px] md:w-44 md:flex-col md:left-[max(1rem,calc(50%-31rem))]">
+            <nav className="flex flex-col gap-1 md:fixed md:top-[85px] md:w-44 md:left-[max(1rem,calc(50%-31rem))]">
               {SECTIONS.map((section) => (
                 <button
                   key={section.id}
@@ -210,39 +255,48 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
           </div>
 
           <div className="min-w-0 flex-1">
-            {activeSection === 'build' && (
-              <div className="space-y-3">
-                <div>
-                  <h2 className="text-lg font-semibold">Build</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Form Fields sections and Mail Group Categories — drag to reorder them however you like.
-                  </p>
-                </div>
-                <BuildSectionsEditor
-                  profileFieldSections={centre.profileFieldSections}
-                  onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
-                  categories={centre.categories}
-                  onCategoriesChange={handleCategoriesChange}
-                  sectionOrder={centre.sectionOrder}
-                  onSectionOrderChange={handleSectionOrderChange}
-                  mailGroups={centre.mailGroups}
-                  onAddMailGroup={handleAddMailGroup}
-                  themePresetId={centre.themePresetId}
-                  submitButtonText={centre.submitButtonText}
-                  submitButtonStyleIndex={centre.submitButtonStyleIndex}
-                  submitButtonAlignment={centre.submitButtonAlignment}
-                  onSubmitButtonTextChange={handleSubmitButtonTextChange}
-                  onSubmitButtonStyleIndexChange={handleSubmitButtonStyleIndexChange}
-                  onSubmitButtonAlignmentChange={handleSubmitButtonAlignmentChange}
-                />
-              </div>
+            {activeSection === 'fields' && (
+              <FormFieldsEditor
+                profileFieldSections={centre.profileFieldSections}
+                onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
+                categories={centre.categories}
+                sectionOrder={centre.sectionOrder}
+                onSectionOrderChange={handleSectionOrderChange}
+              />
             )}
 
-            {activeSection === 'theme' && (
-              <div className="space-y-6">
-                <ThemePresetPicker value={centre.themePresetId} onChange={handleThemeChange} />
-                <StylePreviewList theme={centre.themePresetId} />
-              </div>
+            {activeSection === 'mailgroups' && (
+              <MailgroupsEditor
+                mailGroups={centre.mailGroups}
+                onAddMailGroup={handleAddMailGroup}
+                catchAllMailGroupId={centre.catchAllMailGroupId}
+                onCatchAllMailGroupIdChange={handleCatchAllMailGroupIdChange}
+                categories={centre.categories}
+                onCategoriesChange={handleCategoriesChange}
+                profileFields={flattenProfileFields(centre.profileFieldSections)}
+                sectionOrder={centre.sectionOrder}
+                onSectionOrderChange={handleSectionOrderChange}
+              />
+            )}
+
+            {activeSection === 'preview' && (
+              <PreviewEditor
+                centre={centre}
+                onThemeChange={handleThemeChange}
+                onSectionOrderChange={handleSectionOrderChange}
+                onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
+                onCategoriesChange={handleCategoriesChange}
+                submitButtonText={centre.submitButtonText}
+                submitButtonStyleIndex={centre.submitButtonStyleIndex}
+                submitButtonAlignment={centre.submitButtonAlignment}
+                onSubmitButtonTextChange={handleSubmitButtonTextChange}
+                onSubmitButtonStyleIndexChange={handleSubmitButtonStyleIndexChange}
+                onSubmitButtonAlignmentChange={handleSubmitButtonAlignmentChange}
+                formLayout={centre.formLayout}
+                formLabelWidth={centre.formLabelWidth}
+                onFormLayoutChange={handleFormLayoutChange}
+                onFormLabelWidthChange={handleFormLabelWidthChange}
+              />
             )}
 
             {activeSection === 'status' && (

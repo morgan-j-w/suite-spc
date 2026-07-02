@@ -41,6 +41,7 @@
 
 /* Blue Theme (Default) */
 [data-color-theme='blue'] {
+  font-family: 'Inter', sans-serif;
   --background: oklch(0.98 0.005 240);
   --foreground: oklch(0.2 0.02 240);
   --card: oklch(1 0 0);
@@ -62,6 +63,7 @@
 
 /* Green Theme */
 [data-color-theme='green'] {
+  font-family: 'Nunito', sans-serif;
   --background: oklch(0.98 0.01 145);
   --foreground: oklch(0.2 0.03 145);
   --card: oklch(1 0 0);
@@ -83,6 +85,7 @@
 
 /* Orange Theme */
 [data-color-theme='orange'] {
+  font-family: 'Poppins', sans-serif;
   --background: oklch(0.98 0.01 60);
   --foreground: oklch(0.25 0.03 50);
   --card: oklch(1 0 0);
@@ -104,6 +107,7 @@
 
 /* Purple Theme */
 [data-color-theme='purple'] {
+  font-family: 'DM Sans', sans-serif;
   --background: oklch(0.98 0.01 300);
   --foreground: oklch(0.2 0.03 300);
   --card: oklch(1 0 0);
@@ -125,6 +129,7 @@
 
 /* Neutral Theme */
 [data-color-theme='neutral'] {
+  font-family: 'IBM Plex Sans', sans-serif;
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.15 0 0);
   --card: oklch(1 0 0);
@@ -146,6 +151,7 @@
 
 /* Coastal Theme */
 [data-color-theme='coastal'] {
+  font-family: 'Albert Sans', sans-serif;
   --background: oklch(0.98 0.01 200);
   --foreground: oklch(0.2 0.03 210);
   --card: oklch(1 0 0);
@@ -164,6 +170,7 @@
   --input: oklch(0.9 0.02 200);
   --ring: oklch(0.62 0.22 40);
 }
+
 
 .dark {
   --background: oklch(0.145 0 0);
@@ -248,4 +255,12 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.tiptap-editor p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
