@@ -302,7 +302,11 @@ function MailgroupOptionRow({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-medium">{option.label || 'Select a mailgroup'}</p>
-            {linkedGroup && <Badge variant="outline">{linkedGroup.folder}</Badge>}
+            {linkedGroup && (
+              <Badge variant="outline" className="max-w-[10rem] truncate" title={linkedGroup.folder}>
+                {linkedGroup.folder}
+              </Badge>
+            )}
           </div>
           {!isExpanded && option.description && (
             <p className="text-xs text-muted-foreground">{option.description}</p>

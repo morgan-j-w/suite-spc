@@ -14,6 +14,26 @@ import {
 const STORAGE_KEY = 'preference-centre-subscription-centres'
 const ACTIVE_KEY = 'preference-centre-active-centre-id'
 const DEFAULT_CENTRE_NAME = 'Default Subscription Centre'
+const DRAFT_PREFIX = 'preference-centre-draft-'
+
+// Draft storage — builder work-in-progress that survives refresh but does NOT affect
+// the live /subscribe and /preferences pages (those read from STORAGE_KEY only).
+export function getDraft(id: string): SubscriptionCentre | null {
+  if (typeof window === 'undefined') return null
+  const raw = window.localStorage.getItem(`${DRAFT_PREFIX}${id}`)
+  if (!raw) return null
+  try { return normalizeCentre(JSON.parse(raw)) } catch { return null }
+}
+
+export function saveDraft(centre: SubscriptionCentre) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(`${DRAFT_PREFIX}${centre.id}`, JSON.stringify(centre))
+}
+
+export function clearDraft(id: string) {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(`${DRAFT_PREFIX}${id}`)
+}
 
 // Centres saved before the 14-style catalogue have a `cardStyleId` of 'style-1'/'style-2'/
 // 'style-3' from the old 3-option system. Map those onto the new numeric style index.

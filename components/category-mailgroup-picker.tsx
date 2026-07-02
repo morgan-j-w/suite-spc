@@ -98,7 +98,7 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
       {mode === 'existing' ? (
         <>
           <div className="space-y-2">
-            <Label htmlFor={`category-add-folder-${category.id}`}>Folder <span className="text-destructive">*</span></Label>
+            <Label htmlFor={`category-add-folder-${category.id}`}>Folder<span className="ml-px text-destructive">*</span></Label>
             <Select value={selectedFolder} onValueChange={setSelectedFolder}>
               <SelectTrigger id={`category-add-folder-${category.id}`} className="w-full">
                 <SelectValue placeholder="Select a folder" />
@@ -114,7 +114,7 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`category-add-mailgroups-${category.id}`}>Mailgroups <span className="text-destructive">*</span></Label>
+            <Label htmlFor={`category-add-mailgroups-${category.id}`}>Mailgroups<span className="ml-px text-destructive">*</span></Label>
             <MultiSelect
               id={`category-add-mailgroups-${category.id}`}
               options={mailGroupsInFolder.map((g) => ({ value: g.id, label: g.name }))}
@@ -127,7 +127,7 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
       ) : (
         <>
           <div className="space-y-2">
-            <Label htmlFor={`category-new-folder-${category.id}`}>Folder <span className="text-destructive">*</span></Label>
+            <Label htmlFor={`category-new-folder-${category.id}`}>Folder<span className="ml-px text-destructive">*</span></Label>
             <Select value={newFolderChoice} onValueChange={setNewFolderChoice}>
               <SelectTrigger id={`category-new-folder-${category.id}`} className="w-full">
                 <SelectValue />
@@ -147,7 +147,7 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`category-new-mailgroup-name-${category.id}`}>Mailgroup Name <span className="text-destructive">*</span></Label>
+            <Label htmlFor={`category-new-mailgroup-name-${category.id}`}>Mailgroup Name<span className="ml-px text-destructive">*</span></Label>
             <Input
               id={`category-new-mailgroup-name-${category.id}`}
               value={newGroupName}

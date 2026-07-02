@@ -187,8 +187,8 @@ export function PreviewEditor({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
+      <div className="space-y-3">
+        <div>
           <h2 className="text-lg font-semibold">Preview</h2>
           <p className="text-sm text-muted-foreground">
             {isFinalPreview
@@ -196,12 +196,12 @@ export function PreviewEditor({
               : "See the real form as a subscriber would. Drag to reorder, and use each block's style picker to change its look."}
           </p>
         </div>
-        <div className="flex shrink-0 gap-1 rounded-md bg-muted p-1">
+        <div className="flex gap-1 rounded-md bg-muted p-1">
           <button
             type="button"
             onClick={() => { setIsFinalPreview(false); setSubmitted(false) }}
             className={cn(
-              'flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+              'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
               !isFinalPreview ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >
@@ -212,7 +212,7 @@ export function PreviewEditor({
             type="button"
             onClick={() => setIsFinalPreview(true)}
             className={cn(
-              'flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+              'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
               isFinalPreview ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >

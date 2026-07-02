@@ -4,7 +4,7 @@ import { use, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { deleteCentre, getCentre, saveCentre } from '@/lib/subscription-centre-store'
+import { clearDraft, deleteCentre, getCentre, getDraft, saveCentre, saveDraft } from '@/lib/subscription-centre-store'
 import { type Category, type ProfileFieldSection, flattenProfileFields } from '@/lib/subscription-types'
 import type { MailGroup, StatusPages, SubmitButtonAlignment, SubscriptionCentre, UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
@@ -45,12 +45,22 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
   const [activeSection, setActiveSection] = useState<BuilderSection>('fields')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
   useEffect(() => {
-    const loaded = getCentre(id)
-    setCentre(loaded)
-    setSavedSnapshot(loaded ? JSON.stringify(loaded) : null)
+    const published = getCentre(id)
+    const draft = getDraft(id)
+    // Draft takes priority — it's the builder's in-progress state.
+    // savedSnapshot tracks the published version; if only a draft exists treat as dirty.
+    setCentre(draft ?? published)
+    setSavedSnapshot(published ? JSON.stringify(published) : draft ? '' : null)
   }, [id])
+
+  // Persist work-in-progress to a SEPARATE draft key so the live /subscribe and
+  // /preferences pages (which read from the published store) are never touched.
+  useEffect(() => {
+    if (!centre) return
+    const timer = setTimeout(() => saveDraft(centre), 800)
+    return () => clearTimeout(timer)
+  }, [centre])
 
   if (centre === undefined) {
     return (
@@ -131,12 +141,14 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
       return
     }
     saveCentre(centre)
+    clearDraft(centre.id)
     setSavedSnapshot(JSON.stringify(centre))
     toast.success('Saved')
   }
 
   const handleDelete = () => {
     deleteCentre(centre.id)
+    clearDraft(centre.id)
     setIsDeleteDialogOpen(false)
     router.push('/')
   }

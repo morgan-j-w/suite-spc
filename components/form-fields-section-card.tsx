@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { Check, Settings, Trash2 } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 interface FormFieldsSectionCardProps {
@@ -42,6 +43,8 @@ export function FormFieldsSectionCard({
   onUpdateSection,
   onRemoveSection,
 }: FormFieldsSectionCardProps) {
+  const [descFocused, setDescFocused] = useState(false)
+  const descRef = useRef<HTMLInputElement>(null)
   const handleFieldsChange = (fields: CustomProfileField[]) => onUpdateSection({ fields })
 
   const otherSections = allSections.filter((s) => s.id !== section.id)
@@ -111,13 +114,26 @@ export function FormFieldsSectionCard({
                 />
                 {currentRule ? <ConditionalBadge /> : null}
               </div>
-              <input
-                value={section.description || ''}
-                onChange={(e) => onUpdateSection({ description: e.target.value })}
-                placeholder="Add a description (optional)"
-                aria-label="Section description"
-                className="mt-1 h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm text-muted-foreground shadow-none outline-none transition-colors placeholder:text-muted-foreground/60 hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
-              />
+              {(section.description || descFocused) ? (
+                <input
+                  ref={descRef}
+                  value={section.description || ''}
+                  onChange={(e) => onUpdateSection({ description: e.target.value })}
+                  onFocus={() => setDescFocused(true)}
+                  onBlur={() => setDescFocused(false)}
+                  placeholder="Add a description (optional)"
+                  aria-label="Section description"
+                  className="mt-1 h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm text-muted-foreground shadow-none outline-none transition-colors placeholder:text-muted-foreground/60 hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setDescFocused(true); setTimeout(() => descRef.current?.focus(), 0) }}
+                  className="mt-0.5 block text-xs text-muted-foreground/40 transition-colors hover:text-muted-foreground/70"
+                >
+                  + Add description
+                </button>
+              )}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -140,9 +156,9 @@ export function FormFieldsSectionCard({
             </div>
           </div>
         </div>
-        {isExpanded ? (
+        {isExpanded && visibilitySources.length > 0 ? (
           <div className="mt-4 space-y-4">
-            {visibilitySources.length > 0 && (
+            {(
               <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Label htmlFor={`section-condition-toggle-${section.id}`} className="cursor-pointer">
@@ -200,6 +216,7 @@ export function FormFieldsSectionCard({
             )}
           </div>
         ) : (
+
           currentRule ? (
             <div className="mt-2">
               <ConditionalVisibilityNote rule={currentRule} getFieldLabel={getSourceLabel} />

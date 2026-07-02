@@ -78,7 +78,7 @@ export const isBooleanFieldType = (type: ProfileFieldType) => BOOLEAN_FIELD_TYPE
 // The real system this tool models only stores answers as one of these four shapes,
 // regardless of which input widget collected them — used to label fields in the
 // field-reuse autocomplete the way they'll actually be saved.
-export type SimplifiedFieldType = 'Text' | 'Number' | 'Single select' | 'Date'
+export type SimplifiedFieldType = 'Text' | 'Number' | 'Single select' | 'Multi select' | 'Date'
 
 const SIMPLIFIED_FIELD_TYPE_MAP: Partial<Record<ProfileFieldType, SimplifiedFieldType>> = {
   text: 'Text',
@@ -89,7 +89,7 @@ const SIMPLIFIED_FIELD_TYPE_MAP: Partial<Record<ProfileFieldType, SimplifiedFiel
   range: 'Number',
   rating: 'Number',
   select: 'Single select',
-  multiSelect: 'Single select',
+  multiSelect: 'Multi select',
   country: 'Single select',
   state_au: 'Single select',
   radio: 'Single select',
@@ -162,6 +162,7 @@ export interface StandardFieldDef {
   placeholder?: string
   helpText?: string
   options?: { value: string; label: string }[]
+  required?: boolean
 }
 
 export const standardFieldCatalog: StandardFieldDef[] = [
@@ -178,6 +179,7 @@ export const standardFieldCatalog: StandardFieldDef[] = [
     label: 'Email',
     type: 'email',
     placeholder: 'you@example.com',
+    required: true,
   },
   { id: 'phone', label: 'Mobile', type: 'phone', placeholder: '+1 (555) 000-0000' },
   { id: 'country', label: 'Country', type: 'country' },
@@ -206,7 +208,7 @@ export const defaultProfileFieldSections: ProfileFieldSection[] = [
   {
     id: 'default-contact-info',
     title: 'Your Details',
-    fields: [{ id: 'email', label: 'Email', type: 'email', required: false, placeholder: 'you@example.com', locked: true }],
+    fields: [{ id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true }],
   },
 ]
 

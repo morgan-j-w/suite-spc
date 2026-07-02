@@ -285,7 +285,7 @@ function CatchAllMailGroupForm({ mailGroups, currentMailGroupId, onAddMailGroup,
       {mode === 'existing' ? (
         <>
           <div className="space-y-2">
-            <Label htmlFor="catch-all-folder">Folder <span className="text-destructive">*</span></Label>
+            <Label htmlFor="catch-all-folder">Folder<span className="ml-px text-destructive">*</span></Label>
             <Select
               value={selectedFolder}
               onValueChange={(folder) => {
@@ -307,7 +307,7 @@ function CatchAllMailGroupForm({ mailGroups, currentMailGroupId, onAddMailGroup,
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="catch-all-mailgroup">Mailgroup <span className="text-destructive">*</span></Label>
+            <Label htmlFor="catch-all-mailgroup">Mailgroup<span className="ml-px text-destructive">*</span></Label>
             <Select value={selectedMailGroupId} onValueChange={setSelectedMailGroupId} disabled={!selectedFolder}>
               <SelectTrigger id="catch-all-mailgroup" className="w-full">
                 <SelectValue placeholder={selectedFolder ? 'Select a mailgroup' : 'Choose a folder first'} />
@@ -356,7 +356,7 @@ function CatchAllMailGroupForm({ mailGroups, currentMailGroupId, onAddMailGroup,
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="catch-all-new-mailgroup-name">Mailgroup Name <span className="text-destructive">*</span></Label>
+            <Label htmlFor="catch-all-new-mailgroup-name">Mailgroup Name<span className="ml-px text-destructive">*</span></Label>
             <Input
               id="catch-all-new-mailgroup-name"
               value={newGroupName}

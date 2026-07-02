@@ -169,7 +169,7 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
       id: def.id,
       label: def.label,
       type: def.type,
-      required: false,
+      required: def.required ?? false,
       placeholder: def.placeholder,
       helpText: def.helpText,
       options: def.options,
@@ -238,6 +238,7 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
                 key={field.id}
                 field={field}
                 fields={fields}
+                fieldsInOtherSections={fieldsInOtherSections}
                 isExpanded={expandedFieldId === field.id}
                 isJustAdded={justAddedFieldId === field.id}
                 onToggleExpand={() => setExpandedFieldId(expandedFieldId === field.id ? null : field.id)}
@@ -273,6 +274,7 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
 interface FieldCardProps {
   field: CustomProfileField
   fields: CustomProfileField[]
+  fieldsInOtherSections: CustomProfileField[]
   isExpanded: boolean
   isJustAdded: boolean
   onToggleExpand: () => void
@@ -280,7 +282,7 @@ interface FieldCardProps {
   onRemove: () => void
 }
 
-function FieldCard({ field, fields, isExpanded, isJustAdded, onToggleExpand, onUpdateField, onRemove }: FieldCardProps) {
+function FieldCard({ field, fields, fieldsInOtherSections, isExpanded, isJustAdded, onToggleExpand, onUpdateField, onRemove }: FieldCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: field.id })
   const cardRef = useRef<HTMLDivElement | null>(null)
 
@@ -348,7 +350,7 @@ function FieldCard({ field, fields, isExpanded, isJustAdded, onToggleExpand, onU
           </div>
           <div className="flex gap-1">
             {isExpanded ? (
-              <Button variant="default" size="sm" className="h-8 gap-1.5 px-3 text-xs font-medium" onClick={onToggleExpand}>
+              <Button variant="default" size="sm" className="h-8 gap-1.5 px-3 text-xs font-medium" onClick={onToggleExpand} disabled={!stripHtml(field.label).trim()}>
                 <Check className="h-3.5 w-3.5" />
                 Done
               </Button>
@@ -384,7 +386,7 @@ function FieldCard({ field, fields, isExpanded, isJustAdded, onToggleExpand, onU
       {isExpanded && (
         <div className="border-t bg-muted/30 p-4">
           <div className="rounded-lg border bg-white p-5 shadow-sm">
-            <FieldEditForm field={field} fields={fields} onUpdateField={onUpdateField} />
+            <FieldEditForm field={field} fields={[...fields, ...fieldsInOtherSections]} onUpdateField={onUpdateField} />
           </div>
         </div>
       )}
@@ -571,10 +573,7 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
 
       {!isParagraph && (
         <div className="space-y-2">
-          <Label htmlFor={`field-label-${field.id}`}>
-            {isHeading ? 'Heading Text' : 'Label'}
-            <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
-          </Label>
+          <Label htmlFor={`field-label-${field.id}`}>{isHeading ? 'Heading Text' : 'Label'}<span aria-hidden="true" className="ml-px text-destructive">*</span></Label>
           <FieldLabelAutocomplete
             field={field}
             onUpdateField={onUpdateField}
