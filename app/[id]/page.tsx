@@ -61,14 +61,8 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   }
 
   if (centre === null) {
-    return (
-      <div className="px-4 py-12 text-center">
-        <p className="text-muted-foreground">This subscription centre could not be found.</p>
-        <Button asChild variant="outline" className="mt-4">
-          <Link href="/">Back</Link>
-        </Button>
-      </div>
-    )
+    router.replace('/')
+    return null
   }
 
   const handleProfileFieldSectionsChange = (profileFieldSections: ProfileFieldSection[]) => {
