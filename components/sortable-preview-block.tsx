@@ -29,7 +29,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
 
   return (
     <div ref={setNodeRef} style={style} className={cn(isDragging && 'z-50')}>
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-2 flex items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
         <button
           type="button"
           className={cn(
