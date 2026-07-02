@@ -160,6 +160,8 @@ function normalizeCentre(raw: any): SubscriptionCentre {
     submitButtonAlignment: centre.submitButtonAlignment ?? defaultSubmitButtonAlignment,
     formLayout: (centre.formLayout === 'columns' ? 'inline' : centre.formLayout) ?? 'stacked',
     formLabelWidth: centre.formLabelWidth ?? 33,
+    formCardMode: centre.formCardMode ?? 'separate',
+    singleCardStyleIndex: centre.singleCardStyleIndex ?? 0,
     unsubscribeFeedback: centre.unsubscribeFeedback ?? {
       ...defaultUnsubscribeFeedback,
       options: defaultUnsubscribeFeedback.options.map((o) => ({ ...o })),

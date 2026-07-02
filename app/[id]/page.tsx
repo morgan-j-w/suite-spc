@@ -127,6 +127,14 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setCentre((prev) => (prev ? { ...prev, formLabelWidth } : prev))
   }
 
+  const handleFormCardModeChange = (formCardMode: 'separate' | 'single') => {
+    setCentre((prev) => (prev ? { ...prev, formCardMode } : prev))
+  }
+
+  const handleSingleCardStyleIndexChange = (singleCardStyleIndex: number) => {
+    setCentre((prev) => (prev ? { ...prev, singleCardStyleIndex } : prev))
+  }
+
   const isDirty = savedSnapshot !== null && JSON.stringify(centre) !== savedSnapshot
 
   // A centre needs some way to actually put a subscriber into a mailgroup -- either a
@@ -300,8 +308,12 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 onSubmitButtonAlignmentChange={handleSubmitButtonAlignmentChange}
                 formLayout={centre.formLayout}
                 formLabelWidth={centre.formLabelWidth}
+                formCardMode={centre.formCardMode}
+                singleCardStyleIndex={centre.singleCardStyleIndex}
                 onFormLayoutChange={handleFormLayoutChange}
                 onFormLabelWidthChange={handleFormLabelWidthChange}
+                onFormCardModeChange={handleFormCardModeChange}
+                onSingleCardStyleIndexChange={handleSingleCardStyleIndexChange}
               />
             )}
 

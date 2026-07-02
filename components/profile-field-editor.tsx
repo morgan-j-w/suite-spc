@@ -53,7 +53,6 @@ import {
   AlignLeft,
   ChevronDown,
   ChevronsUpDown,
-  Globe,
   MapPin,
   CircleDot,
   ListChecks,
@@ -101,7 +100,6 @@ export const FIELD_TYPE_GROUPS: { groupLabel: string; options: FieldTypeOption[]
     options: [
       { type: 'select', label: 'Dropdown (select)', description: 'Single choice from a dropdown', icon: ChevronDown },
       { type: 'multiSelect', label: 'Multi Select', description: 'Multiple choices from a dropdown', icon: ChevronsUpDown },
-      { type: 'country', label: 'Country select', description: 'Country picker, pre-built list', icon: Globe },
       { type: 'state_au', label: 'State (AU)', description: 'Australian state/territory picker, pre-built list', icon: MapPin },
       { type: 'radio', label: 'Radio buttons', description: 'Single choice, options shown inline', icon: CircleDot },
       { type: 'checkboxGroup', label: 'Checkbox', description: 'Multiple choices, options shown inline', icon: ListChecks },

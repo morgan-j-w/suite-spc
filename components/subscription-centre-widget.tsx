@@ -405,8 +405,8 @@ export function renderProfileField(
 
       case 'heading':
         return (
-          <div key={field.id} className="border-b pb-3">
-            <h3 className="text-lg font-semibold" style={{ color: headingColor }}>{renderFormattedText(field.label)}</h3>
+          <div key={field.id}>
+            <h3 className="sc-heading-h3 text-lg font-semibold" style={{ color: headingColor }}>{renderFormattedText(field.label)}</h3>
           </div>
         )
 
@@ -429,10 +429,11 @@ export interface RenderedCategoryProps {
   answers: CategoryAnswers
   onAnswersChange: (updater: (prev: CategoryAnswers) => CategoryAnswers) => void
   showValidation?: boolean
+  embedded?: boolean
 }
 
 // Shared by SubscriptionCentreWidget and the builder's Preview tab -- see renderProfileField.
-export function RenderedCategory({ category, stylePreview, answers, onAnswersChange, showValidation }: RenderedCategoryProps) {
+export function RenderedCategory({ category, stylePreview, answers, onAnswersChange, showValidation, embedded }: RenderedCategoryProps) {
   const updateCheckboxAnswer = (categoryId: string, optionKey: string, checked: boolean) => {
     onAnswersChange((prev) => ({
       ...prev,
@@ -442,6 +443,88 @@ export function RenderedCategory({ category, stylePreview, answers, onAnswersCha
 
   const updateRadioAnswer = (categoryId: string, value: string) => {
     onAnswersChange((prev) => ({ ...prev, [categoryId]: value }))
+  }
+
+  const header = (category.title.trim() || category.description.trim()) ? (
+    <div className={embedded ? 'mb-4' : undefined}>
+      {category.title.trim() && (
+        <h3
+          id={`sc-category-title-${category.id}`}
+          className="sc-category-title text-base font-semibold leading-none"
+          style={{ color: stylePreview.heading }}
+        >
+          {category.title}
+          {category.required && <RequiredAsterisk />}
+        </h3>
+      )}
+      {category.description.trim() && (
+        <p className="sc-category-description mt-1 text-sm" style={{ color: stylePreview.heading }}>
+          {category.description}
+        </p>
+      )}
+    </div>
+  ) : null
+
+  const options = category.type === 'checkbox' ? (
+    <div
+      role="group"
+      aria-labelledby={category.title.trim() ? `sc-category-title-${category.id}` : undefined}
+      aria-required={category.required || undefined}
+      className="space-y-4"
+    >
+      {category.options.map((option) => (
+        <div key={option.key} className="sc-category-option space-y-1" data-option-key={option.key}>
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id={`${category.id}-${option.key}`}
+              checked={(answers[category.id] as Record<string, boolean>)?.[option.key] || false}
+              onCheckedChange={(checked) => updateCheckboxAnswer(category.id, option.key, checked as boolean)}
+              controlColor={stylePreview.heading}
+              indicatorColor={getReadableTextColor(stylePreview.heading)}
+            />
+            <Label htmlFor={`${category.id}-${option.key}`} className="cursor-pointer font-medium" style={{ color: stylePreview.heading }}>
+              {option.label}
+            </Label>
+          </div>
+          {option.description && <p className="pl-7 text-sm" style={{ color: stylePreview.heading }}>{option.description}</p>}
+        </div>
+      ))}
+    </div>
+  ) : (
+    <RadioGroup
+      value={(answers[category.id] as string) || ''}
+      onValueChange={(value) => updateRadioAnswer(category.id, value)}
+      aria-labelledby={category.title.trim() ? `sc-category-title-${category.id}` : undefined}
+      aria-required={category.required || undefined}
+    >
+      <div className="space-y-4">
+        {category.options.map((option) => (
+          <div key={option.key} className="sc-category-option space-y-1" data-option-key={option.key}>
+            <div className="flex items-center gap-3">
+              <RadioGroupItem value={option.key} id={`${category.id}-${option.key}`} controlColor={stylePreview.heading} />
+              <Label htmlFor={`${category.id}-${option.key}`} className="cursor-pointer font-medium" style={{ color: stylePreview.heading }}>
+                {option.label}
+              </Label>
+            </div>
+            {option.description && <p className="pl-7 text-sm" style={{ color: stylePreview.heading }}>{option.description}</p>}
+          </div>
+        ))}
+      </div>
+    </RadioGroup>
+  )
+
+  const validationError = showValidation && category.required && !isCategoryAnswered(category, answers) ? (
+    <p role="alert" className="mt-2 text-xs font-medium text-destructive">Please make a selection.</p>
+  ) : null
+
+  if (embedded) {
+    return (
+      <div id={`sc-category-${category.id}`} data-category-id={category.id} className="sc-category">
+        {header}
+        {options}
+        {validationError}
+      </div>
+    )
   }
 
   return (
@@ -475,56 +558,8 @@ export function RenderedCategory({ category, stylePreview, answers, onAnswersCha
         </CardHeader>
       )}
       <CardContent>
-        {category.type === 'checkbox' ? (
-          <div
-            role="group"
-            aria-labelledby={category.title.trim() ? `sc-category-title-${category.id}` : undefined}
-            aria-required={category.required || undefined}
-            className="space-y-4"
-          >
-            {category.options.map((option) => (
-              <div key={option.key} className="sc-category-option space-y-1" data-option-key={option.key}>
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    id={`${category.id}-${option.key}`}
-                    checked={(answers[category.id] as Record<string, boolean>)?.[option.key] || false}
-                    onCheckedChange={(checked) => updateCheckboxAnswer(category.id, option.key, checked as boolean)}
-                    controlColor={stylePreview.heading}
-                    indicatorColor={getReadableTextColor(stylePreview.heading)}
-                  />
-                  <Label htmlFor={`${category.id}-${option.key}`} className="cursor-pointer font-medium" style={{ color: stylePreview.heading }}>
-                    {option.label}
-                  </Label>
-                </div>
-                {option.description && <p className="pl-7 text-sm" style={{ color: stylePreview.heading }}>{option.description}</p>}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <RadioGroup
-            value={(answers[category.id] as string) || ''}
-            onValueChange={(value) => updateRadioAnswer(category.id, value)}
-            aria-labelledby={category.title.trim() ? `sc-category-title-${category.id}` : undefined}
-            aria-required={category.required || undefined}
-          >
-            <div className="space-y-4">
-              {category.options.map((option) => (
-                <div key={option.key} className="sc-category-option space-y-1" data-option-key={option.key}>
-                  <div className="flex items-center gap-3">
-                    <RadioGroupItem value={option.key} id={`${category.id}-${option.key}`} controlColor={stylePreview.heading} />
-                    <Label htmlFor={`${category.id}-${option.key}`} className="cursor-pointer font-medium" style={{ color: stylePreview.heading }}>
-                      {option.label}
-                    </Label>
-                  </div>
-                  {option.description && <p className="pl-7 text-sm" style={{ color: stylePreview.heading }}>{option.description}</p>}
-                </div>
-              ))}
-            </div>
-          </RadioGroup>
-        )}
-        {showValidation && category.required && !isCategoryAnswered(category, answers) && (
-          <p role="alert" className="mt-2 text-xs font-medium text-destructive">Please make a selection.</p>
-        )}
+        {options}
+        {validationError}
       </CardContent>
     </Card>
   )
@@ -539,12 +574,54 @@ export interface RenderedSectionProps {
   showValidation?: boolean
   formLayout?: 'stacked' | 'inline'
   formLabelWidth?: number
+  embedded?: boolean
 }
 
 // Shared by SubscriptionCentreWidget and the builder's Preview tab -- see renderProfileField.
 // `visible` is computed by the caller (first-section/conditional-visibility rules differ
 // slightly between contexts, e.g. the Preview tab evaluates them against scratch answers).
-export function RenderedSection({ section, stylePreview, profile, onProfileChange, visible, showValidation, formLayout, formLabelWidth }: RenderedSectionProps) {
+export function RenderedSection({ section, stylePreview, profile, onProfileChange, visible, showValidation, formLayout, formLabelWidth, embedded }: RenderedSectionProps) {
+  const fields = (
+    <>
+      {(section.title.trim() || section.description?.trim()) && (
+        <div className={embedded ? 'mb-4' : undefined}>
+          {section.title.trim() && (
+            <h2 className="sc-section-title text-lg font-semibold leading-none" style={{ color: stylePreview.heading }}>
+              {section.title}
+            </h2>
+          )}
+          {section.description?.trim() && (
+            <p className="sc-section-description mt-1 text-sm" style={{ color: stylePreview.heading }}>
+              {section.description}
+            </p>
+          )}
+        </div>
+      )}
+      <div className="space-y-6">
+        {section.fields.map((field) => (
+          <AnimatedVisibility key={field.id} visible={isProfileFieldVisible(field, profile)}>
+            <div id={`sc-field-${field.id}`} data-field-id={field.id} className={`sc-field sc-field--${field.type}`}>
+              {renderProfileField(field, stylePreview.heading, profile, onProfileChange, showValidation, formLayout, formLabelWidth)}
+              {showValidation && field.required && !isProfileFieldAnswered(field, profile) && (
+                <p id={`field-${field.id}-error`} role="alert" className="mt-1.5 text-xs font-medium text-destructive">This field is required.</p>
+              )}
+            </div>
+          </AnimatedVisibility>
+        ))}
+      </div>
+    </>
+  )
+
+  if (embedded) {
+    return (
+      <AnimatedVisibility key={section.id} visible={visible}>
+        <div id={`sc-section-${section.id}`} data-section-id={section.id} className="sc-section">
+          {fields}
+        </div>
+      </AnimatedVisibility>
+    )
+  }
+
   return (
     <AnimatedVisibility key={section.id} visible={visible}>
       <Card
@@ -573,11 +650,7 @@ export function RenderedSection({ section, stylePreview, profile, onProfileChang
         <CardContent className="space-y-6">
           {section.fields.map((field) => (
             <AnimatedVisibility key={field.id} visible={isProfileFieldVisible(field, profile)}>
-              <div
-                id={`sc-field-${field.id}`}
-                data-field-id={field.id}
-                className={`sc-field sc-field--${field.type}`}
-              >
+              <div id={`sc-field-${field.id}`} data-field-id={field.id} className={`sc-field sc-field--${field.type}`}>
                 {renderProfileField(field, stylePreview.heading, profile, onProfileChange, showValidation, formLayout, formLabelWidth)}
                 {showValidation && field.required && !isProfileFieldAnswered(field, profile) && (
                   <p id={`field-${field.id}-error`} role="alert" className="mt-1.5 text-xs font-medium text-destructive">This field is required.</p>

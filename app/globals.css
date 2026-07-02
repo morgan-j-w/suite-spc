@@ -169,7 +169,19 @@
   --border: oklch(0.9 0.02 200);
   --input: oklch(0.9 0.02 200);
   --ring: oklch(0.62 0.22 40);
+  font-size: 15px;
+  line-height: 21px;
 }
+
+/* Heading field type sizes for coastal theme */
+[data-color-theme='coastal'] .sc-heading-h1 { font-size: 26px; line-height: 30px; font-weight: 400; }
+[data-color-theme='coastal'] .sc-heading-h2 { font-size: 24px; line-height: 28px; font-weight: 400; }
+[data-color-theme='coastal'] .sc-heading-h3 { font-size: 22px; line-height: 26px; font-weight: 400; }
+[data-color-theme='coastal'] .sc-heading-h4 { font-size: 14px; line-height: 22px; font-weight: 400; text-transform: uppercase; }
+[data-color-theme='coastal'] .sc-section-title { font-size: 22px; line-height: 26px; font-weight: 400; }
+[data-color-theme='coastal'] .sc-category-title { font-size: 22px; line-height: 26px; font-weight: 400; }
+[data-color-theme='coastal'] .sc-field-label { font-size: 15px; line-height: 21px; }
+[data-color-theme='coastal'] .sc-field-help-text { font-size: 14px; line-height: 22px; }
 
 
 .dark {

@@ -98,6 +98,9 @@ export interface SubscriptionCentre {
   // input right). formLabelWidth is the label column's percentage width in inline mode.
   formLayout: 'stacked' | 'inline'
   formLabelWidth: number
+  // Whether each section/category renders as its own card or all share one card.
+  formCardMode: 'separate' | 'single'
+  singleCardStyleIndex: number
   createdAt: string
   updatedAt: string
 }
@@ -222,6 +225,8 @@ export function createSubscriptionCentre(name: string): SubscriptionCentre {
     submitButtonAlignment: defaultSubmitButtonAlignment,
     formLayout: 'stacked',
     formLabelWidth: 33,
+    formCardMode: 'separate',
+    singleCardStyleIndex: 0,
     createdAt: now,
     updatedAt: now,
   }

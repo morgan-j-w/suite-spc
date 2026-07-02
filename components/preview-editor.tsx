@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Columns2, Eye, Pencil, Rows2 } from 'lucide-react'
+import { Columns2, Eye, GalleryVertical, Pencil, RectangleHorizontal, Rows2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   DndContext,
@@ -31,6 +31,7 @@ import type { ColorTheme } from '@/lib/brand-config'
 import { getStylePreviews } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
 import { SortablePreviewBlock } from '@/components/sortable-preview-block'
+import { StylePicker } from '@/components/style-picker'
 import { ThemePresetPicker } from '@/components/theme-preset-picker'
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
 import { AnimatedVisibility } from '@/components/animated-visibility'
@@ -61,8 +62,12 @@ interface PreviewEditorProps {
   onSubmitButtonAlignmentChange: (alignment: SubmitButtonAlignment) => void
   formLayout: 'stacked' | 'inline'
   formLabelWidth: number
+  formCardMode: 'separate' | 'single'
+  singleCardStyleIndex: number
   onFormLayoutChange: (layout: 'stacked' | 'inline') => void
   onFormLabelWidthChange: (width: number) => void
+  onFormCardModeChange: (mode: 'separate' | 'single') => void
+  onSingleCardStyleIndexChange: (index: number) => void
 }
 
 // Combines theme selection, a live interactive rendering of the real form, drag-to-reorder,
@@ -82,8 +87,12 @@ export function PreviewEditor({
   onSubmitButtonAlignmentChange,
   formLayout,
   formLabelWidth,
+  formCardMode,
+  singleCardStyleIndex,
   onFormLayoutChange,
   onFormLabelWidthChange,
+  onFormCardModeChange,
+  onSingleCardStyleIndexChange,
 }: PreviewEditorProps) {
   const [profile, setProfile] = useState<SubscriberProfile>(EMPTY_PROFILE)
   const [answers, setAnswers] = useState<CategoryAnswers>(() => buildDefaultAnswers(centre.categories))
@@ -131,6 +140,8 @@ export function PreviewEditor({
     onProfileFieldSectionsChange(clearVisibleWhenOnFirstSection(centre.profileFieldSections, newOrder))
   }
 
+  const singleStylePreview = getStylePreviews(centre.themePresetId)[singleCardStyleIndex ?? 0]
+
   const blocks = centre.sectionOrder.map((id) => {
     const section = centre.profileFieldSections.find((s) => s.id === id)
     if (section) {
@@ -138,6 +149,23 @@ export function PreviewEditor({
       const hasVisibleField =
         section.fields.length === 0 || section.fields.some((field) => isProfileFieldVisible(field, profile))
       const visible = (isFirstSection || isSectionVisible(section, profile, answers)) && hasVisibleField
+
+      if (formCardMode === 'single') {
+        const embeddedSection = <RenderedSection key={id} section={section} stylePreview={singleStylePreview} profile={profile} onProfileChange={setProfile} visible={visible} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} embedded />
+        return isFinalPreview ? embeddedSection : (
+          <SortablePreviewBlock
+            key={id}
+            id={id}
+            theme={centre.themePresetId}
+            cardStyleIndex={singleCardStyleIndex}
+            onCardStyleChange={onSingleCardStyleIndexChange}
+            hideStylePicker
+          >
+            {embeddedSection}
+          </SortablePreviewBlock>
+        )
+      }
+
       const stylePreview = getStylePreviews(centre.themePresetId)[section.cardStyleIndex ?? 0]
       const content = (
         <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible={visible} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} />
@@ -161,6 +189,26 @@ export function PreviewEditor({
 
     const category = centre.categories.find((c) => c.id === id)
     if (category) {
+      if (formCardMode === 'single') {
+        const embeddedCategory = (
+          <AnimatedVisibility key={id} visible={isCategoryVisible(category, profile, answers)}>
+            <RenderedCategory category={category} stylePreview={singleStylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={isFinalPreview && submitted} embedded />
+          </AnimatedVisibility>
+        )
+        return isFinalPreview ? embeddedCategory : (
+          <SortablePreviewBlock
+            key={id}
+            id={id}
+            theme={centre.themePresetId}
+            cardStyleIndex={singleCardStyleIndex}
+            onCardStyleChange={onSingleCardStyleIndexChange}
+            hideStylePicker
+          >
+            {embeddedCategory}
+          </SortablePreviewBlock>
+        )
+      }
+
       const stylePreview = getStylePreviews(centre.themePresetId)[category.cardStyleIndex ?? 0]
       const content = (
         <AnimatedVisibility visible={isCategoryVisible(category, profile, answers)}>
@@ -237,29 +285,52 @@ export function PreviewEditor({
             <CardHeader className="px-6 pt-4 pb-2">
               <CardTitle className="text-base">Layout</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 px-6 pt-2 pb-6">
-              <div className="flex gap-1 rounded-md bg-muted p-1">
-                {([
-                  { value: 'stacked', label: 'Stacked', icon: Rows2 },
-                  { value: 'inline', label: 'Side by side', icon: Columns2 },
-                ] as const).map(({ value: layout, label, icon: Icon }) => (
-                  <button
-                    key={layout}
-                    type="button"
-                    onClick={() => onFormLayoutChange(layout)}
-                    className={cn(
-                      'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-                      formLayout === layout ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {label}
-                  </button>
-                ))}
+            <CardContent className="space-y-5 px-6 pt-2 pb-6">
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Card presentation</p>
+                <div className="flex gap-1 rounded-md bg-muted p-1">
+                  {([
+                    { value: 'separate', label: 'Separate cards', icon: GalleryVertical },
+                    { value: 'single', label: 'Single card', icon: RectangleHorizontal },
+                  ] as const).map(({ value: mode, label, icon: Icon }) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => onFormCardModeChange(mode)}
+                      className={cn(
+                        'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+                        formCardMode === mode ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {formLayout === 'inline' && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Label width</p>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Field arrangement</p>
+                <div className="flex gap-1 rounded-md bg-muted p-1">
+                  {([
+                    { value: 'stacked', label: 'Stacked', icon: Rows2 },
+                    { value: 'inline', label: 'Side by side', icon: Columns2 },
+                  ] as const).map(({ value: layout, label, icon: Icon }) => (
+                    <button
+                      key={layout}
+                      type="button"
+                      onClick={() => onFormLayoutChange(layout)}
+                      className={cn(
+                        'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+                        formLayout === layout ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {formLayout === 'inline' && (
                   <div className="flex gap-1 rounded-md bg-muted p-1">
                     {([25, 33, 50] as const).map((w) => (
                       <button
@@ -275,15 +346,57 @@ export function PreviewEditor({
                       </button>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </CardContent>
           </Card>
         </>
       )}
 
       <div data-color-theme={centre.themePresetId}>
-        {isFinalPreview ? (
+        {formCardMode === 'single' ? (
+          <>
+            <div className="mb-2 flex justify-end" style={{ fontFamily: 'var(--font-sans)' }}>
+              <StylePicker
+                theme={centre.themePresetId}
+                value={singleCardStyleIndex}
+                onChange={onSingleCardStyleIndexChange}
+                size="sm"
+                className="w-[130px] bg-background shadow-sm"
+              />
+            </div>
+            <Card
+              className="gap-0 py-0"
+              style={{
+                backgroundColor: singleStylePreview.background,
+                ...(singleStylePreview.cardBorder ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 } : {}),
+              }}
+            >
+              <CardContent className="space-y-6 p-6">
+                {isFinalPreview ? (
+                  <div className="space-y-6">{blocks}</div>
+                ) : (
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={centre.sectionOrder} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-6">{blocks}</div>
+                    </SortableContext>
+                  </DndContext>
+                )}
+                <SubmitButtonPreview
+                  theme={centre.themePresetId}
+                  text={submitButtonText}
+                  styleIndex={submitButtonStyleIndex}
+                  alignment={submitButtonAlignment}
+                  onTextChange={onSubmitButtonTextChange}
+                  onStyleIndexChange={onSubmitButtonStyleIndexChange}
+                  onAlignmentChange={onSubmitButtonAlignmentChange}
+                  readOnly={isFinalPreview}
+                  onSubmit={isFinalPreview ? handlePreviewSubmit : undefined}
+                />
+              </CardContent>
+            </Card>
+          </>
+        ) : isFinalPreview ? (
           <div className="space-y-6">{blocks}</div>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -294,17 +407,19 @@ export function PreviewEditor({
         )}
       </div>
 
-      <SubmitButtonPreview
-        theme={centre.themePresetId}
-        text={submitButtonText}
-        styleIndex={submitButtonStyleIndex}
-        alignment={submitButtonAlignment}
-        onTextChange={onSubmitButtonTextChange}
-        onStyleIndexChange={onSubmitButtonStyleIndexChange}
-        onAlignmentChange={onSubmitButtonAlignmentChange}
-        readOnly={isFinalPreview}
-        onSubmit={isFinalPreview ? handlePreviewSubmit : undefined}
-      />
+      {formCardMode === 'separate' && (
+        <SubmitButtonPreview
+          theme={centre.themePresetId}
+          text={submitButtonText}
+          styleIndex={submitButtonStyleIndex}
+          alignment={submitButtonAlignment}
+          onTextChange={onSubmitButtonTextChange}
+          onStyleIndexChange={onSubmitButtonStyleIndexChange}
+          onAlignmentChange={onSubmitButtonAlignmentChange}
+          readOnly={isFinalPreview}
+          onSubmit={isFinalPreview ? handlePreviewSubmit : undefined}
+        />
+      )}
     </div>
   )
 }

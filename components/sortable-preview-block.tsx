@@ -13,13 +13,14 @@ interface SortablePreviewBlockProps {
   cardStyleIndex: number | undefined
   onCardStyleChange: (index: number) => void
   children: React.ReactNode
+  hideStylePicker?: boolean
 }
 
 // Drag handle + per-block StylePicker sit in a real control row above the card -- pushing it
 // down in normal document flow -- rather than overlaid on top of it. An overlay would collide
 // with the card's own heading whenever one is short or blank (e.g. an untitled section), so
 // flow layout is the only approach that holds up regardless of what's inside the card.
-export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleChange, children }: SortablePreviewBlockProps) {
+export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleChange, children, hideStylePicker }: SortablePreviewBlockProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   const style = {
@@ -29,7 +30,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
 
   return (
     <div ref={setNodeRef} style={style} className={cn(isDragging && 'z-50')}>
-      <div className="mb-2 flex items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
+      <div className="mb-3 flex items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
         <button
           type="button"
           className={cn(
@@ -45,7 +46,9 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
           <GripVertical className="h-4 w-4" />
           Drag to reorder
         </button>
-        <StylePicker theme={theme} value={cardStyleIndex} onChange={onCardStyleChange} size="sm" className="w-[130px] bg-background shadow-sm" />
+        {!hideStylePicker && (
+          <StylePicker theme={theme} value={cardStyleIndex} onChange={onCardStyleChange} size="sm" className="w-[130px] bg-background shadow-sm" />
+        )}
       </div>
       <div className={cn(isDragging && 'opacity-60 shadow-lg ring-2 ring-primary/20')}>{children}</div>
     </div>
