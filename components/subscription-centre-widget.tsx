@@ -43,7 +43,7 @@ interface SubscriptionCentreWidgetProps {
 
 const RequiredAsterisk = () => (
   <>
-    <span aria-hidden="true" className="text-destructive">&nbsp;*</span>
+    <span aria-hidden="true" className="ml-px text-destructive">*</span>
     <span className="sr-only">(required)</span>
   </>
 )

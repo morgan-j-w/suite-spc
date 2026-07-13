@@ -237,11 +237,11 @@ export function PreviewEditor({
     <div className="space-y-6">
       <div className="space-y-3">
         <div>
-          <h2 className="text-lg font-semibold">Preview</h2>
+          <h2 className="text-lg font-semibold">Style</h2>
           <p className="text-sm text-muted-foreground">
             {isFinalPreview
               ? 'This is exactly what a subscriber will see.'
-              : "See the real form as a subscriber would. Drag to reorder, and use each block's style picker to change its look."}
+              : "Choose your theme, layout and card styles. Drag to reorder blocks."}
           </p>
         </div>
         <div className="flex gap-1 rounded-md bg-muted p-1">
