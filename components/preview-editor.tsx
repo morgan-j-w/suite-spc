@@ -140,9 +140,19 @@ export function PreviewEditor({
     onProfileFieldSectionsChange(clearVisibleWhenOnFirstSection(centre.profileFieldSections, newOrder))
   }
 
+  const moveBlock = (id: string, direction: 'up' | 'down') => {
+    const oldIndex = centre.sectionOrder.indexOf(id)
+    if (oldIndex === -1) return
+    const newIndex = direction === 'up' ? oldIndex - 1 : oldIndex + 1
+    if (newIndex < 0 || newIndex >= centre.sectionOrder.length) return
+    const newOrder = arrayMove(centre.sectionOrder, oldIndex, newIndex)
+    onSectionOrderChange(newOrder)
+    onProfileFieldSectionsChange(clearVisibleWhenOnFirstSection(centre.profileFieldSections, newOrder))
+  }
+
   const singleStylePreview = getStylePreviews(centre.themePresetId)[singleCardStyleIndex ?? 0]
 
-  const blocks = centre.sectionOrder.map((id) => {
+  const blocks = centre.sectionOrder.map((id, index) => {
     const section = centre.profileFieldSections.find((s) => s.id === id)
     if (section) {
       const isFirstSection = section.id === firstSectionId
@@ -160,6 +170,10 @@ export function PreviewEditor({
             cardStyleIndex={singleCardStyleIndex}
             onCardStyleChange={onSingleCardStyleIndexChange}
             hideStylePicker
+            isFirst={index === 0}
+            isLast={index === centre.sectionOrder.length - 1}
+            onMoveUp={() => moveBlock(id, 'up')}
+            onMoveDown={() => moveBlock(id, 'down')}
           >
             {embeddedSection}
           </SortablePreviewBlock>
@@ -181,6 +195,10 @@ export function PreviewEditor({
           onCardStyleChange={(index) =>
             onProfileFieldSectionsChange(centre.profileFieldSections.map((s) => (s.id === id ? { ...s, cardStyleIndex: index } : s)))
           }
+          isFirst={index === 0}
+          isLast={index === centre.sectionOrder.length - 1}
+          onMoveUp={() => moveBlock(id, 'up')}
+          onMoveDown={() => moveBlock(id, 'down')}
         >
           {content}
         </SortablePreviewBlock>
@@ -203,6 +221,10 @@ export function PreviewEditor({
             cardStyleIndex={singleCardStyleIndex}
             onCardStyleChange={onSingleCardStyleIndexChange}
             hideStylePicker
+            isFirst={index === 0}
+            isLast={index === centre.sectionOrder.length - 1}
+            onMoveUp={() => moveBlock(id, 'up')}
+            onMoveDown={() => moveBlock(id, 'down')}
           >
             {embeddedCategory}
           </SortablePreviewBlock>
@@ -224,6 +246,10 @@ export function PreviewEditor({
           theme={centre.themePresetId}
           cardStyleIndex={category.cardStyleIndex}
           onCardStyleChange={(index) => onCategoriesChange(centre.categories.map((c) => (c.id === id ? { ...c, cardStyleIndex: index } : c)))}
+          isFirst={index === 0}
+          isLast={index === centre.sectionOrder.length - 1}
+          onMoveUp={() => moveBlock(id, 'up')}
+          onMoveDown={() => moveBlock(id, 'down')}
         >
           {content}
         </SortablePreviewBlock>
@@ -241,7 +267,7 @@ export function PreviewEditor({
           <p className="text-sm text-muted-foreground">
             {isFinalPreview
               ? 'This is exactly what a subscriber will see.'
-              : "Choose your theme, layout and card styles. Drag to reorder blocks."}
+              : "Choose your theme, layout and card styles. Drag or use the arrows to reorder blocks."}
           </p>
         </div>
         <div className="flex gap-1 rounded-md bg-muted p-1">
