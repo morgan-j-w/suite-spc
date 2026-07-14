@@ -161,7 +161,7 @@ export function PreviewEditor({
       const visible = (isFirstSection || isSectionVisible(section, profile, answers)) && hasVisibleField
 
       if (formCardMode === 'single') {
-        const embeddedSection = <RenderedSection key={id} section={section} stylePreview={singleStylePreview} profile={profile} onProfileChange={setProfile} visible={visible} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} embedded />
+        const embeddedSection = <RenderedSection key={id} section={section} stylePreview={singleStylePreview} profile={profile} onProfileChange={setProfile} visible={isFinalPreview ? visible : true} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} embedded />
         return isFinalPreview ? embeddedSection : (
           <SortablePreviewBlock
             key={id}
@@ -182,7 +182,7 @@ export function PreviewEditor({
 
       const stylePreview = getStylePreviews(centre.themePresetId)[section.cardStyleIndex ?? 0]
       const content = (
-        <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible={visible} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} />
+        <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible={isFinalPreview ? visible : true} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} />
       )
       return isFinalPreview ? (
         <div key={id}>{content}</div>
@@ -209,7 +209,7 @@ export function PreviewEditor({
     if (category) {
       if (formCardMode === 'single') {
         const embeddedCategory = (
-          <AnimatedVisibility key={id} visible={isCategoryVisible(category, profile, answers)}>
+          <AnimatedVisibility key={id} visible={isFinalPreview ? isCategoryVisible(category, profile, answers) : true}>
             <RenderedCategory category={category} stylePreview={singleStylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={isFinalPreview && submitted} embedded />
           </AnimatedVisibility>
         )
@@ -233,7 +233,7 @@ export function PreviewEditor({
 
       const stylePreview = getStylePreviews(centre.themePresetId)[category.cardStyleIndex ?? 0]
       const content = (
-        <AnimatedVisibility visible={isCategoryVisible(category, profile, answers)}>
+        <AnimatedVisibility visible={isFinalPreview ? isCategoryVisible(category, profile, answers) : true}>
           <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={isFinalPreview && submitted} />
         </AnimatedVisibility>
       )
