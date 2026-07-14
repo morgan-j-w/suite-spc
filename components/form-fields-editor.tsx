@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { type Category, type ProfileFieldSection } from '@/lib/subscription-types'
 import type { ContentBlock } from '@/lib/subscription-centre'
 import { FormFieldsSectionCard } from '@/components/form-fields-section-card'
 import { ContentBlockCard } from '@/components/content-block-card'
+import { SortableCardShell } from '@/components/sortable-card-shell'
 import { Image, Plus, Type } from 'lucide-react'
 
 interface FormFieldsEditorProps {
@@ -18,8 +21,6 @@ interface FormFieldsEditorProps {
   onContentBlocksChange: (blocks: ContentBlock[]) => void
 }
 
-// Sections-only CRUD -- cross-type structural ordering (sections + mailgroup categories +
-// submit button, interleaved) lives exclusively on the Preview tab via sectionOrder.
 export function FormFieldsEditor({
   profileFieldSections,
   onProfileFieldSectionsChange,
@@ -31,13 +32,32 @@ export function FormFieldsEditor({
 }: FormFieldsEditorProps) {
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null)
 
-  const firstSectionId = sectionOrder.find((id) => profileFieldSections.some((s) => s.id === id))
+  const sectionIds = new Set(profileFieldSections.map((s) => s.id))
+  const blockIds = new Set(contentBlocks.map((b) => b.id))
 
-  // The first Form Fields section is never conditional, so if removing a section changes
-  // who's first, drop any leftover rule on the section that just became first.
+  // Items that belong to this tab, in sectionOrder sequence.
+  const filteredIds = sectionOrder.filter((id) => sectionIds.has(id) || blockIds.has(id))
+
+  const firstSectionId = sectionOrder.find((id) => sectionIds.has(id))
+
   const clearVisibleWhenOnFirstSection = (sections: ProfileFieldSection[], order: string[]) => {
     const firstId = order.find((id) => sections.some((s) => s.id === id))
     return sections.map((s) => (s.id === firstId && s.visibleWhen?.length ? { ...s, visibleWhen: undefined } : s))
+  }
+
+  // Move within filtered list only — up/down doesn't jump over categories invisible in this tab.
+  const moveInOrder = (id: string, direction: 'up' | 'down') => {
+    const filteredIdx = filteredIds.indexOf(id)
+    const newFilteredIdx = filteredIdx + (direction === 'up' ? -1 : 1)
+    if (newFilteredIdx < 0 || newFilteredIdx >= filteredIds.length) return
+    const targetId = filteredIds[newFilteredIdx]
+    onSectionOrderChange(arrayMove(sectionOrder, sectionOrder.indexOf(id), sectionOrder.indexOf(targetId)))
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    onSectionOrderChange(arrayMove(sectionOrder, sectionOrder.indexOf(active.id as string), sectionOrder.indexOf(over.id as string)))
   }
 
   const handleAddSection = () => {
@@ -79,24 +99,63 @@ export function FormFieldsEditor({
     <div className="space-y-3">
       <div>
         <h2 className="text-lg font-semibold">Form Fields</h2>
-        <p className="text-sm text-muted-foreground">Add and edit the questions subscribers fill in. Reorder them on the Style tab.</p>
+        <p className="text-sm text-muted-foreground">Add and edit the questions subscribers fill in.</p>
       </div>
 
-      <div className="space-y-4">
-        {profileFieldSections.map((section) => (
-          <FormFieldsSectionCard
-            key={section.id}
-            section={section}
-            allSections={profileFieldSections}
-            categories={categories}
-            isFirst={section.id === firstSectionId}
-            isExpanded={expandedSectionId === section.id}
-            onToggleExpand={() => setExpandedSectionId(expandedSectionId === section.id ? null : section.id)}
-            onUpdateSection={(patch) => handleUpdateSection(section.id, patch)}
-            onRemoveSection={() => handleRemoveSection(section.id)}
-          />
-        ))}
-      </div>
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={filteredIds} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {filteredIds.map((id, index) => {
+              const section = profileFieldSections.find((s) => s.id === id)
+              if (section) {
+                return (
+                  <SortableCardShell
+                    key={id}
+                    id={id}
+                    isFirst={index === 0}
+                    isLast={index === filteredIds.length - 1}
+                    onMoveUp={() => moveInOrder(id, 'up')}
+                    onMoveDown={() => moveInOrder(id, 'down')}
+                  >
+                    <FormFieldsSectionCard
+                      section={section}
+                      allSections={profileFieldSections}
+                      categories={categories}
+                      isFirst={section.id === firstSectionId}
+                      isExpanded={expandedSectionId === section.id}
+                      onToggleExpand={() => setExpandedSectionId(expandedSectionId === section.id ? null : section.id)}
+                      onUpdateSection={(patch) => handleUpdateSection(section.id, patch)}
+                      onRemoveSection={() => handleRemoveSection(section.id)}
+                    />
+                  </SortableCardShell>
+                )
+              }
+
+              const block = contentBlocks.find((b) => b.id === id)
+              if (block) {
+                return (
+                  <SortableCardShell
+                    key={id}
+                    id={id}
+                    isFirst={index === 0}
+                    isLast={index === filteredIds.length - 1}
+                    onMoveUp={() => moveInOrder(id, 'up')}
+                    onMoveDown={() => moveInOrder(id, 'down')}
+                  >
+                    <ContentBlockCard
+                      block={block}
+                      onUpdate={(patch) => handleUpdateContentBlock(block.id, patch)}
+                      onRemove={() => handleRemoveContentBlock(block.id)}
+                    />
+                  </SortableCardShell>
+                )
+              }
+
+              return null
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       <div className="flex gap-2">
         <button
@@ -124,24 +183,6 @@ export function FormFieldsEditor({
           <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">Add Image</span>
         </button>
       </div>
-
-      {contentBlocks.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-medium text-muted-foreground">Content Blocks</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          {contentBlocks.map((block) => (
-            <ContentBlockCard
-              key={block.id}
-              block={block}
-              onUpdate={(patch) => handleUpdateContentBlock(block.id, patch)}
-              onRemove={() => handleRemoveContentBlock(block.id)}
-            />
-          ))}
-        </div>
-      )}
     </div>
   )
 }

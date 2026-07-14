@@ -2,9 +2,12 @@
 
 import { useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { type Category, type CategoryOption, type CustomProfileField } from '@/lib/subscription-types'
 import type { MailGroup } from '@/lib/subscription-centre'
 import { CategoryCard } from '@/components/category-card'
+import { SortableCardShell } from '@/components/sortable-card-shell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,6 +42,22 @@ export function MailgroupsEditor({
   sectionOrder,
   onSectionOrderChange,
 }: MailgroupsEditorProps) {
+  const categoryIds = sectionOrder.filter((id) => categories.some((c) => c.id === id))
+
+  const moveCategory = (id: string, direction: 'up' | 'down') => {
+    const filteredIdx = categoryIds.indexOf(id)
+    const newFilteredIdx = filteredIdx + (direction === 'up' ? -1 : 1)
+    if (newFilteredIdx < 0 || newFilteredIdx >= categoryIds.length) return
+    const targetId = categoryIds[newFilteredIdx]
+    onSectionOrderChange(arrayMove(sectionOrder, sectionOrder.indexOf(id), sectionOrder.indexOf(targetId)))
+  }
+
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    onSectionOrderChange(arrayMove(sectionOrder, sectionOrder.indexOf(active.id as string), sectionOrder.indexOf(over.id as string)))
+  }
+
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null)
   const [justAddedCategoryId, setJustAddedCategoryId] = useState<string | null>(null)
   const justAddedCategoryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -133,31 +152,47 @@ export function MailgroupsEditor({
           <h3 className="text-base font-semibold">Mailgroup Categories</h3>
           <p className="text-sm text-muted-foreground">Questions shown on the form that let subscribers pick which mailgroups to join.</p>
         </div>
-        {categories.length > 0 && (
-          <div className="space-y-4">
-            {categories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                mailGroups={mailGroups}
-                onAddMailGroup={onAddMailGroup}
-                profileFields={profileFields}
-                categories={categories}
-                getSourceLabel={getSourceLabel}
-                isExpanded={expandedCategoryId === category.id}
-                isJustAdded={justAddedCategoryId === category.id}
-                onToggleExpand={() => setExpandedCategoryId(expandedCategoryId === category.id ? null : category.id)}
-                onUpdateCategory={(patch) => handleUpdateCategory(category.id, patch)}
-                onRemove={() => handleRemoveCategory(category.id)}
-                expandedOptionKey={expandedOptionKey}
-                justAddedOptionKey={justAddedOptionKey}
-                onToggleOptionExpand={(optionKey) => setExpandedOptionKey(expandedOptionKey === optionKey ? null : optionKey)}
-                onToggleMailGroup={(group, checked) => handleToggleCategoryMailGroup(category.id, group, checked)}
-                onUpdateOption={(optionKey, patch) => handleUpdateOption(category.id, optionKey, patch)}
-                onRemoveOption={(optionKey) => handleRemoveOption(category.id, optionKey)}
-              />
-            ))}
-          </div>
+        {categoryIds.length > 0 && (
+          <DndContext collisionDetection={closestCenter} onDragEnd={handleCategoryDragEnd}>
+            <SortableContext items={categoryIds} strategy={verticalListSortingStrategy}>
+              <div className="space-y-4">
+                {categoryIds.map((id, index) => {
+                  const category = categories.find((c) => c.id === id)
+                  if (!category) return null
+                  return (
+                    <SortableCardShell
+                      key={id}
+                      id={id}
+                      isFirst={index === 0}
+                      isLast={index === categoryIds.length - 1}
+                      onMoveUp={() => moveCategory(id, 'up')}
+                      onMoveDown={() => moveCategory(id, 'down')}
+                    >
+                      <CategoryCard
+                        category={category}
+                        mailGroups={mailGroups}
+                        onAddMailGroup={onAddMailGroup}
+                        profileFields={profileFields}
+                        categories={categories}
+                        getSourceLabel={getSourceLabel}
+                        isExpanded={expandedCategoryId === category.id}
+                        isJustAdded={justAddedCategoryId === category.id}
+                        onToggleExpand={() => setExpandedCategoryId(expandedCategoryId === category.id ? null : category.id)}
+                        onUpdateCategory={(patch) => handleUpdateCategory(category.id, patch)}
+                        onRemove={() => handleRemoveCategory(category.id)}
+                        expandedOptionKey={expandedOptionKey}
+                        justAddedOptionKey={justAddedOptionKey}
+                        onToggleOptionExpand={(optionKey) => setExpandedOptionKey(expandedOptionKey === optionKey ? null : optionKey)}
+                        onToggleMailGroup={(group, checked) => handleToggleCategoryMailGroup(category.id, group, checked)}
+                        onUpdateOption={(optionKey, patch) => handleUpdateOption(category.id, optionKey, patch)}
+                        onRemoveOption={(optionKey) => handleRemoveOption(category.id, optionKey)}
+                      />
+                    </SortableCardShell>
+                  )
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
 
         <button
