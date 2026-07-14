@@ -1,4 +1,5 @@
 import { RequestLinkForm } from '@/components/request-link-form'
+import { CentrePageShell } from '@/components/centre-page-shell'
 
 export const metadata = {
   title: 'Manage Preferences - Preference Centre',
@@ -7,8 +8,10 @@ export const metadata = {
 
 export default function ManagePreferencesRequestPage() {
   return (
-    <div className="px-4 py-12">
-      <RequestLinkForm type="manage" />
-    </div>
+    <CentrePageShell>
+      <div className="px-4 py-12">
+        <RequestLinkForm type="manage" />
+      </div>
+    </CentrePageShell>
   )
 }

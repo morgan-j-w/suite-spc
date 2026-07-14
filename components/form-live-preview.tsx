@@ -19,6 +19,9 @@ import { RenderedSection, RenderedCategory } from '@/components/subscription-cen
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
 import { AnimatedVisibility } from '@/components/animated-visibility'
 import { Card, CardContent } from '@/components/ui/card'
+import { RenderedContentBlock } from '@/components/rendered-content-block'
+import { richTextContentClass } from '@/components/rich-text-editor'
+import { cn } from '@/lib/utils'
 
 const EMPTY_PROFILE: SubscriberProfile = {
   email: '',
@@ -142,6 +145,11 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
       )
     }
 
+    const contentBlock = (centre.contentBlocks ?? []).find((b) => b.id === id)
+    if (contentBlock) {
+      return <RenderedContentBlock key={id} block={contentBlock} />
+    }
+
     return null
   })
 
@@ -164,6 +172,11 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
 
   return (
     <div data-color-theme={centre.themePresetId}>
+      {centre.banner?.html && (
+        <div className={cn('py-3 text-sm', richTextContentClass, centre.banner.fullWidth ? '' : 'px-1')}>
+          <div dangerouslySetInnerHTML={{ __html: centre.banner.html }} />
+        </div>
+      )}
       {centre.formCardMode === 'single' ? (
         <Card
           className="gap-0 py-0"
@@ -183,6 +196,11 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
         <div className="space-y-6">
           {blocks}
           {submitButton}
+        </div>
+      )}
+      {centre.footer?.html && (
+        <div className={cn('py-3 text-sm', richTextContentClass, centre.footer.fullWidth ? '' : 'px-1')}>
+          <div dangerouslySetInnerHTML={{ __html: centre.footer.html }} />
         </div>
       )}
     </div>

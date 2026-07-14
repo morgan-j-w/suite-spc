@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
+import { CentrePageShell } from '@/components/centre-page-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,7 +18,7 @@ interface UnsubscribePageProps {
   params: Promise<{ token: string }>
 }
 
-export default function UnsubscribePage({ params }: UnsubscribePageProps) {
+function UnsubscribePageInner({ params }: UnsubscribePageProps) {
   const { token } = use(params)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -286,5 +287,13 @@ export default function UnsubscribePage({ params }: UnsubscribePageProps) {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function UnsubscribePage({ params }: UnsubscribePageProps) {
+  return (
+    <CentrePageShell>
+      <UnsubscribePageInner params={params} />
+    </CentrePageShell>
   )
 }

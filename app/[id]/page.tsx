@@ -90,6 +90,18 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     return null
   }
 
+  const handleContentBlocksChange = (contentBlocks: import('@/lib/subscription-centre').ContentBlock[]) => {
+    setCentre((prev) => (prev ? { ...prev, contentBlocks } : prev))
+  }
+
+  const handleBannerChange = (banner: import('@/lib/subscription-centre').BannerFooter | null) => {
+    setCentre((prev) => (prev ? { ...prev, banner } : prev))
+  }
+
+  const handleFooterChange = (footer: import('@/lib/subscription-centre').BannerFooter | null) => {
+    setCentre((prev) => (prev ? { ...prev, footer } : prev))
+  }
+
   const handleProfileFieldSectionsChange = (profileFieldSections: ProfileFieldSection[]) => {
     setCentre((prev) => (prev ? { ...prev, profileFieldSections } : prev))
   }
@@ -502,6 +514,8 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 categories={centre.categories}
                 sectionOrder={centre.sectionOrder}
                 onSectionOrderChange={handleSectionOrderChange}
+                contentBlocks={centre.contentBlocks ?? []}
+                onContentBlocksChange={handleContentBlocksChange}
               />
             )}
 
@@ -526,6 +540,9 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 onSectionOrderChange={handleSectionOrderChange}
                 onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
                 onCategoriesChange={handleCategoriesChange}
+                onContentBlocksChange={handleContentBlocksChange}
+                onBannerChange={handleBannerChange}
+                onFooterChange={handleFooterChange}
                 submitButtonText={centre.submitButtonText}
                 submitButtonStyleIndex={centre.submitButtonStyleIndex}
                 submitButtonAlignment={centre.submitButtonAlignment}

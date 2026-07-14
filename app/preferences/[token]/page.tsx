@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getSubscriberByToken } from '@/lib/subscriber-store'
 import { ManagePreferencesForm } from '@/components/manage-preferences-form'
+import { CentrePageShell } from '@/components/centre-page-shell'
 
 export const metadata = {
   title: 'Manage Preferences - Preference Centre',
@@ -20,28 +21,28 @@ export default async function PreferencesPage({ params }: PreferencesPageProps) 
   }
 
   return (
-    <div className="px-4 py-12">
-      <div className="mx-auto max-w-2xl">
-        {/* Header */}
-        <div className="mb-10 text-center">
-          <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Manage Your Preferences
-          </h1>
-          <p className="mt-3 text-pretty text-muted-foreground">
-            Update your profile and customise what communications you receive from us.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Subscriber since{' '}
-            {new Date(subscriber.subscribedAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
+    <CentrePageShell>
+      <div className="px-4 py-12">
+        <div className="mx-auto max-w-2xl">
+          <div className="mb-10 text-center">
+            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Manage Your Preferences
+            </h1>
+            <p className="mt-3 text-pretty text-muted-foreground">
+              Update your profile and customise what communications you receive from us.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Subscriber since{' '}
+              {new Date(subscriber.subscribedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+          </div>
+          <ManagePreferencesForm subscriber={subscriber} />
         </div>
-
-        <ManagePreferencesForm subscriber={subscriber} />
       </div>
-    </div>
+    </CentrePageShell>
   )
 }

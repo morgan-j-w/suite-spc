@@ -26,10 +26,12 @@ import {
   type Category,
   type SubscriberProfile,
 } from '@/lib/subscription-types'
-import type { SubscriptionCentre, SubmitButtonAlignment } from '@/lib/subscription-centre'
+import type { SubscriptionCentre, SubmitButtonAlignment, ContentBlock, BannerFooter } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { getStylePreviews } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
+import { RenderedContentBlock } from '@/components/rendered-content-block'
+import { BannerFooterEditor } from '@/components/banner-footer-editor'
 import { SortablePreviewBlock } from '@/components/sortable-preview-block'
 import { StylePicker } from '@/components/style-picker'
 import { ThemePresetPicker } from '@/components/theme-preset-picker'
@@ -54,6 +56,9 @@ interface PreviewEditorProps {
   onSectionOrderChange: (order: string[]) => void
   onProfileFieldSectionsChange: (sections: ProfileFieldSection[]) => void
   onCategoriesChange: (categories: Category[]) => void
+  onContentBlocksChange: (blocks: ContentBlock[]) => void
+  onBannerChange: (value: BannerFooter | null) => void
+  onFooterChange: (value: BannerFooter | null) => void
   submitButtonText: string
   submitButtonStyleIndex: number
   submitButtonAlignment: SubmitButtonAlignment
@@ -79,6 +84,9 @@ export function PreviewEditor({
   onSectionOrderChange,
   onProfileFieldSectionsChange,
   onCategoriesChange,
+  onContentBlocksChange,
+  onBannerChange,
+  onFooterChange,
   submitButtonText,
   submitButtonStyleIndex,
   submitButtonAlignment,
@@ -256,6 +264,27 @@ export function PreviewEditor({
       )
     }
 
+    const contentBlock = (centre.contentBlocks ?? []).find((b) => b.id === id)
+    if (contentBlock) {
+      const rendered = <RenderedContentBlock key={id} block={contentBlock} />
+      return isFinalPreview ? rendered : (
+        <SortablePreviewBlock
+          key={id}
+          id={id}
+          theme={centre.themePresetId}
+          cardStyleIndex={undefined}
+          onCardStyleChange={() => {}}
+          hideStylePicker
+          isFirst={index === 0}
+          isLast={index === centre.sectionOrder.length - 1}
+          onMoveUp={() => moveBlock(id, 'up')}
+          onMoveDown={() => moveBlock(id, 'down')}
+        >
+          {rendered}
+        </SortablePreviewBlock>
+      )
+    }
+
     return null
   })
 
@@ -298,6 +327,13 @@ export function PreviewEditor({
 
       {!isFinalPreview && (
         <>
+          <BannerFooterEditor
+            banner={centre.banner ?? null}
+            footer={centre.footer ?? null}
+            onBannerChange={onBannerChange}
+            onFooterChange={onFooterChange}
+          />
+
           <Card className="gap-0 py-0">
             <CardHeader className="px-6 pt-4 pb-2">
               <CardTitle className="text-base">Theme</CardTitle>
@@ -379,7 +415,12 @@ export function PreviewEditor({
         </>
       )}
 
-      <div data-color-theme={centre.themePresetId}>
+      <div data-color-theme={centre.themePresetId} className="space-y-0">
+        {centre.banner?.html && (
+          <div className={cn('py-3 text-sm', centre.banner.fullWidth ? '' : 'px-1')}>
+            <div dangerouslySetInnerHTML={{ __html: centre.banner.html }} />
+          </div>
+        )}
         {formCardMode === 'single' ? (
           <>
             <div className="mb-2 flex justify-end" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -430,6 +471,11 @@ export function PreviewEditor({
               <div className="space-y-6">{blocks}</div>
             </SortableContext>
           </DndContext>
+        )}
+        {centre.footer?.html && (
+          <div className={cn('py-3 text-sm', centre.footer.fullWidth ? '' : 'px-1')}>
+            <div dangerouslySetInnerHTML={{ __html: centre.footer.html }} />
+          </div>
         )}
       </div>
 

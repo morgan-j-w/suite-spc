@@ -8,6 +8,24 @@ import {
   defaultProfileFieldSections,
 } from '@/lib/subscription-types'
 
+export interface BannerFooter {
+  html: string
+  fullWidth: boolean
+}
+
+export type ContentBlockType = 'text' | 'image'
+
+export interface ContentBlock {
+  id: string
+  type: ContentBlockType
+  // text block
+  html?: string
+  // image block
+  imageUrl?: string
+  imageAlt?: string
+  imageWidth?: 'full' | 'contained'
+}
+
 export interface MailGroup {
   id: string
   name: string
@@ -101,6 +119,11 @@ export interface SubscriptionCentre {
   // Whether each section/category renders as its own card or all share one card.
   formCardMode: 'separate' | 'single'
   singleCardStyleIndex: number
+  // Freeform content blocks (text or image) that slot into sectionOrder between form blocks.
+  contentBlocks: ContentBlock[]
+  // Page-level banner and footer rendered above/below the form on all subscriber-facing pages.
+  banner: BannerFooter | null
+  footer: BannerFooter | null
   createdAt: string
   updatedAt: string
 }
@@ -227,6 +250,9 @@ export function createSubscriptionCentre(name: string): SubscriptionCentre {
     formLabelWidth: 33,
     formCardMode: 'separate',
     singleCardStyleIndex: 0,
+    contentBlocks: [],
+    banner: null,
+    footer: null,
     createdAt: now,
     updatedAt: now,
   }

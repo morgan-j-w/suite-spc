@@ -30,6 +30,7 @@ import { Slider } from '@/components/ui/slider'
 import { MultiSelect } from '@/components/multi-select'
 import { RatingInput } from '@/components/rating-input'
 import { cn } from '@/lib/utils'
+import { RenderedContentBlock } from '@/components/rendered-content-block'
 
 const STANDARD_PROFILE_FIELDS = ['email', 'firstName', 'lastName', 'phone', 'company', 'jobTitle']
 
@@ -710,6 +711,11 @@ export function SubscriptionCentreWidget({
               <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={onAnswersChange} />
             </AnimatedVisibility>
           )
+        }
+
+        const contentBlock = (centre.contentBlocks ?? []).find((b) => b.id === id)
+        if (contentBlock) {
+          return <RenderedContentBlock key={id} block={contentBlock} />
         }
 
         return null

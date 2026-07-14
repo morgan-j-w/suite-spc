@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
+import { CentrePageShell } from '@/components/centre-page-shell'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react'
@@ -94,14 +95,16 @@ function SuccessPageContent() {
 
 export default function SuccessPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex flex-1 items-center justify-center px-4 py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      }
-    >
-      <SuccessPageContent />
-    </Suspense>
+    <CentrePageShell>
+      <Suspense
+        fallback={
+          <div className="flex flex-1 items-center justify-center px-4 py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        }
+      >
+        <SuccessPageContent />
+      </Suspense>
+    </CentrePageShell>
   )
 }
