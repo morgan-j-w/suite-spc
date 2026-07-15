@@ -32,6 +32,7 @@ const GROUPS: { group: keyof StatusPages; title: string; description: string; pa
     title: 'Subscribe',
     description: 'Shown when someone signs up.',
     pages: [
+      { group: 'subscribe', key: 'intro', title: 'Page Intro', description: 'The heading and description shown at the top of the subscribe page.' },
       { group: 'subscribe', key: 'success', title: 'Subscribe Success', description: 'Shown after someone successfully subscribes.' },
       {
         group: 'subscribe',

@@ -73,6 +73,7 @@ function migrateStatusPages(raw: any): StatusPages {
 
   return {
     subscribe: {
+      intro: defaultStatusPages.subscribe.intro,
       success: old?.success ?? defaultStatusPages.subscribe.success,
       alreadySubscribed: defaultStatusPages.subscribe.alreadySubscribed,
     },

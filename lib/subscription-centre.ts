@@ -8,6 +8,37 @@ import {
   defaultProfileFieldSections,
 } from '@/lib/subscription-types'
 
+export interface EmailTemplate {
+  subject: string
+  bodyHtml: string
+}
+
+export interface EmailConfig {
+  // Shared banner/footer rendered in every outbound email (650px width).
+  bannerHtml: string
+  footerHtml: string
+  doubleOptIn: EmailTemplate
+  confirmation: EmailTemplate
+  unsubscribed: EmailTemplate
+}
+
+export const defaultEmailConfig: EmailConfig = {
+  bannerHtml: '',
+  footerHtml: '',
+  doubleOptIn: {
+    subject: 'Please confirm your email address',
+    bodyHtml: '<p>Thank you for subscribing! Please click the button below to confirm your email address and complete your registration.</p>',
+  },
+  confirmation: {
+    subject: "You're now subscribed",
+    bodyHtml: "<p>You've successfully subscribed to our communications. We're glad to have you!</p><p>You can manage your preferences or unsubscribe at any time using the link in this email.</p>",
+  },
+  unsubscribed: {
+    subject: "You've been unsubscribed",
+    bodyHtml: "<p>You've been successfully unsubscribed from our communications. We're sorry to see you go.</p><p>If you change your mind, you can resubscribe at any time.</p>",
+  },
+}
+
 export interface BannerFooter {
   html: string
   fullWidth: boolean
@@ -44,6 +75,7 @@ export interface StatusPageContent {
 // while Unsubscribe/Resubscribe each have a prompt and a follow-up confirmation).
 export interface StatusPages {
   subscribe: {
+    intro: StatusPageContent
     success: StatusPageContent
     alreadySubscribed: StatusPageContent
   }
@@ -124,6 +156,8 @@ export interface SubscriptionCentre {
   // Page-level banner and footer rendered above/below the form on all subscriber-facing pages.
   banner: BannerFooter | null
   footer: BannerFooter | null
+  // Email template config — content/design for outbound transactional emails.
+  emailConfig: EmailConfig
   createdAt: string
   updatedAt: string
 }
@@ -136,6 +170,10 @@ export const defaultSubmitButtonAlignment: SubmitButtonAlignment = 'left'
 
 export const defaultStatusPages: StatusPages = {
   subscribe: {
+    intro: {
+      heading: 'Subscribe to Our Updates',
+      message: 'Stay informed with the latest news, updates, and exclusive content. Customise your preferences to receive only what matters to you.',
+    },
     success: {
       heading: "You're all set!",
       message: "Thank you for subscribing. We've sent a confirmation email to your inbox.",
@@ -253,6 +291,7 @@ export function createSubscriptionCentre(name: string): SubscriptionCentre {
     contentBlocks: [],
     banner: null,
     footer: null,
+    emailConfig: { ...defaultEmailConfig },
     createdAt: now,
     updatedAt: now,
   }

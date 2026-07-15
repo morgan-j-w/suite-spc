@@ -99,8 +99,34 @@ export function SubscriptionForm() {
     )
   }
 
+  const intro = centre.statusPages.subscribe.intro
+
   return (
-    <form onSubmit={handleSubmit} aria-label="Subscription form" className="sc-form mx-auto max-w-2xl space-y-8">
+    <>
+      {(intro.heading || intro.message) && (
+        <div className="mb-10 text-center">
+          {intro.heading && (
+            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              {intro.heading}
+            </h1>
+          )}
+          {intro.message && (
+            <p className="mt-3 text-pretty text-muted-foreground">{intro.message}</p>
+          )}
+          <p className="mt-2 text-sm text-muted-foreground">
+            Already a subscriber? You can{' '}
+            <Link href="/manage-preferences" className="font-medium underline underline-offset-4">
+              manage your preferences
+            </Link>{' '}
+            or{' '}
+            <Link href="/unsubscribe" className="font-medium underline underline-offset-4">
+              unsubscribe
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+      <form onSubmit={handleSubmit} aria-label="Subscription form" className="sc-form mx-auto max-w-2xl space-y-8">
       <SubscriptionCentreWidget
         centre={centre}
         profile={profile}
@@ -113,5 +139,6 @@ export function SubscriptionForm() {
 
       <SubmitButton centre={centre} disabled={isSubmitting || !isFormValid} isSubmitting={isSubmitting} />
     </form>
+    </>
   )
 }
