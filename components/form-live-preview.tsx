@@ -147,7 +147,7 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
 
     const contentBlock = (centre.contentBlocks ?? []).find((b) => b.id === id)
     if (contentBlock) {
-      return <RenderedContentBlock key={id} block={contentBlock} />
+      return <RenderedContentBlock key={id} block={contentBlock} showPlaceholder />
     }
 
     return null

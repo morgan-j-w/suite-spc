@@ -32,6 +32,7 @@ import { getStylePreviews } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
 import { RenderedContentBlock } from '@/components/rendered-content-block'
 import { BannerFooterEditor } from '@/components/banner-footer-editor'
+import { richTextContentClass } from '@/components/rich-text-editor'
 import { SortablePreviewBlock } from '@/components/sortable-preview-block'
 import { StylePicker } from '@/components/style-picker'
 import { ThemePresetPicker } from '@/components/theme-preset-picker'
@@ -266,7 +267,7 @@ export function PreviewEditor({
 
     const contentBlock = (centre.contentBlocks ?? []).find((b) => b.id === id)
     if (contentBlock) {
-      const rendered = <RenderedContentBlock key={id} block={contentBlock} />
+      const rendered = <RenderedContentBlock key={id} block={contentBlock} showPlaceholder={!isFinalPreview} />
       return isFinalPreview ? rendered : (
         <SortablePreviewBlock
           key={id}
@@ -417,7 +418,7 @@ export function PreviewEditor({
 
       <div data-color-theme={centre.themePresetId} className="space-y-0">
         {centre.banner?.html && (
-          <div className={cn('py-3 text-sm', centre.banner.fullWidth ? '' : 'px-1')}>
+          <div className={cn('py-3 text-sm', richTextContentClass, centre.banner.fullWidth ? '' : 'px-1')}>
             <div dangerouslySetInnerHTML={{ __html: centre.banner.html }} />
           </div>
         )}
@@ -473,7 +474,7 @@ export function PreviewEditor({
           </DndContext>
         )}
         {centre.footer?.html && (
-          <div className={cn('py-3 text-sm', centre.footer.fullWidth ? '' : 'px-1')}>
+          <div className={cn('py-3 text-sm', richTextContentClass, centre.footer.fullWidth ? '' : 'px-1')}>
             <div dangerouslySetInnerHTML={{ __html: centre.footer.html }} />
           </div>
         )}
