@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { clearDraft, deleteCentre, getCentre, getDraft, saveCentre, saveDraft } from '@/lib/subscription-centre-store'
 import { type Category, type FieldVisibilityRule, type ProfileFieldSection, flattenProfileFields } from '@/lib/subscription-types'
-import { defaultMailGroups, type MailGroup, type StatusPages, type SubmitButtonAlignment, type SubscriptionCentre, type UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
+import { defaultEmailConfig, defaultMailGroups, type EmailConfig, type MailGroup, type StatusPages, type SubmitButtonAlignment, type SubscriptionCentre, type UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { FormFieldsEditor } from '@/components/form-fields-editor'
 import { MailgroupsEditor } from '@/components/mailgroups-editor'
@@ -22,22 +22,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Download, Eraser, FileText, FlaskConical, LayoutTemplate, Loader2, Mail, Palette, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, LayoutTemplate, Loader2, Mail, MailOpen, Palette, Trash2 } from 'lucide-react'
 import { FormLivePreview } from '@/components/form-live-preview'
+import { EmailsEditor } from '@/components/emails-editor'
 
 interface BuilderPageProps {
   params: Promise<{ id: string }>
 }
 
-type BuilderSection = 'fields' | 'mailgroups' | 'preview' | 'status'
+type BuilderSection = 'fields' | 'mailgroups' | 'preview' | 'emails' | 'status'
 
 const SECTIONS: { id: BuilderSection; label: string; icon: typeof LayoutTemplate }[] = [
   { id: 'fields', label: 'Form Fields', icon: LayoutTemplate },
   { id: 'mailgroups', label: 'Mailgroups', icon: Mail },
-  { id: 'status', label: 'Status Pages', icon: FileText },
   { id: 'preview', label: 'Style', icon: Palette },
+  { id: 'emails', label: 'Emails', icon: MailOpen },
+  { id: 'status', label: 'Status Pages', icon: FileText },
 ]
 
 export default function BuilderEditorPage({ params }: BuilderPageProps) {
@@ -47,6 +50,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
   const [activeSection, setActiveSection] = useState<BuilderSection>('fields')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
   const showPreviewPanel = activeSection === 'fields' || activeSection === 'mailgroups'
   const saveRef = useRef<(() => void) | null>(null)
   useEffect(() => {
@@ -100,6 +104,10 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
   const handleFooterChange = (footer: import('@/lib/subscription-centre').BannerFooter | null) => {
     setCentre((prev) => (prev ? { ...prev, footer } : prev))
+  }
+
+  const handleEmailConfigChange = (emailConfig: EmailConfig) => {
+    setCentre((prev) => (prev ? { ...prev, emailConfig } : prev))
   }
 
   const handleProfileFieldSectionsChange = (profileFieldSections: ProfileFieldSection[]) => {
@@ -344,15 +352,12 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
   const isDirty = savedSnapshot !== null && JSON.stringify(centre) !== savedSnapshot
 
-  // A centre needs some way to actually put a subscriber into a mailgroup -- either a
-  // mailgroup card option on the form, or the hidden parent mailgroup from the Mailgroups tab.
-  const hasMailGroupCard = centre.categories.some((category) => category.options.some((option) => option.mailGroupId))
   const hasCatchAllMailGroup = Boolean(centre.catchAllMailGroupId)
-  const canSave = hasMailGroupCard || hasCatchAllMailGroup
+  const canSave = hasCatchAllMailGroup
 
   const handleSave = () => {
     if (!canSave) {
-      toast.error('Add a mailgroup card to the form, or choose a parent mailgroup in Mailgroups, before saving.')
+      toast.error('Choose a parent mailgroup in Mailgroups before saving.')
       return
     }
     saveCentre(centre)
@@ -477,6 +482,65 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 </TooltipTrigger>
                 {!isDirty && <TooltipContent>No unsaved changes</TooltipContent>}
               </Tooltip>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Globe className="h-4 w-4" />
+                    View live
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-0">
+                  <div className="border-b px-4 py-3">
+                    <p className="text-sm font-medium">Live URLs</p>
+                    <p className="text-xs text-muted-foreground">Open or copy links to the published pages.</p>
+                    {isDirty && (
+                      <p className="mt-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">You have unsaved changes — save first to update the live site.</p>
+                    )}
+                  </div>
+                  <div className="divide-y">
+                    {[
+                      { label: 'Subscribe form', path: '/subscribe' },
+                      { label: 'Manage preferences request', path: '/manage-preferences' },
+                      { label: 'Unsubscribe request', path: '/unsubscribe' },
+                    ].map(({ label, path }) => {
+                      const copied = copiedUrl === path
+                      return (
+                        <div key={path} className="flex items-center justify-between gap-2 px-4 py-3">
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium">{label}</p>
+                            <p className="truncate font-mono text-xs text-muted-foreground">{path}</p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              title="Copy URL"
+                              onClick={() => {
+                                const full = `${window.location.origin}${path}`
+                                navigator.clipboard.writeText(full)
+                                setCopiedUrl(path)
+                                setTimeout(() => setCopiedUrl(null), 2000)
+                              }}
+                              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                              {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                            </button>
+                            <a
+                              href={path}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open in new tab"
+                              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
               </div>
             </div>
           </div>
@@ -557,6 +621,13 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 onFormLabelWidthChange={handleFormLabelWidthChange}
                 onFormCardModeChange={handleFormCardModeChange}
                 onSingleCardStyleIndexChange={handleSingleCardStyleIndexChange}
+              />
+            )}
+
+            {activeSection === 'emails' && (
+              <EmailsEditor
+                emailConfig={centre.emailConfig ?? defaultEmailConfig}
+                onEmailConfigChange={handleEmailConfigChange}
               />
             )}
 
