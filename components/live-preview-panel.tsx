@@ -12,16 +12,10 @@ interface LivePreviewPanelProps {
   className?: string
 }
 
-// Persistent live preview used on both the Build and Design tabs. Defaults to a narrow
-// "mobile" width that sits quietly in the sidebar; switching to "desktop" expands the
-// same render into a full-screen overlay rather than squeezing a desktop-width layout
-// into a 320px column.
-//
-// Deliberately NOT `position: sticky`. A sticky element taller than the viewport traps its
-// own overflow off-screen while pinned — no amount of scrolling can reveal the rest of it,
-// since a "stuck" element doesn't move and there's nothing to internally scroll either. A
-// plain block avoids that trap entirely: it just flows with the page's one scroll, so its
-// full height (rounded corners, shadow, and all) is always reachable.
+// Persistent live preview rendered in the app frame's right rail (which owns padding and
+// scrolling), on both the Build and Design tabs. Defaults to a narrow "mobile" width that
+// fits the rail; switching to "desktop" expands the same render into a full-screen overlay
+// rather than squeezing a desktop-width layout into a narrow column.
 export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
   const [width, setWidth] = useState<'mobile' | 'desktop'>('mobile')
 
@@ -48,7 +42,7 @@ export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
 
   return (
     <div className={className}>
-      <div className="px-2 pb-4">
+      <div>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live preview</p>
           {toggle}

@@ -377,9 +377,12 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   }
 
   return (
-    <div>
-      <div className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="mx-auto max-w-7xl px-4 py-3">
+    // App frame: fixed-height shell, header on top, then three independently
+    // scrolling columns (nav rail / editor / preview). No sticky offsets anywhere —
+    // each region owns its scroll context by construction.
+    <div className="flex h-dvh flex-col overflow-hidden">
+      <div className="z-20 shrink-0 border-b bg-background">
+        <div className="px-4 py-3">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
             <div className="shrink-0 md:w-44">
               <Button asChild variant="ghost" size="sm" className="-ml-2 gap-2">
@@ -559,10 +562,9 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl space-y-6 px-4 pb-8 pt-6">
-        <div className="flex flex-col gap-6 md:flex-row">
-          <div className="shrink-0 md:w-44">
-            <nav className="flex flex-col gap-1 md:fixed md:top-[85px] md:w-44 md:left-[max(1rem,calc(50%-40rem))]">
+      <div className="flex min-h-0 flex-1">
+        {/* Nav rail — own scroll region */}
+        <nav className="hidden w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r bg-background p-3 md:flex">
               {SECTIONS.map((section) => (
                 <div key={section.id}>
                   <button
@@ -622,13 +624,54 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   )}
                 </div>
               ))}
-            </nav>
-          </div>
+        </nav>
 
-          <div className="min-w-0 flex-1">
+        {/* Editor column — own scroll region */}
+        <main className="min-w-0 flex-1 overflow-y-auto">
+          {/* Mobile nav — horizontal pills, replaces the rail below md */}
+          <div className="flex gap-1 overflow-x-auto border-b bg-background px-3 py-2 md:hidden">
+            {SECTIONS.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setActiveSection(section.id)}
+                className={cn(
+                  'flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                  activeSection === section.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+              >
+                <section.icon className="h-3.5 w-3.5" />
+                {section.label}
+              </button>
+            ))}
+          </div>
+          {activeSection === 'design' && (
+            <div className="flex gap-1 overflow-x-auto border-b bg-background px-3 py-2 md:hidden">
+              {DESIGN_SUBSECTIONS.map((sub) => (
+                <button key={sub.id} type="button" onClick={() => setDesignSection(sub.id)}
+                  className={cn('shrink-0 rounded-md px-3 py-1 text-sm font-medium transition-colors',
+                    designSection === sub.id ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground')}>
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {activeSection === 'emails' && (
+            <div className="flex gap-1 overflow-x-auto border-b bg-background px-3 py-2 md:hidden">
+              {EMAIL_SUBSECTIONS.map((sub) => (
+                <button key={sub.id} type="button" onClick={() => setEmailSection(sub.id)}
+                  className={cn('shrink-0 rounded-md px-3 py-1 text-sm font-medium transition-colors',
+                    emailSection === sub.id ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground')}>
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="mx-auto max-w-3xl px-4 py-6 md:px-8">
             {activeSection === 'build' && (
-              <div className="flex gap-6">
-                <div className="min-w-0 flex-1">
                   <BuildEditor
                     profileFieldSections={centre.profileFieldSections}
                     onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
@@ -644,14 +687,9 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     onCatchAllMailGroupIdChange={handleCatchAllMailGroupIdChange}
                     suppressErrors={showSuppressErrors}
                   />
-                </div>
-                <LivePreviewPanel centre={centre} className="hidden w-80 shrink-0 xl:block" />
-              </div>
             )}
 
             {activeSection === 'design' && (
-              <div className="flex gap-6">
-                <div className="min-w-0 flex-1">
                   <PreviewEditor
                     centre={centre}
                     designSection={designSection}
@@ -688,9 +726,6 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     onFormWidthChange={handleFormWidthChange}
                     onNavigateToPagesTab={() => setActiveSection('pages')}
                   />
-                </div>
-                <LivePreviewPanel centre={centre} className="hidden w-80 shrink-0 xl:block" />
-              </div>
             )}
 
             {activeSection === 'emails' && (
@@ -721,7 +756,14 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
               <ExportEditor centre={centre} />
             )}
           </div>
-        </div>
+        </main>
+
+        {/* Preview rail — own scroll region, only where a live preview makes sense */}
+        {(activeSection === 'build' || activeSection === 'design') && (
+          <aside className="hidden w-[360px] shrink-0 overflow-y-auto border-l bg-background p-4 xl:block">
+            <LivePreviewPanel centre={centre} />
+          </aside>
+        )}
       </div>
     </div>
   )
