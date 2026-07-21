@@ -4,6 +4,7 @@ export interface EmailLayoutColorOptions {
   bgColor?: string
   textColor?: string
   linkColor?: string
+  accentColor?: string
   heading?: string
   subheading?: string
   logoMaxWidth?: number
@@ -90,8 +91,7 @@ export function generateEmailBannerHtml(
       ].join('\n')
     }
 
-    case 'heading-band':
-    default: {
+    case 'heading-band': {
       const align = opts.logoPosition ?? 'center'
       const scale = paddingScale(opts.padding, 26)
       return [
@@ -111,6 +111,76 @@ export function generateEmailBannerHtml(
         `</table>`,
       ].join('\n')
     }
+
+    // Logo + "Back to website" row, then a centred heading/blurb band below — a bulletproof
+    // nested-table equivalent of the web Bar + CTA banner.
+    case 'bar-cta': {
+      const scale = paddingScale(opts.padding, 22)
+      return [
+        `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
+        `  <tr>`,
+        `    <td style="padding:${Math.round(18 * scale)}px 40px 0;">`,
+        `      <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>`,
+        `        <td align="left">${logoOrName(brand.logoUrl, fg, logoH, logoW)}</td>`,
+        brand.backUrl
+          ? `        <td align="right"><a href="${escAttr(brand.backUrl)}" style="font-size:12px;color:${escAttr(link)};text-decoration:none;font-family:Arial,sans-serif;">Back to website &rarr;</a></td>`
+          : '',
+        `      </tr></table>`,
+        `    </td>`,
+        `  </tr>`,
+        `  <tr>`,
+        `    <td style="padding:${Math.round(22 * scale)}px 40px ${Math.round(18 * scale)}px;">`,
+        `      <p style="margin:0;font-size:20px;font-weight:700;color:${escAttr(fg)};font-family:Arial,sans-serif;">${esc(heading)}</p>`,
+        subheading ? `      <p style="margin:6px 0 0;font-size:14px;color:${escAttr(fg)};font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
+        `    </td>`,
+        `  </tr>`,
+        `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
+        `</table>`,
+      ].join('\n')
+    }
+
+    // Solid accent stripe + logo in a fixed-width left column, heading/blurb filling the
+    // rest — a single table row with fixed-width cells, which is the bulletproof way to get
+    // a side-by-side layout in email (no flexbox, so this is a genuine table, not a port).
+    case 'brand-band': {
+      const accent = opts.accentColor ?? link
+      const scale = paddingScale(opts.padding, 22)
+      const pad = Math.round(22 * scale)
+      return [
+        `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
+        `  <tr>`,
+        `    <td width="4" style="background-color:${escAttr(accent)};font-size:0;line-height:0;">&nbsp;</td>`,
+        `    <td width="150" style="padding:${pad}px 16px ${pad}px 24px;border-right:1px solid #e5e5e5;" align="left">${logoOrName(brand.logoUrl, fg, Math.min(logoH, 32), Math.min(logoW, 120))}</td>`,
+        `    <td style="padding:${pad}px 24px;" align="left">`,
+        `      <p style="margin:0;font-size:18px;font-weight:700;color:${escAttr(fg)};line-height:1.3;font-family:Arial,sans-serif;">${esc(heading)}</p>`,
+        subheading ? `      <p style="margin:4px 0 0;font-size:13px;color:${escAttr(fg)};opacity:0.75;font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
+        `    </td>`,
+        `  </tr>`,
+        `</table>`,
+      ].join('\n')
+    }
+
+    // Bold full-bleed colour band, centred logo/heading/blurb — no drop shadow or background
+    // image (Outlook needs VML for those), just a solid background-color cell, which renders
+    // identically everywhere.
+    case 'feature-hero': {
+      const scale = paddingScale(opts.padding, 34)
+      const sz = { h: Math.min(logoH, 32), w: Math.min(logoW, 120) }
+      return [
+        `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
+        `  <tr>`,
+        `    <td align="center" style="padding:${Math.round(34 * scale)}px 40px;">`,
+        brand.logoUrl ? `      <img src="${escAttr(brand.logoUrl)}" alt="" height="${sz.h}" style="display:block;margin:0 auto 16px;max-width:${sz.w}px;height:auto;max-height:${sz.h}px;border:0;opacity:0.9;" />` : '',
+        `      <p style="margin:0 0 10px;font-size:26px;font-weight:800;color:${escAttr(fg)};line-height:1.15;font-family:Arial,sans-serif;">${esc(heading)}</p>`,
+        subheading ? `      <p style="margin:0;font-size:15px;color:${escAttr(fg)};opacity:0.85;line-height:1.5;font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
+        `    </td>`,
+        `  </tr>`,
+        `</table>`,
+      ].join('\n')
+    }
+
+    default:
+      return generateEmailBannerHtml('heading-band', brand, opts)
   }
 }
 
@@ -211,6 +281,14 @@ export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions =
 const UNSUB_URL = '{{{unsubscribe_url}}}'
 const PREFS_URL = '{{{preferences_url}}}'
 
+// Social icon graphics need hosted image assets this app doesn't have, so the email-safe
+// fallback (a legitimate, common pattern when icon assets aren't available) is plain text
+// platform names as links, same underlying brand.socialLinks data the web footer uses.
+const SOCIAL_LABELS: Record<string, string> = {
+  facebook: 'Facebook', x: 'X', instagram: 'Instagram', linkedin: 'LinkedIn',
+  youtube: 'YouTube', tiktok: 'TikTok', pinterest: 'Pinterest', threads: 'Threads',
+}
+
 export function generateEmailFooterHtml(
   layout: EmailFooterLayout,
   brand: Brand,
@@ -229,8 +307,7 @@ export function generateEmailFooterHtml(
   const logo = brand.logoUrl
 
   switch (layout) {
-    case 'minimal':
-    default: {
+    case 'minimal': {
       const pad = Math.round(18 * paddingScale(opts.padding, 18))
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
@@ -276,5 +353,69 @@ export function generateEmailFooterHtml(
         `</table>`,
       ].join('\n')
     }
+
+    // Logo + address/copyright in a fixed-width left column, Unsubscribe/Manage preferences
+    // stacked right-aligned in a fixed-width right column — one table row, two cells.
+    case 'two-col': {
+      const pad = Math.round(20 * paddingScale(opts.padding, 20))
+      return [
+        `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
+        `  <tr>`,
+        `    <td width="325" valign="top" style="padding:${pad}px 20px ${pad}px 40px;font-family:Arial,sans-serif;">`,
+        logo ? `      <img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;margin:0 0 10px;" />` : '',
+        addressHtml ? `      <p style="margin:0 0 4px;font-size:12px;color:${escAttr(fg)};">${addressHtml}</p>` : '',
+        `      <p style="margin:0;font-size:11px;color:${escAttr(fg)};">${copyright}</p>`,
+        `    </td>`,
+        `    <td width="325" valign="top" align="right" style="padding:${pad}px 40px ${pad}px 20px;font-family:Arial,sans-serif;">`,
+        `      <p style="margin:0 0 4px;font-size:12px;"><a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a></p>`,
+        `      <p style="margin:0;font-size:12px;"><a href="${PREFS_URL}" style="color:${escAttr(link)};text-decoration:underline;">Manage preferences</a></p>`,
+        `    </td>`,
+        `  </tr>`,
+        `</table>`,
+      ].join('\n')
+    }
+
+    // Social platform names as text links (no icon graphics — see SOCIAL_LABELS above),
+    // centred, then copyright + Unsubscribe below. No logo, mirroring the web layout's
+    // social-first emphasis.
+    case 'social-focused': {
+      const pad = Math.round(20 * paddingScale(opts.padding, 20))
+      const socialLinks = brand.socialLinks ?? []
+      return [
+        `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
+        `  <tr><td style="border-top:1px solid ${escAttr(fg)};opacity:0.15;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>`,
+        `  <tr>`,
+        `    <td align="center" style="padding:${pad}px 40px;font-family:Arial,sans-serif;">`,
+        socialLinks.length
+          ? `      <p style="margin:0 0 10px;font-size:12px;">${socialLinks.map((sl) => `<a href="${escAttr(sl.url)}" style="color:${escAttr(link)};text-decoration:none;margin:0 6px;font-weight:600;">${SOCIAL_LABELS[sl.platform] ?? sl.platform}</a>`).join('')}</p>`
+          : '',
+        `      <p style="margin:0;font-size:12px;color:${escAttr(fg)};">${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a></p>`,
+        `    </td>`,
+        `  </tr>`,
+        `</table>`,
+      ].join('\n')
+    }
+
+    // Logo left, copyright + Unsubscribe right, single row, coloured top border — the
+    // horizontal counterpart to Links + copyright's stacked rows.
+    case 'inline-band': {
+      const accent = opts.accentColor ?? link
+      const pad = Math.round(16 * paddingScale(opts.padding, 16))
+      return [
+        `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};border-top:3px solid ${escAttr(accent)};">`,
+        `  <tr>`,
+        logo
+          ? `    <td width="140" valign="middle" align="left" style="padding:${pad}px 16px ${pad}px 40px;"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td>`
+          : `    <td valign="middle" align="left" style="padding:${pad}px 16px ${pad}px 40px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:${escAttr(fg)};">Your Company</td>`,
+        `    <td valign="middle" align="right" style="padding:${pad}px 40px ${pad}px 16px;font-family:Arial,sans-serif;font-size:11px;color:${escAttr(fg)};">`,
+        `      ${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a>`,
+        `    </td>`,
+        `  </tr>`,
+        `</table>`,
+      ].join('\n')
+    }
+
+    default:
+      return generateEmailFooterHtml('minimal', brand, opts)
   }
 }

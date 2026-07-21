@@ -88,6 +88,49 @@ const EMAIL_BANNER_LAYOUTS: { id: EmailBannerLayout; label: string; sketch: Reac
       </div>
     ),
   },
+  {
+    id: 'bar-cta',
+    label: 'Bar + CTA',
+    sketch: (
+      <div className="flex h-full flex-col justify-between bg-card p-1.5">
+        <div className="flex items-center justify-between">
+          <div className="h-2 w-8 rounded bg-muted" />
+          <div className="h-1.5 w-10 rounded bg-primary/50" />
+        </div>
+        <div>
+          <div className="mb-0.5 h-1.5 w-14 rounded bg-foreground/30" />
+          <div className="h-1 w-10 rounded bg-muted-foreground/30" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'brand-band',
+    label: 'Brand band',
+    sketch: (
+      <div className="flex h-full items-center bg-card px-1.5 py-1 gap-2 border-b border-border">
+        <div className="flex items-center gap-1 pr-2 border-r border-border self-stretch py-1 flex-shrink-0">
+          <div className="w-0.5 self-stretch rounded bg-primary" />
+          <div className="h-2 w-6 rounded bg-muted" />
+        </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <div className="h-1.5 w-14 rounded bg-foreground/40" />
+          <div className="h-1 w-10 rounded bg-muted-foreground/30" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'feature-hero',
+    label: 'Feature hero',
+    sketch: (
+      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-primary/80 p-2">
+        <div className="h-2 w-8 rounded bg-white/50" />
+        <div className="h-3 w-16 rounded bg-white/90" />
+        <div className="h-1.5 w-12 rounded bg-white/55" />
+      </div>
+    ),
+  },
 ]
 
 // ─── Footer layout thumbnails ──────────────────────────────────────────────────
@@ -130,6 +173,44 @@ const EMAIL_FOOTER_LAYOUTS: { id: EmailFooterLayout; label: string; sketch: Reac
       </div>
     ),
   },
+  {
+    id: 'two-col',
+    label: 'Two col',
+    sketch: (
+      <div className="flex h-full items-start justify-between bg-card p-1.5 border-t border-border gap-2">
+        <div className="flex flex-col gap-0.5">
+          <div className="h-1.5 w-8 rounded bg-muted mb-0.5" />
+          <div className="h-1 w-10 rounded bg-muted-foreground/30" />
+          <div className="h-1 w-8 rounded bg-muted-foreground/20" />
+        </div>
+        <div className="flex flex-col items-end gap-0.5 pt-0.5">
+          {[0, 1].map((i) => <div key={i} className="h-1 w-7 rounded bg-muted-foreground/30" />)}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'social-focused',
+    label: 'Social',
+    sketch: (
+      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-card p-1.5 border-t border-border">
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map((i) => <div key={i} className="h-1.5 w-6 rounded-sm bg-muted-foreground/40" />)}
+        </div>
+        <div className="h-1 w-16 rounded bg-muted-foreground/25" />
+      </div>
+    ),
+  },
+  {
+    id: 'inline-band',
+    label: 'Inline band',
+    sketch: (
+      <div className="flex h-full items-center justify-between bg-card px-1.5 py-1 gap-1.5 border-t-2 border-primary">
+        <div className="h-2 w-8 rounded bg-muted flex-shrink-0" />
+        <div className="h-1 w-14 rounded bg-muted-foreground/25" />
+      </div>
+    ),
+  },
 ]
 
 // ─── Segment toggle ────────────────────────────────────────────────────────────
@@ -164,6 +245,14 @@ function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle:
 
 // ─── Email layout section editor ───────────────────────────────────────────────
 
+// Banner layouts that render heading/subheading text — Logo centered and Logo left don't.
+const TEXT_BANNER_LAYOUTS: EmailBannerLayout[] = ['heading-band', 'bar-cta', 'brand-band', 'feature-hero']
+// Footer layouts that show a logo/fallback wordmark.
+const LOGO_FOOTER_LAYOUTS: EmailFooterLayout[] = ['links-copyright', 'two-col', 'inline-band']
+// Banner/footer layouts with an accent stripe or border to colour.
+const ACCENT_BANNER_LAYOUTS: EmailBannerLayout[] = ['brand-band']
+const ACCENT_FOOTER_LAYOUTS: EmailFooterLayout[] = ['inline-band']
+
 interface EmailLayoutSectionProps {
   section: 'banner' | 'footer'
   layouts: { id: string; label: string; sketch: React.ReactNode }[]
@@ -171,6 +260,7 @@ interface EmailLayoutSectionProps {
   bgColor?: string
   textColor?: string
   linkColor?: string
+  accentColor?: string
   htmlValue: string
   cssValue: string
   themeId?: ColorTheme
@@ -192,6 +282,7 @@ interface EmailLayoutSectionProps {
   onBgColorChange: (color: string | undefined) => void
   onTextColorChange: (color: string | undefined) => void
   onLinkColorChange: (color: string | undefined) => void
+  onAccentColorChange: (color: string | undefined) => void
   onHtmlChange: (html: string) => void
   onCssChange: (css: string) => void
   onPopulate: () => void
@@ -205,6 +296,7 @@ function EmailLayoutSection({
   bgColor,
   textColor,
   linkColor,
+  accentColor,
   htmlValue,
   cssValue,
   themeId,
@@ -224,6 +316,7 @@ function EmailLayoutSection({
   onBgColorChange,
   onTextColorChange,
   onLinkColorChange,
+  onAccentColorChange,
   onHtmlChange,
   onCssChange,
   onPopulate,
@@ -259,9 +352,9 @@ function EmailLayoutSection({
         </SettingRow>
       </SettingGroup>
 
-      {/* Text — heading/subheading. Only Heading band (the 3rd banner layout) renders
-          this text; Logo centered and Logo left don't use it, so keep it gated. */}
-      {section === 'banner' && selectedLayout === 'heading-band' && onHeadingChange && (
+      {/* Text — heading/subheading. Only the layouts that actually render this text show
+          the group; Logo centered and Logo left don't use it. */}
+      {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
         <SettingGroup title="Text" collapsible>
           <div className="space-y-2">
             <div className="space-y-1">
@@ -286,8 +379,8 @@ function EmailLayoutSection({
         </SettingGroup>
       )}
 
-      {/* Logo — banner: all layouts; footer: links-copyright only */}
-      {selectedLayout && (section === 'banner' || (section === 'footer' && selectedLayout === 'links-copyright')) && (
+      {/* Logo — banner: all layouts; footer: layouts that show a logo/wordmark */}
+      {selectedLayout && (section === 'banner' || (section === 'footer' && LOGO_FOOTER_LAYOUTS.includes(selectedLayout as EmailFooterLayout))) && (
         <SettingGroup title="Logo" collapsible>
           <SettingRow label="Max size">
             <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={logoMaxWidth} onChange={onLogoMaxWidthChange} />
@@ -333,6 +426,17 @@ function EmailLayoutSection({
               onChange={(v) => onLinkColorChange(v || undefined)}
               themeId={themeId ?? defaultTheme}
             />
+            {selectedLayout && (
+              (section === 'banner' && ACCENT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout)) ||
+              (section === 'footer' && ACCENT_FOOTER_LAYOUTS.includes(selectedLayout as EmailFooterLayout))
+            ) && (
+              <ColorRow
+                label="Accent"
+                value={accentColor}
+                onChange={(v) => onAccentColorChange(v || undefined)}
+                themeId={themeId ?? defaultTheme}
+              />
+            )}
           </div>
         </SettingGroup>
       )}
@@ -478,6 +582,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
         logoMaxHeight: emailConfig.bannerLogoMaxHeight,
         logoPosition:  emailConfig.bannerLogoPosition,
         padding:       emailConfig.bannerPadding,
+        accentColor:   emailConfig.bannerAccentColor,
       })
   const previewFooterHtml = emailConfig.footerHtml
     || generateEmailFooterHtml(emailConfig.footerLayout ?? 'minimal', brand ?? {}, {
@@ -488,6 +593,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
         logoMaxHeight: emailConfig.footerLogoMaxHeight,
         logoPosition:  emailConfig.footerLogoPosition,
         padding:       emailConfig.footerPadding,
+        accentColor:   emailConfig.footerAccentColor,
       })
 
   return (
@@ -618,6 +724,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition: cfg.bannerLogoPosition,
         padding: cfg.bannerPadding,
+        accentColor: cfg.bannerAccentColor,
       }),
     })
   }
@@ -633,6 +740,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
         padding: cfg.footerPadding,
+        accentColor: cfg.footerAccentColor,
       }),
     })
   }
@@ -656,6 +764,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition: cfg.bannerLogoPosition,
         padding: cfg.bannerPadding,
+        accentColor: cfg.bannerAccentColor,
       })
     : undefined
 
@@ -668,6 +777,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
         padding: cfg.footerPadding,
+        accentColor: cfg.footerAccentColor,
       })
     : undefined
 
@@ -702,6 +812,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               bgColor={cfg.bannerBgColor}
               textColor={cfg.bannerTextColor}
               linkColor={cfg.bannerLinkColor}
+              accentColor={cfg.bannerAccentColor}
               htmlValue={cfg.bannerHtml}
               themeId={themeId ?? defaultTheme}
               padding={cfg.bannerPadding}
@@ -720,6 +831,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               onBgColorChange={(v) => patch({ bannerBgColor: v })}
               onTextColorChange={(v) => patch({ bannerTextColor: v })}
               onLinkColorChange={(v) => patch({ bannerLinkColor: v })}
+              onAccentColorChange={(v) => patch({ bannerAccentColor: v })}
               onHtmlChange={(bannerHtml) => patch({ bannerHtml })}
               onCssChange={(bannerCustomCss) => patch({ bannerCustomCss })}
               cssValue={cfg.bannerCustomCss ?? ''}
@@ -751,6 +863,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               bgColor={cfg.footerBgColor}
               textColor={cfg.footerTextColor}
               linkColor={cfg.footerLinkColor}
+              accentColor={cfg.footerAccentColor}
               htmlValue={cfg.footerHtml}
               themeId={themeId ?? defaultTheme}
               padding={cfg.footerPadding}
@@ -765,6 +878,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               onBgColorChange={(v) => patch({ footerBgColor: v })}
               onTextColorChange={(v) => patch({ footerTextColor: v })}
               onLinkColorChange={(v) => patch({ footerLinkColor: v })}
+              onAccentColorChange={(v) => patch({ footerAccentColor: v })}
               onHtmlChange={(footerHtml) => patch({ footerHtml })}
               onCssChange={(footerCustomCss) => patch({ footerCustomCss })}
               cssValue={cfg.footerCustomCss ?? ''}

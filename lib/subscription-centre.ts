@@ -14,8 +14,8 @@ export interface EmailTemplate {
   bodyHtml: string
 }
 
-export type EmailBannerLayout = 'logo-centered' | 'logo-left' | 'heading-band'
-export type EmailFooterLayout = 'minimal' | 'links-copyright' | 'address-footer'
+export type EmailBannerLayout = 'logo-centered' | 'logo-left' | 'heading-band' | 'bar-cta' | 'brand-band' | 'feature-hero'
+export type EmailFooterLayout = 'minimal' | 'links-copyright' | 'address-footer' | 'two-col' | 'social-focused' | 'inline-band'
 
 export interface EmailConfig {
   // Shared banner/footer rendered in every outbound email (650px width).
@@ -37,6 +37,7 @@ export interface EmailConfig {
   bannerBgColor?: string
   bannerTextColor?: string
   bannerLinkColor?: string
+  bannerAccentColor?: string // stripe/rule colour (Brand band layout)
   bannerCustomCss?: string
   bannerLogoMaxWidth?: number
   bannerLogoMaxHeight?: number
@@ -46,6 +47,7 @@ export interface EmailConfig {
   footerBgColor?: string
   footerTextColor?: string
   footerLinkColor?: string
+  footerAccentColor?: string // top border colour (Inline band layout)
   footerCustomCss?: string
   footerLogoMaxWidth?: number
   footerLogoMaxHeight?: number
