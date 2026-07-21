@@ -499,7 +499,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
       {enabled && (
         <div className="space-y-4">
           {/* Layout */}
-          <SettingGroup title="Layout" collapsible defaultOpen>
+          <SettingGroup title="Layout" collapsible>
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(B) as [BannerLayout, typeof B[BannerLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -534,72 +534,13 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
               <span className="text-xs text-muted-foreground">px</span>
             </SettingRow>
             <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Banner image</span>
+              <Switch checked={!!cfg.bannerImageEnabled} onCheckedChange={(on) => patch({ bannerImageEnabled: on || undefined })} />
+            </div>
+            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
-          </SettingGroup>
-
-          {/* Background image (conditional) */}
-          {isImageBg && (
-            <SettingGroup title="Background image" collapsible defaultOpen>
-              <ImageUploadField
-                label="Image"
-                value={cfg.imageUrl}
-                onChange={(url) => patch({ imageUrl: url })}
-                previewClassName="max-h-24 max-w-full"
-              />
-              <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
-              <SettingRow label="Overlay opacity">
-                <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
-                  onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
-                  className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-xs text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
-              </SettingRow>
-              <SettingRow label="Image fit">
-                <Segmented
-                  options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
-                  value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
-                  onChange={(v) => patch({ backgroundSize: v })}
-                />
-              </SettingRow>
-              <SettingRow label="Tiling">
-                <Segmented
-                  options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
-                  value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
-                  onChange={(v) => patch({ backgroundRepeat: v })}
-                />
-              </SettingRow>
-            </SettingGroup>
-          )}
-
-          {/* Banner image — full-width band rendered below the banner layout */}
-          <SettingGroup
-            title="Banner image"
-            action={<Switch checked={!!cfg.bannerImageEnabled} onCheckedChange={(on) => patch({ bannerImageEnabled: on })} />}
-          >
-            <p className="text-xs text-muted-foreground">An edge-to-edge image shown below the banner, above the page content.</p>
-            {cfg.bannerImageEnabled && (
-              <>
-                <ImageUploadField
-                  label="Image"
-                  value={cfg.bannerImageUrl}
-                  onChange={(url) => patch({ bannerImageUrl: url })}
-                  previewClassName="max-h-24 max-w-full"
-                />
-                <SettingRow label="Height">
-                  <Input
-                    type="number" min={60} max={600} placeholder="240"
-                    value={cfg.bannerImageHeight ?? ''}
-                    onChange={(e) => {
-                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                      patch({ bannerImageHeight: Number.isFinite(v) ? v : undefined })
-                    }}
-                    className="h-7 flex-1 text-xs tabular-nums"
-                  />
-                  <span className="text-xs text-muted-foreground">px</span>
-                </SettingRow>
-              </>
-            )}
           </SettingGroup>
 
           {/* Logo (conditional) */}
@@ -667,6 +608,64 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
               ))}
             </div>
           </SettingGroup>
+
+          {/* Banner image — full-width band rendered below the banner layout */}
+          {cfg.bannerImageEnabled && (
+            <SettingGroup title="Banner image" collapsible defaultOpen>
+              <p className="text-xs text-muted-foreground">An edge-to-edge image shown below the banner, above the page content.</p>
+              <ImageUploadField
+                label="Image"
+                value={cfg.bannerImageUrl}
+                onChange={(url) => patch({ bannerImageUrl: url })}
+                previewClassName="max-h-24 max-w-full"
+              />
+              <SettingRow label="Height">
+                <Input
+                  type="number" min={60} max={600} placeholder="240"
+                  value={cfg.bannerImageHeight ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                    patch({ bannerImageHeight: Number.isFinite(v) ? v : undefined })
+                  }}
+                  className="h-7 flex-1 text-xs tabular-nums"
+                />
+                <span className="text-xs text-muted-foreground">px</span>
+              </SettingRow>
+            </SettingGroup>
+          )}
+
+          {/* Background image (conditional) */}
+          {isImageBg && (
+            <SettingGroup title="Background image" collapsible defaultOpen>
+              <ImageUploadField
+                label="Image"
+                value={cfg.imageUrl}
+                onChange={(url) => patch({ imageUrl: url })}
+                previewClassName="max-h-24 max-w-full"
+              />
+              <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
+              <SettingRow label="Overlay opacity">
+                <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
+                  onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
+                  className="flex-1 accent-primary" style={{ height: '6px' }} />
+                <span className="w-8 text-right text-xs text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+              </SettingRow>
+              <SettingRow label="Image fit">
+                <Segmented
+                  options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
+                  value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
+                  onChange={(v) => patch({ backgroundSize: v })}
+                />
+              </SettingRow>
+              <SettingRow label="Tiling">
+                <Segmented
+                  options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
+                  value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
+                  onChange={(v) => patch({ backgroundRepeat: v })}
+                />
+              </SettingRow>
+            </SettingGroup>
+          )}
 
           <SettingGroup title="Advanced" collapsible>
           {/* Custom HTML */}
@@ -785,7 +784,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
       {enabled && (
         <div className="space-y-4">
           {/* Layout */}
-          <SettingGroup title="Layout" collapsible defaultOpen>
+          <SettingGroup title="Layout" collapsible>
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(F) as [FooterLayout, typeof F[FooterLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -816,10 +815,70 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               <span className="text-xs text-muted-foreground">px</span>
             </SettingRow>
             <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Footer image</span>
+              <Switch checked={!!cfg.footerImageEnabled} onCheckedChange={(on) => patch({ footerImageEnabled: on || undefined })} />
+            </div>
+            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
           </SettingGroup>
+
+          {/* Links */}
+          <SettingGroup title="Links" collapsible>
+            <LinksEditor
+              links={links}
+              onChange={(l) => patch({ links: l })}
+              label="Footer links (legal, privacy, etc.)"
+            />
+            {needsQuickLinks && (
+              <LinksEditor
+                links={quickLinks}
+                onChange={(l) => patch({ quickLinks: l })}
+                label="Quick links column"
+              />
+            )}
+          </SettingGroup>
+
+          {/* Colours */}
+          <SettingGroup title="Colours" collapsible>
+            <div className="space-y-1">
+              {FOOTER_COLOUR_FIELDS[cfg.layout].map(({ key, label }) => (
+                <ColorRow
+                  key={key}
+                  label={label}
+                  value={cfg[key]}
+                  onChange={(v) => patch({ [key]: v })}
+                  themeId={themeId}
+                />
+              ))}
+            </div>
+          </SettingGroup>
+
+          {/* Footer image — full-width band rendered above the footer layout */}
+          {cfg.footerImageEnabled && (
+            <SettingGroup title="Footer image" collapsible defaultOpen>
+              <p className="text-xs text-muted-foreground">An edge-to-edge image shown above the footer, below the page content.</p>
+              <ImageUploadField
+                label="Image"
+                value={cfg.footerImageUrl}
+                onChange={(url) => patch({ footerImageUrl: url })}
+                previewClassName="max-h-24 max-w-full"
+              />
+              <SettingRow label="Height">
+                <Input
+                  type="number" min={60} max={600} placeholder="240"
+                  value={cfg.footerImageHeight ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                    patch({ footerImageHeight: Number.isFinite(v) ? v : undefined })
+                  }}
+                  className="h-7 flex-1 text-xs tabular-nums"
+                />
+                <span className="text-xs text-muted-foreground">px</span>
+              </SettingRow>
+            </SettingGroup>
+          )}
 
           {/* Background image (conditional) */}
           {isImageBg && (
@@ -853,67 +912,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               </SettingRow>
             </SettingGroup>
           )}
-
-          {/* Footer image — full-width band rendered above the footer layout */}
-          <SettingGroup
-            title="Footer image"
-            action={<Switch checked={!!cfg.footerImageEnabled} onCheckedChange={(on) => patch({ footerImageEnabled: on })} />}
-          >
-            <p className="text-xs text-muted-foreground">An edge-to-edge image shown above the footer, below the page content.</p>
-            {cfg.footerImageEnabled && (
-              <>
-                <ImageUploadField
-                  label="Image"
-                  value={cfg.footerImageUrl}
-                  onChange={(url) => patch({ footerImageUrl: url })}
-                  previewClassName="max-h-24 max-w-full"
-                />
-                <SettingRow label="Height">
-                  <Input
-                    type="number" min={60} max={600} placeholder="240"
-                    value={cfg.footerImageHeight ?? ''}
-                    onChange={(e) => {
-                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                      patch({ footerImageHeight: Number.isFinite(v) ? v : undefined })
-                    }}
-                    className="h-7 flex-1 text-xs tabular-nums"
-                  />
-                  <span className="text-xs text-muted-foreground">px</span>
-                </SettingRow>
-              </>
-            )}
-          </SettingGroup>
-
-          {/* Links */}
-          <SettingGroup title="Links" collapsible>
-            <LinksEditor
-              links={links}
-              onChange={(l) => patch({ links: l })}
-              label="Footer links (legal, privacy, etc.)"
-            />
-            {needsQuickLinks && (
-              <LinksEditor
-                links={quickLinks}
-                onChange={(l) => patch({ quickLinks: l })}
-                label="Quick links column"
-              />
-            )}
-          </SettingGroup>
-
-          {/* Colours */}
-          <SettingGroup title="Colours" collapsible>
-            <div className="space-y-1">
-              {FOOTER_COLOUR_FIELDS[cfg.layout].map(({ key, label }) => (
-                <ColorRow
-                  key={key}
-                  label={label}
-                  value={cfg[key]}
-                  onChange={(v) => patch({ [key]: v })}
-                  themeId={themeId}
-                />
-              ))}
-            </div>
-          </SettingGroup>
 
           <SettingGroup title="Advanced" collapsible>
           {/* Custom HTML */}

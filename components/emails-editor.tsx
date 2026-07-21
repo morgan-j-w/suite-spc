@@ -232,7 +232,7 @@ function EmailLayoutSection({
   return (
     <div className="space-y-4">
       {/* Layout */}
-      <SettingGroup title="Layout" collapsible defaultOpen>
+      <SettingGroup title="Layout" collapsible>
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
@@ -251,7 +251,7 @@ function EmailLayoutSection({
 
       {/* Content — editable text for text-based banner layouts */}
       {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
-        <SettingGroup title="Content" collapsible defaultOpen>
+        <SettingGroup title="Content" collapsible>
           <div className="space-y-2">
             {selectedLayout !== 'split' && (
               <div className="space-y-1">

@@ -260,7 +260,7 @@ export function PreviewEditor({
                     <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
                   </div>
 
-                  <SettingGroup title="Page" collapsible defaultOpen>
+                  <SettingGroup title="Page" collapsible>
                     <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
                     <SettingRow label="Content width">
                       <Segmented
