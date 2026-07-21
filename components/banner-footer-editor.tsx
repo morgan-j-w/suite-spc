@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { ChevronDown, ChevronUp, Code2, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronUp, Code2, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import type { BannerConfig, BannerLayout, Brand, FooterConfig, FooterLayout, BannerLink } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { Input } from '@/components/ui/input'
@@ -17,6 +17,7 @@ import { ColorRow } from '@/components/colour-row'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
+import { UnitInput } from '@/components/ui/unit-input'
 import { cn } from '@/lib/utils'
 
 // ─── Layout thumbnails ────────────────────────────────────────────────────────
@@ -524,16 +525,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               <Switch checked={!!cfg.sticky} onCheckedChange={(v) => patch({ sticky: v || undefined })} />
             </div>
             <SettingRow label="Section padding">
-              <Input
-                type="number" min={0} max={200} placeholder="auto"
-                value={cfg.padding ?? ''}
-                onChange={(e) => {
-                  const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                  patch({ padding: Number.isFinite(v) ? v : undefined })
-                }}
-                className="h-7 flex-1 text-xs tabular-nums"
-              />
-              <span className="text-xs text-muted-foreground">px</span>
+              <UnitInput min={0} max={200} placeholder="auto" value={cfg.padding} onChange={(v) => patch({ padding: v })} />
             </SettingRow>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
@@ -544,34 +536,18 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {/* Logo (conditional) */}
           {cfg.layout !== 'minimal' && (
             <SettingGroup title="Logo" collapsible>
-              <SettingRow label="Max width">
-                <Input
-                  type="number" min={20} max={600} placeholder="auto"
-                  value={cfg.logoMaxWidth ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                    patch({ logoMaxWidth: Number.isFinite(v) ? v : undefined })
-                  }}
-                  className="h-7 flex-1 text-xs tabular-nums"
-                />
-                <span className="text-xs text-muted-foreground">px</span>
-              </SettingRow>
-              <SettingRow label="Max height">
-                <Input
-                  type="number" min={16} max={300} placeholder="auto"
-                  value={cfg.logoMaxHeight ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                    patch({ logoMaxHeight: Number.isFinite(v) ? v : undefined })
-                  }}
-                  className="h-7 flex-1 text-xs tabular-nums"
-                />
-                <span className="text-xs text-muted-foreground">px</span>
+              <SettingRow label="Max size">
+                <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={cfg.logoMaxWidth} onChange={(v) => patch({ logoMaxWidth: v })} />
+                <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={cfg.logoMaxHeight} onChange={(v) => patch({ logoMaxHeight: v })} />
               </SettingRow>
               {cfg.layout === 'logo-only' && (
                 <SettingRow label="Position">
                   <Segmented
-                    options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centre' }, { value: 'right', label: 'Right' }]}
+                    options={[
+                      { value: 'left', icon: AlignLeft, title: 'Left' },
+                      { value: 'center', icon: AlignCenter, title: 'Centre' },
+                      { value: 'right', icon: AlignRight, title: 'Right' },
+                    ]}
                     value={cfg.logoPosition ?? 'center'}
                     onChange={(v) => patch({ logoPosition: v })}
                   />
@@ -618,16 +594,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             />
             {cfg.bannerImageUrl && (
               <SettingRow label="Height">
-                <Input
-                  type="number" min={60} max={600} placeholder="240"
-                  value={cfg.bannerImageHeight ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                    patch({ bannerImageHeight: Number.isFinite(v) ? v : undefined })
-                  }}
-                  className="h-7 flex-1 text-xs tabular-nums"
-                />
-                <span className="text-xs text-muted-foreground">px</span>
+                <UnitInput min={60} max={600} placeholder="240" value={cfg.bannerImageHeight} onChange={(v) => patch({ bannerImageHeight: v })} />
               </SettingRow>
             )}
           </SettingGroup>
@@ -801,16 +768,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
             </div>
             <SettingRow label="Section padding">
-              <Input
-                type="number" min={0} max={200} placeholder="auto"
-                value={cfg.padding ?? ''}
-                onChange={(e) => {
-                  const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                  patch({ padding: Number.isFinite(v) ? v : undefined })
-                }}
-                className="h-7 flex-1 text-xs tabular-nums"
-              />
-              <span className="text-xs text-muted-foreground">px</span>
+              <UnitInput min={0} max={200} placeholder="auto" value={cfg.padding} onChange={(v) => patch({ padding: v })} />
             </SettingRow>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
@@ -860,16 +818,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             />
             {cfg.footerImageUrl && (
               <SettingRow label="Height">
-                <Input
-                  type="number" min={60} max={600} placeholder="240"
-                  value={cfg.footerImageHeight ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                    patch({ footerImageHeight: Number.isFinite(v) ? v : undefined })
-                  }}
-                  className="h-7 flex-1 text-xs tabular-nums"
-                />
-                <span className="text-xs text-muted-foreground">px</span>
+                <UnitInput min={60} max={600} placeholder="240" value={cfg.footerImageHeight} onChange={(v) => patch({ footerImageHeight: v })} />
               </SettingRow>
             )}
           </SettingGroup>

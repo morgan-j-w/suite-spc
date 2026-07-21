@@ -42,6 +42,7 @@ import { Input } from '@/components/ui/input'
 import { Segmented } from '@/components/ui/segmented'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { UnitInput } from '@/components/ui/unit-input'
 import { cn } from '@/lib/utils'
 
 const EMPTY_PROFILE: SubscriberProfile = {
@@ -288,32 +289,14 @@ export function PreviewEditor({
                       <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
                         onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
                     </SettingRow>
-                    <SettingRow label="Border colour" dimmed={cs.borderEnabled === false}>
-                      <div className="-my-0.5">
-                        <ColorRow label="" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
-                      </div>
-                    </SettingRow>
+                    <div className={cn('transition-opacity', cs.borderEnabled === false && 'pointer-events-none opacity-40')}>
+                      <ColorRow label="Border colour" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
+                    </div>
                     <SettingRow label="Border width" dimmed={cs.borderEnabled === false}>
-                      <Input
-                        type="number" min={1} max={4} value={cs.borderWidth ?? ''} placeholder="Theme"
-                        onChange={(e) => {
-                          const v = e.target.value === '' ? undefined : Math.max(1, Math.min(4, Number(e.target.value)))
-                          patchCs({ borderWidth: v })
-                        }}
-                        className="h-7 w-20 text-xs font-mono tabular-nums"
-                      />
-                      <span className="text-xs text-muted-foreground">px</span>
+                      <UnitInput min={1} max={4} value={cs.borderWidth} placeholder="Theme" onChange={(v) => patchCs({ borderWidth: v })} />
                     </SettingRow>
                     <SettingRow label="Border radius">
-                      <Input
-                        type="number" min={0} max={24} value={cs.borderRadius ?? ''} placeholder="Theme"
-                        onChange={(e) => {
-                          const v = e.target.value === '' ? undefined : Math.max(0, Math.min(24, Number(e.target.value)))
-                          patchCs({ borderRadius: v })
-                        }}
-                        className="h-7 w-20 text-xs font-mono tabular-nums"
-                      />
-                      <span className="text-xs text-muted-foreground">px</span>
+                      <UnitInput min={0} max={24} value={cs.borderRadius} placeholder="Theme" onChange={(v) => patchCs({ borderRadius: v })} />
                     </SettingRow>
                     <SettingRow label="Drop shadow">
                       <Segmented options={onOff} value={(cs.shadow ?? 'on') as 'on' | 'off'} onChange={(v) => patchCs({ shadow: v as CardStyle['shadow'] })} />

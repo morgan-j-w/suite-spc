@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, MailCheck, MailOpen, MailX, RefreshCw } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, MailCheck, MailOpen, MailX, RefreshCw } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
 import { defaultEmailConfig, type EmailConfig, type EmailTemplate } from '@/lib/subscription-centre'
@@ -11,6 +11,7 @@ import { getThemeBrandColors } from '@/lib/style-previews'
 import { RichTextEditor, richTextContentClass } from '@/components/rich-text-editor'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
+import { UnitInput } from '@/components/ui/unit-input'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -280,36 +281,20 @@ function EmailLayoutSection({
       {/* Logo — banner: all layouts; footer: links-copyright only */}
       {selectedLayout && (section === 'banner' || (section === 'footer' && selectedLayout === 'links-copyright')) && (
         <SettingGroup title="Logo" collapsible>
-          <SettingRow label="Max width">
-            <Input
-              type="number" min={20} max={600} placeholder="auto"
-              value={logoMaxWidth ?? ''}
-              onChange={(e) => {
-                const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                onLogoMaxWidthChange(Number.isFinite(v) ? v : undefined)
-              }}
-              className="h-7 flex-1 text-xs tabular-nums"
-            />
-            <span className="text-xs text-muted-foreground">px</span>
-          </SettingRow>
-          <SettingRow label="Max height">
-            <Input
-              type="number" min={16} max={300} placeholder="auto"
-              value={logoMaxHeight ?? ''}
-              onChange={(e) => {
-                const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                onLogoMaxHeightChange(Number.isFinite(v) ? v : undefined)
-              }}
-              className="h-7 flex-1 text-xs tabular-nums"
-            />
-            <span className="text-xs text-muted-foreground">px</span>
+          <SettingRow label="Max size">
+            <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={logoMaxWidth} onChange={onLogoMaxWidthChange} />
+            <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={logoMaxHeight} onChange={onLogoMaxHeightChange} />
           </SettingRow>
           {/* Position only makes sense for layouts where the logo isn't already anchored by
               the layout itself (logo-left is always left; heading-band is always centred) */}
           {(section !== 'banner' || selectedLayout === 'logo-centered') && (
             <SettingRow label="Position">
               <Segmented
-                options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centre' }, { value: 'right', label: 'Right' }]}
+                options={[
+                  { value: 'left', icon: AlignLeft, title: 'Left' },
+                  { value: 'center', icon: AlignCenter, title: 'Centre' },
+                  { value: 'right', icon: AlignRight, title: 'Right' },
+                ]}
                 value={logoPosition ?? 'center'}
                 onChange={(v) => onLogoPositionChange(v)}
               />

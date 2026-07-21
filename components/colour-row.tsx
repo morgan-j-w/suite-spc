@@ -57,26 +57,26 @@ export function ColorRow({
   const displayLabel = value == null ? 'Auto' : resolveLabel(value, brandColors)
 
   return (
-    <div className="flex items-center gap-2.5 py-0.5">
-      <span className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">{label}</span>
+    <div className="flex items-center gap-3">
+      {label && <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">{label}</span>}
 
       <Popover>
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="flex items-center gap-2 rounded-md border border-transparent px-2 py-1 text-left transition-colors hover:border-border hover:bg-muted/40"
+            className="flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-background px-2 text-left shadow-xs transition-colors hover:border-muted-foreground/40"
           >
             <span data-color-theme={!isCustom ? themeId : undefined} className="flex-shrink-0">
               {value ? (
                 <span
                   style={{ background: value }}
-                  className="block h-4 w-4 rounded-full border border-foreground/15 shadow-sm"
+                  className="block h-4 w-4 rounded-sm border border-foreground/15"
                 />
               ) : (
-                <span className="block h-4 w-4 rounded-full border border-dashed border-muted-foreground/40" />
+                <span className="block h-4 w-4 rounded-sm border border-dashed border-muted-foreground/40" />
               )}
             </span>
-            <span className={cn('font-mono text-xs', value ? 'text-foreground' : 'text-muted-foreground/40')}>
+            <span className={cn('truncate font-mono text-xs', value ? 'text-foreground' : 'text-muted-foreground/50')}>
               {displayLabel}
             </span>
           </button>
