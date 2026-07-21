@@ -24,10 +24,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, Paintbrush, Share2 } from 'lucide-react'
+import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, MoreHorizontal, Paintbrush, Share2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
 import { ExportEditor } from '@/components/export-editor'
 
@@ -392,26 +393,35 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
               <Input
                 value={centre.name}
                 onChange={(e) => setCentre((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
-                className="h-9 w-full bg-white text-base font-semibold md:max-w-md md:flex-1"
+                className="h-9 w-full bg-background text-base font-semibold md:max-w-md md:flex-1"
               />
               <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-2 border-purple-300 text-purple-600 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 dark:border-purple-700 dark:text-purple-400 dark:hover:border-purple-600 dark:hover:bg-purple-950/40 dark:hover:text-purple-300" onClick={handleDemoForm}>
-                <FlaskConical className="h-3.5 w-3.5" />
-                Demo form
-              </Button>
-              <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-2 border-purple-300 text-purple-600 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 dark:border-purple-700 dark:text-purple-400 dark:hover:border-purple-600 dark:hover:bg-purple-950/40 dark:hover:text-purple-300" onClick={handleClearForm}>
-                <Eraser className="h-3.5 w-3.5" />
-                Clear form
-              </Button>
-              <div className="hidden sm:block h-5 w-px bg-border" />
-              <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-2 border-purple-300 text-purple-600 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 dark:border-purple-700 dark:text-purple-400 dark:hover:border-purple-600 dark:hover:bg-purple-950/40 dark:hover:text-purple-300" onClick={handleExportSpec}>
-                <Download className="h-4 w-4" />
-                Export for Dev
-              </Button>
-<Tooltip>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="px-2" aria-label="More actions">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleDemoForm}>
+                    <FlaskConical className="h-3.5 w-3.5" />
+                    Load demo form
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleClearForm}>
+                    <Eraser className="h-3.5 w-3.5" />
+                    Clear form
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleExportSpec}>
+                    <Download className="h-4 w-4" />
+                    Export for dev
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Tooltip>
                 <TooltipTrigger asChild>
                   <span tabIndex={isDirty ? -1 : 0}>
-                    <Button size="sm" onClick={handlePublish} disabled={!isDirty} className="bg-[#43b3ae] hover:bg-[#3a9e99] focus-visible:ring-[#43b3ae] text-white">
+                    <Button size="sm" onClick={handlePublish} disabled={!isDirty}>
                       Publish
                     </Button>
                   </span>
