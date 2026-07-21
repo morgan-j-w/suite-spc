@@ -5,10 +5,10 @@ import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronU
 import { Switch } from '@/components/ui/switch'
 import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
 import { defaultEmailConfig, type EmailConfig, type EmailTemplate } from '@/lib/subscription-centre'
-import { generateEmailBannerHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
+import { generateEmailBannerHtml, generateEmailBodyHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
 import { ColorRow } from '@/components/colour-row'
 import { getThemeBrandColors } from '@/lib/style-previews'
-import { RichTextEditor, richTextContentClass } from '@/components/rich-text-editor'
+import { RichTextEditor } from '@/components/rich-text-editor'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
 import { UnitInput } from '@/components/ui/unit-input'
@@ -547,8 +547,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
                   <div dangerouslySetInnerHTML={{ __html: previewBannerHtml }} />
                 )}
                 <div
-                  className={cn('px-6 py-6 text-sm', richTextContentClass)}
-                  dangerouslySetInnerHTML={{ __html: template.bodyHtml || '<p class="text-gray-400 italic">No body content yet.</p>' }}
+                  dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(template.bodyHtml, { linkColor: themeBrand }) }}
                 />
                 {previewFooterHtml && (
                   <div dangerouslySetInnerHTML={{ __html: previewFooterHtml }} />

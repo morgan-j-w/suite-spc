@@ -99,6 +99,77 @@ export function generateEmailBannerHtml(
   }
 }
 
+// ─── Email body (rich text) — email-safe wrapper ───────────────────────────────
+//
+// The rich text editor (Tiptap) outputs clean semantic HTML — <p>, <h1-4>, <ul>/<ol>/<li>,
+// <a>, <blockquote>, <hr>, <table> — visually styled in the builder by a Tailwind class
+// (richTextContentClass in rich-text-editor.tsx). That works in a browser with the app's
+// stylesheet loaded, but email clients strip <style> blocks and ignore CSS classes far
+// more aggressively than they mangle div-based layout even — the only thing that reliably
+// survives across Gmail/Outlook/Apple Mail is a `style=""` attribute on every element, and
+// a <table> wrapper the same way the banner/footer already use, not a bare <div>.
+//
+// TextStyle+Color and TextAlign already emit inline `style="color:…"` / `style="text-
+// align:…"` directly — that's Tiptap's own behaviour, not something we add — so this only
+// needs to inline sizing/spacing for the structural tags, merging into any style attribute
+// a tag already carries rather than clobbering it.
+
+function styleTag(html: string, tag: string, css: string): string {
+  const re = new RegExp(`<${tag}(\\s[^>]*)?>`, 'g')
+  return html.replace(re, (_match, attrs: string | undefined) => {
+    const a = attrs ?? ''
+    const styleMatch = /\sstyle="([^"]*)"/.exec(a)
+    if (styleMatch) {
+      const withoutStyle = a.slice(0, styleMatch.index) + a.slice(styleMatch.index + styleMatch[0].length)
+      return `<${tag}${withoutStyle} style="${css};${styleMatch[1]}">`
+    }
+    return `<${tag}${a} style="${css}">`
+  })
+}
+
+export interface EmailBodyOptions {
+  textColor?: string
+  linkColor?: string
+  bgColor?: string
+}
+
+// Wraps rich-text bodyHtml in a 650px table matching the banner/footer's own structure,
+// and inlines the same visual treatment richTextContentClass gives it in the builder.
+export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions = {}): string {
+  const text = opts.textColor ?? '#1a1a1a'
+  const linkC = opts.linkColor ?? '#2563eb'
+  const bg = opts.bgColor ?? '#ffffff'
+
+  let html = bodyHtml || '<p style="color:#9ca3af;font-style:italic;margin:0;">No body content yet.</p>'
+
+  html = styleTag(html, 'p', 'margin:0 0 16px;font-size:14px;line-height:1.6;')
+  html = styleTag(html, 'h1', 'margin:0 0 16px;font-size:28px;font-weight:700;line-height:1.25;')
+  html = styleTag(html, 'h2', 'margin:0 0 14px;font-size:24px;font-weight:700;line-height:1.3;')
+  html = styleTag(html, 'h3', 'margin:0 0 12px;font-size:20px;font-weight:600;line-height:1.35;')
+  html = styleTag(html, 'h4', 'margin:0 0 10px;font-size:16px;font-weight:600;line-height:1.4;')
+  html = styleTag(html, 'a', `color:${linkC};text-decoration:underline;`)
+  html = styleTag(html, 'ul', 'margin:0 0 16px;padding-left:20px;')
+  html = styleTag(html, 'ol', 'margin:0 0 16px;padding-left:20px;')
+  html = styleTag(html, 'li', 'margin:0 0 4px;font-size:14px;line-height:1.6;')
+  html = styleTag(html, 'blockquote', 'margin:0 0 16px;padding:4px 0 4px 16px;border-left:3px solid #e5e5e5;color:#666666;')
+  html = styleTag(html, 'code', 'background:#f3f3f3;padding:2px 5px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:13px;')
+  html = styleTag(html, 'table', 'border-collapse:collapse;width:100%;margin:0 0 16px;')
+  html = styleTag(html, 'th', 'border:1px solid #e0e0e0;background:#f7f7f7;padding:8px 12px;text-align:left;font-size:13px;font-weight:600;')
+  html = styleTag(html, 'td', 'border:1px solid #e0e0e0;padding:8px 12px;font-size:13px;')
+  html = html.replace(/<hr(\s[^>]*)?>/g, '<hr style="border:none;border-top:1px solid #e5e5e5;margin:16px 0;" />')
+  html = html.replace(/<table/g, '<table cellpadding="0" cellspacing="0" border="0"')
+
+  return [
+    `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
+    `  <tr>`,
+    `    <td style="padding:24px 40px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${escAttr(text)};">`,
+    `      ${html}`,
+    `    </td>`,
+    `  </tr>`,
+    `</table>`,
+  ].join('\n')
+}
+
 // ─── Email footer generators ───────────────────────────────────────────────────
 
 const UNSUB_URL = '{{{unsubscribe_url}}}'

@@ -5,11 +5,9 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
 import { getCentre } from '@/lib/subscription-centre-store'
-import { generateEmailBannerHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
+import { generateEmailBannerHtml, generateEmailBodyHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
 import { getThemeBrandColors } from '@/lib/style-previews'
 import { defaultTheme } from '@/lib/brand-config'
-import { richTextContentClass } from '@/components/rich-text-editor'
-import { cn } from '@/lib/utils'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 
 // WCAG relative luminance (sRGB, gamma-corrected) — the actual spec formula, not the
@@ -144,12 +142,7 @@ function EmailPreviewContent() {
 
       <div className="mx-auto bg-white shadow-sm" style={{ maxWidth: 650 }}>
         {bannerHtml && <div dangerouslySetInnerHTML={{ __html: bannerHtml }} />}
-        <div
-          className={cn('px-6 py-6 text-sm', richTextContentClass)}
-          dangerouslySetInnerHTML={{
-            __html: tpl.bodyHtml || '<p style="color:#9ca3af;font-style:italic">No body content yet.</p>',
-          }}
-        />
+        <div dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(tpl.bodyHtml, { linkColor: themeBrand }) }} />
         {footerHtml && <div dangerouslySetInnerHTML={{ __html: footerHtml }} />}
       </div>
     </div>
