@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SettingRowProps {
@@ -24,6 +24,10 @@ export function SettingRow({ label, children, dimmed, className }: SettingRowPro
 
 interface SettingGroupProps {
   title: string
+  // Small muted glyph before the title — lets a collapsed stack be recognised at a glance
+  // (Colours, Logo, Text, ...) instead of read. Keep the icon-to-concept mapping consistent
+  // across every editor that uses SettingGroup, or it stops being a shortcut.
+  icon?: LucideIcon
   action?: React.ReactNode
   children?: React.ReactNode
   className?: string
@@ -36,8 +40,14 @@ interface SettingGroupProps {
 
 // Group header inside a flattened settings card — replaces the old nested
 // `rounded-lg border p-3` sub-cards with a divider-and-title rhythm.
-export function SettingGroup({ title, action, children, className, collapsible, defaultOpen = false }: SettingGroupProps) {
+export function SettingGroup({ title, icon: Icon, action, children, className, collapsible, defaultOpen = false }: SettingGroupProps) {
   const [open, setOpen] = useState(!collapsible || defaultOpen)
+  const titleRow = (
+    <>
+      {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+      <p className="truncate text-[13px] font-semibold">{title}</p>
+    </>
+  )
   return (
     <div className={cn('space-y-2.5 border-t border-border/70 pt-4 first:border-t-0 first:pt-0', className)}>
       <div className="flex items-center justify-between gap-2">
@@ -49,10 +59,10 @@ export function SettingGroup({ title, action, children, className, collapsible, 
             className="-m-1 flex min-w-0 flex-1 items-center gap-1.5 rounded p-1 text-left transition-colors hover:bg-muted/60"
           >
             <ChevronRight className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')} />
-            <p className="truncate text-[13px] font-semibold">{title}</p>
+            {titleRow}
           </button>
         ) : (
-          <p className="text-[13px] font-semibold">{title}</p>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5">{titleRow}</div>
         )}
         {action}
       </div>

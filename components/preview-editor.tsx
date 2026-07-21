@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Columns2, GalleryVertical, RectangleHorizontal, Rows2 } from 'lucide-react'
+import { Columns2, GalleryVertical, PanelTop, RectangleHorizontal, Rows2, SquareStack, Type } from 'lucide-react'
 
 type DesignSection = 'brand' | 'theme' | 'banner' | 'footer' | 'form'
 import {
@@ -273,7 +273,7 @@ export function PreviewEditor({
                     <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
                   </div>
 
-                  <SettingGroup title="Page" collapsible>
+                  <SettingGroup title="Page" icon={PanelTop} collapsible>
                     <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
                     <SettingRow label="Content width">
                       <Segmented
@@ -284,7 +284,7 @@ export function PreviewEditor({
                     </SettingRow>
                   </SettingGroup>
 
-                  <SettingGroup title="Form cards" collapsible>
+                  <SettingGroup title="Form cards" icon={SquareStack} collapsible>
                     <SettingRow label="Border">
                       <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
                         onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
@@ -341,7 +341,7 @@ export function PreviewEditor({
                     </div>
                   )}
                   textEditor={
-                    <SettingGroup title="Text" collapsible>
+                    <SettingGroup title="Text" icon={Type} collapsible>
                       <p className="text-xs text-muted-foreground">Each page has its own banner heading and description — pick a page, then edit its text. The preview above follows.</p>
                       <SettingRow label="Page">
                         <Select value={bannerTextFlow} onValueChange={(v) => setBannerTextFlow(v as keyof StatusPages)}>

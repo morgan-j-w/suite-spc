@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, MailCheck, MailOpen, MailX, RefreshCw } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, Image, LayoutTemplate, MailCheck, MailOpen, MailX, Palette, RefreshCw, SlidersHorizontal, Sparkles, Square, Type } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
 import { defaultEmailConfig, type EmailConfig, type EmailTemplate } from '@/lib/subscription-centre'
@@ -330,7 +330,7 @@ function EmailLayoutSection({
       {preview}
 
       {/* Layout */}
-      <SettingGroup title="Layout" collapsible>
+      <SettingGroup title="Layout" icon={LayoutTemplate} collapsible>
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
@@ -346,7 +346,7 @@ function EmailLayoutSection({
       </SettingGroup>
 
       {/* Options */}
-      <SettingGroup title="Options" collapsible>
+      <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
         <SettingRow label="Section padding">
           <SizeControl value={padding} onChange={onPaddingChange} defaultCustomValue={24} max={100} />
         </SettingRow>
@@ -355,7 +355,7 @@ function EmailLayoutSection({
       {/* Text — heading/subheading. Only the layouts that actually render this text show
           the group; Logo centered and Logo left don't use it. */}
       {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
-        <SettingGroup title="Text" collapsible>
+        <SettingGroup title="Text" icon={Type} collapsible>
           <div className="space-y-2">
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">Heading</Label>
@@ -381,7 +381,7 @@ function EmailLayoutSection({
 
       {/* Logo — banner: all layouts; footer: layouts that show a logo/wordmark */}
       {selectedLayout && (section === 'banner' || (section === 'footer' && LOGO_FOOTER_LAYOUTS.includes(selectedLayout as EmailFooterLayout))) && (
-        <SettingGroup title="Logo" collapsible>
+        <SettingGroup title="Logo" icon={Image} collapsible>
           <SettingRow label="Max size">
             <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={logoMaxWidth} onChange={onLogoMaxWidthChange} />
             <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={logoMaxHeight} onChange={onLogoMaxHeightChange} />
@@ -406,7 +406,7 @@ function EmailLayoutSection({
 
       {/* Colours (shown when a layout is selected) */}
       {selectedLayout && (
-        <SettingGroup title="Colours" collapsible>
+        <SettingGroup title="Colours" icon={Palette} collapsible>
           <div className="space-y-1">
             <ColorRow
               label="Background"
@@ -441,7 +441,7 @@ function EmailLayoutSection({
         </SettingGroup>
       )}
 
-      <SettingGroup title="Advanced" collapsible>
+      <SettingGroup title="Advanced" icon={Code2} collapsible>
       {/* Custom HTML */}
       <div>
         <button
@@ -913,10 +913,10 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             <p className="text-sm font-semibold">Email style</p>
             <p className="text-xs text-muted-foreground">Global settings applied across every outbound email.</p>
           </div>
-          <SettingGroup title="Theme" collapsible>
+          <SettingGroup title="Theme" icon={Sparkles} collapsible>
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
           </SettingGroup>
-          <SettingGroup title="Colours" collapsible>
+          <SettingGroup title="Colours" icon={Palette} collapsible>
             <div className="space-y-1">
               <ColorRow
                 label="Page background"
@@ -956,7 +956,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               />
             </div>
           </SettingGroup>
-          <SettingGroup title="Container" collapsible>
+          <SettingGroup title="Container" icon={Square} collapsible>
             <p className="text-xs text-muted-foreground">The middle card between the banner and footer.</p>
             <SettingRow label="Padding">
               <SizeControl

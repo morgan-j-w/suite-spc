@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronUp, Code2, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronUp, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, SlidersHorizontal, Trash2, Wallpaper } from 'lucide-react'
 import type { BannerConfig, BannerLayout, Brand, FooterConfig, FooterLayout, BannerLink } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { Input } from '@/components/ui/input'
@@ -503,7 +503,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {preview}
 
           {/* Layout */}
-          <SettingGroup title="Layout" collapsible>
+          <SettingGroup title="Layout" icon={LayoutTemplate} collapsible>
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(B) as [BannerLayout, typeof B[BannerLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -516,7 +516,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {textEditor}
 
           {/* Options */}
-          <SettingGroup title="Options" collapsible>
+          <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Edge to edge</span>
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
@@ -536,7 +536,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Logo (conditional) */}
           {cfg.layout !== 'minimal' && (
-            <SettingGroup title="Logo" collapsible>
+            <SettingGroup title="Logo" icon={Image} collapsible>
               <SettingRow label="Max size">
                 <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={cfg.logoMaxWidth} onChange={(v) => patch({ logoMaxWidth: v })} />
                 <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={cfg.logoMaxHeight} onChange={(v) => patch({ logoMaxHeight: v })} />
@@ -559,7 +559,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Split image (conditional) */}
           {needsSplitImage && (
-            <SettingGroup title="Image" collapsible>
+            <SettingGroup title="Image" icon={ImagePlus} collapsible>
               <ImageUploadField
                 label="Split image"
                 value={cfg.imageUrl}
@@ -570,7 +570,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           )}
 
           {/* Colours */}
-          <SettingGroup title="Colours" collapsible>
+          <SettingGroup title="Colours" icon={Palette} collapsible>
             <div className="space-y-1">
               {BANNER_COLOUR_FIELDS[cfg.layout].map(({ key, label }) => (
                 <ColorRow
@@ -585,7 +585,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           </SettingGroup>
 
           {/* Banner image — full-width band below the banner; uploading an image enables it */}
-          <SettingGroup title="Banner image" collapsible>
+          <SettingGroup title="Banner image" icon={GalleryHorizontalEnd} collapsible>
             <p className="text-xs text-muted-foreground">Optional edge-to-edge image shown below the banner, above the page content. Upload an image to enable it.</p>
             <ImageUploadField
               label="Image"
@@ -602,7 +602,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Background image (conditional) */}
           {isImageBg && (
-            <SettingGroup title="Background image" collapsible>
+            <SettingGroup title="Background image" icon={Wallpaper} collapsible>
               <ImageUploadField
                 label="Image"
                 value={cfg.imageUrl}
@@ -633,7 +633,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             </SettingGroup>
           )}
 
-          <SettingGroup title="Advanced" collapsible>
+          <SettingGroup title="Advanced" icon={Code2} collapsible>
           {/* Custom HTML */}
           <div>
             <button
@@ -752,7 +752,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           {preview}
 
           {/* Layout */}
-          <SettingGroup title="Layout" collapsible>
+          <SettingGroup title="Layout" icon={LayoutTemplate} collapsible>
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(F) as [FooterLayout, typeof F[FooterLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -763,7 +763,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           </SettingGroup>
 
           {/* Options */}
-          <SettingGroup title="Options" collapsible>
+          <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Edge to edge</span>
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
@@ -778,7 +778,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           </SettingGroup>
 
           {/* Links */}
-          <SettingGroup title="Links" collapsible>
+          <SettingGroup title="Links" icon={Link2} collapsible>
             <LinksEditor
               links={links}
               onChange={(l) => patch({ links: l })}
@@ -794,7 +794,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           </SettingGroup>
 
           {/* Colours */}
-          <SettingGroup title="Colours" collapsible>
+          <SettingGroup title="Colours" icon={Palette} collapsible>
             <div className="space-y-1">
               {FOOTER_COLOUR_FIELDS[cfg.layout].map(({ key, label }) => (
                 <ColorRow
@@ -809,7 +809,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           </SettingGroup>
 
           {/* Footer image — full-width band above the footer; uploading an image enables it */}
-          <SettingGroup title="Footer image" collapsible>
+          <SettingGroup title="Footer image" icon={GalleryHorizontalEnd} collapsible>
             <p className="text-xs text-muted-foreground">Optional edge-to-edge image shown above the footer, below the page content. Upload an image to enable it.</p>
             <ImageUploadField
               label="Image"
@@ -826,7 +826,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
 
           {/* Background image (conditional) */}
           {isImageBg && (
-            <SettingGroup title="Background image" collapsible>
+            <SettingGroup title="Background image" icon={Wallpaper} collapsible>
               <ImageUploadField
                 label="Image"
                 value={cfg.imageUrl}
@@ -857,7 +857,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             </SettingGroup>
           )}
 
-          <SettingGroup title="Advanced" collapsible>
+          <SettingGroup title="Advanced" icon={Code2} collapsible>
           {/* Custom HTML */}
           <div>
             <button
