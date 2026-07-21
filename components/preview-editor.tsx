@@ -479,48 +479,40 @@ export function PreviewEditor({
                   </button>
                 </span>
               </div>
-              <Card className="gap-0 py-0">
-                <CardContent className="px-6 py-6">
-                  <BannerEditor
-                    banner={centre.banner}
-                    onBannerChange={onBannerChange}
-                    themeId={centre.themePresetId}
-                    brand={centre.brand}
-                    preview={centre.banner && (
-                      <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
-                        <RenderedBanner
-                          config={centre.banner}
-                          brand={centre.brand}
-                          heading={centre.statusPages.subscribe.bannerHeading}
-                          blurb={centre.statusPages.subscribe.bannerBlurb}
-                          contentMaxWidth={getContentMaxWidth(centre.formWidth)}
-                        />
-                      </div>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+              <BannerEditor
+                banner={centre.banner}
+                onBannerChange={onBannerChange}
+                themeId={centre.themePresetId}
+                brand={centre.brand}
+                preview={centre.banner && (
+                  <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
+                    <RenderedBanner
+                      config={centre.banner}
+                      brand={centre.brand}
+                      heading={centre.statusPages.subscribe.bannerHeading}
+                      blurb={centre.statusPages.subscribe.bannerBlurb}
+                      contentMaxWidth={getContentMaxWidth(centre.formWidth)}
+                    />
+                  </div>
+                )}
+              />
             </>
           )}
 
           {/* Footer */}
           {designSection === 'footer' && (
             <>
-              <Card className="gap-0 py-0">
-                <CardContent className="px-6 py-6">
-                  <FooterEditor
-                    footer={centre.footer}
-                    onFooterChange={onFooterChange}
-                    themeId={centre.themePresetId}
-                    brand={centre.brand}
-                    preview={centre.footer && (
-                      <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
-                        <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
-                      </div>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+              <FooterEditor
+                footer={centre.footer}
+                onFooterChange={onFooterChange}
+                themeId={centre.themePresetId}
+                brand={centre.brand}
+                preview={centre.footer && (
+                  <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
+                    <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
+                  </div>
+                )}
+              />
             </>
           )}
 

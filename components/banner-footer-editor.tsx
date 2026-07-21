@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { v4 as uuidv4 } from 'uuid'
@@ -471,7 +471,7 @@ interface BannerEditorProps {
   brand?: Brand
 }
 
-export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }: BannerEditorProps & { preview?: React.ReactNode }) {
+export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }: BannerEditorProps & { preview?: ReactNode }) {
   const [showHtml, setShowHtml] = useState(false)
   const [showCss, setShowCss] = useState(false)
   const enabled = !!banner
@@ -759,7 +759,7 @@ interface FooterEditorProps {
   brand?: Brand
 }
 
-export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }: FooterEditorProps & { preview?: React.ReactNode }) {
+export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }: FooterEditorProps & { preview?: ReactNode }) {
   const [showHtml, setShowHtml] = useState(false)
   const [showCss, setShowCss] = useState(false)
   const enabled = !!footer
