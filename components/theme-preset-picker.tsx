@@ -9,11 +9,12 @@ interface ThemePresetPickerProps {
   onChange: (theme: ColorTheme) => void
 }
 
-// A light, a mid, and the three strongest colours — enough to tell themes apart at a
-// glance without rendering the full 8-swatch palette in every row.
+// The four hue-carrying slots (light1, light2, warm, brand) plus the dark anchor.
+// Grey and charcoal are skipped — they're near-identical across themes and would
+// crowd out the accent colours that actually distinguish one palette from another.
 function ThemeSwatches({ theme }: { theme: ColorTheme }) {
   const colors = getThemeBrandColors(theme)
-  const picks = [1, 4, 5, 6, 7].map((i) => colors[i]).filter(Boolean)
+  const picks = [1, 2, 3, 5, 7].map((i) => colors[i]).filter(Boolean)
   return (
     <span className="flex shrink-0 items-center gap-1">
       {picks.map(({ hex, label }) => (

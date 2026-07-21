@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Columns2, GalleryVertical, PanelTop, RectangleHorizontal, Rows2, SquareStack, Type } from 'lucide-react'
+import { Columns2, GalleryVertical, PanelTop, RectangleHorizontal, Rows2, Sparkles, SquareStack, Type } from 'lucide-react'
 
 type DesignSection = 'brand' | 'theme' | 'banner' | 'footer' | 'form'
 import {
@@ -282,10 +282,10 @@ export function PreviewEditor({
                   <CardTitle className="text-base">Style</CardTitle>
                 </CardHeader>
                 <CardContent className="px-6 pt-0 pb-6 space-y-5">
-                  <div>
-                    <p className="mb-4 text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
+                  <SettingGroup title="Theme" icon={Sparkles} collapsible>
+                    <p className="text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
                     <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
-                  </div>
+                  </SettingGroup>
 
                   <SettingGroup title="Page" icon={PanelTop} collapsible>
                     <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
