@@ -12,19 +12,51 @@ import { richTextContentClass } from '@/components/rich-text-editor'
 import { cn } from '@/lib/utils'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 
+// WCAG relative luminance (sRGB, gamma-corrected) — the actual spec formula, not the
+// quick 0.299/0.587/0.114 "perceived brightness" heuristic used elsewhere in this app
+// for text-vs-background legibility. That heuristic is fine for picking readable text
+// but doesn't track contrast RATIO closely enough to guarantee a pass/fail threshold.
+function relativeLuminance(hex: string): number | null {
+  const match = /^#([0-9a-fA-F]{6})$/.exec(hex)
+  if (!match) return null
+  const channels = [0, 2, 4].map((i) => {
+    const c = parseInt(match[1].slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+}
+
+function contrastRatio(l1: number, l2: number): number {
+  const hi = Math.max(l1, l2), lo = Math.min(l1, l2)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+function grayHexFromLuminance(linear: number): string {
+  const c = Math.min(1, Math.max(0, linear))
+  const srgb = c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055
+  const v = Math.round(Math.min(1, Math.max(0, srgb)) * 255)
+  const hex = v.toString(16).padStart(2, '0')
+  return `#${hex}${hex}${hex}`
+}
+
 // "View online" is conventionally a quiet, muted link — not a bold CTA — so rather than
-// flipping to stark black/white we pick between two muted greys based on background
-// luminance, same idea as getReadableTextColor but tuned to stay subtle either way.
-// emailBodyBgColor is user-configurable and could be dark, so a hardcoded grey would
-// risk becoming illegible.
-function mutedLinkColorFor(bg: string): string {
-  const match = /^#([0-9a-fA-F]{6})$/.exec(bg)
-  if (!match) return '#6b7280'
-  const r = parseInt(match[1].slice(0, 2), 16)
-  const g = parseInt(match[1].slice(2, 4), 16)
-  const b = parseInt(match[1].slice(4, 6), 16)
-  const luma = 0.299 * r + 0.587 * g + 0.114 * b
-  return luma > 150 ? '#6b7280' : '#9ca3af'
+// jumping to stark black/white we solve for the neutral grey that sits as close to `bg`
+// as possible while still clearing WCAG AA (4.5:1, the threshold for normal-size text —
+// this link is 12px, too small to qualify as "large text" at the relaxed 3:1 bar).
+// emailBodyBgColor is user-configurable, so a fixed grey can't be trusted to pass against
+// every background a user might pick; every background luminance admits a solution in at
+// least one direction (darker or lighter), so this always returns a passing colour.
+function accessibleMutedLinkColorFor(bg: string, minRatio = 4.5): string {
+  const bgLum = relativeLuminance(bg) ?? 0.9 // unparsable input: assume a light bg, same as the old default
+  const goDarker = contrastRatio(0, bgLum) >= contrastRatio(1, bgLum)
+  // Solving exactly for minRatio and then rounding to the nearest 8-bit grey can round
+  // back under the threshold (e.g. 4.50 -> 4.48), so solve for a hair more contrast to
+  // absorb that quantization error.
+  const solveRatio = minRatio * 1.02
+  const targetLum = goDarker
+    ? (bgLum + 0.05) / solveRatio - 0.05
+    : solveRatio * (bgLum + 0.05) - 0.05
+  return grayHexFromLuminance(targetLum)
 }
 
 function EmailPreviewContent() {
@@ -100,7 +132,7 @@ function EmailPreviewContent() {
       })
 
   const wrapperBg = cfg.emailBodyBgColor ?? '#f4f4f4'
-  const linkColor = mutedLinkColorFor(wrapperBg)
+  const linkColor = accessibleMutedLinkColorFor(wrapperBg)
 
   return (
     <div className="min-h-screen py-8" style={{ background: wrapperBg }}>
