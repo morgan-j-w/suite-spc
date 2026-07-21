@@ -56,7 +56,7 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
         />
       </SettingGroup>
 
-      <SettingGroup title="Links" icon={Link2} collapsible defaultOpen>
+      <SettingGroup title="Links" icon={Link2} collapsible>
         <SettingRow label="Website">
           <Input
             placeholder="https://yoursite.com"
@@ -68,7 +68,7 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
         <p className="text-xs text-muted-foreground">Used in banner layouts that include a &ldquo;Back to website&rdquo; link.</p>
       </SettingGroup>
 
-      <SettingGroup title="Social" icon={AtSign} collapsible defaultOpen>
+      <SettingGroup title="Social" icon={AtSign} collapsible>
         {links.map((link) => (
           <div key={link.id} className="flex items-center gap-1.5">
             <Select
@@ -105,7 +105,7 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
         </Button>
       </SettingGroup>
 
-      <SettingGroup title="Details" icon={Building2} collapsible defaultOpen>
+      <SettingGroup title="Details" icon={Building2} collapsible>
         <SettingRow label="Address" className="items-start">
           <Textarea
             placeholder={"123 Example Street\nSydney NSW 2000, Australia"}
