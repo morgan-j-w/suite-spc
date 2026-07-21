@@ -180,7 +180,13 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
     >
       {centre.banner && (
         <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
-          <RenderedBanner config={centre.banner} brand={centre.brand} contentMaxWidth={contentMaxWidth} />
+          <RenderedBanner
+            config={centre.banner}
+            brand={centre.brand}
+            contentMaxWidth={contentMaxWidth}
+            heading={centre.statusPages.subscribe.bannerHeading}
+            blurb={centre.statusPages.subscribe.bannerBlurb}
+          />
         </div>
       )}
       <div style={{ maxWidth: contentMaxWidth, margin: '0 auto', width: '100%', padding: '2rem 1.5rem' }}>
