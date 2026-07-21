@@ -253,6 +253,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
   const handleDemoForm = () => {
     const template = makeFull()
+    const catchAllMailGroupId = crypto.randomUUID()
     setCentre((prev) => {
       if (!prev) return prev
       return {
@@ -260,7 +261,8 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
         profileFieldSections: template.profileFieldSections,
         categories: template.categories,
         sectionOrder: template.sectionOrder,
-        mailGroups: template.mailGroupsToAdd,
+        mailGroups: [...template.mailGroupsToAdd, { id: catchAllMailGroupId, name: 'All Subscribers', folder: 'General' }],
+        catchAllMailGroupId,
         brand: {
           logoUrl: 'https://placehold.co/160x48/3b82f6/ffffff?text=Your+Brand&font=inter',
           backUrl: 'https://example.com',
@@ -312,10 +314,6 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     c.options.filter((o) => o.mailGroupId && o.suppressMailGroupId === undefined)
   )
   const hasMissingSuppress = optionsMissingSuppress.length > 0
-
-  // Only Build has a hard gate blocking Publish (catch-all mailgroup + suppress groups) — an
-  // amber dot in the sidebar surfaces that before the user hits Publish and gets the toast.
-  const buildNeedsAttention = !hasCatchAllMailGroup || hasMissingSuppress
 
   // Clear suppress errors once all issues are resolved by the user
   if (showSuppressErrors && !hasMissingSuppress) setShowSuppressErrors(false)
@@ -568,14 +566,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     )}
                   >
                     <section.icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1">{section.label}</span>
-                    {section.id === 'build' && buildNeedsAttention && (
-                      <span
-                        className={cn('h-1.5 w-1.5 shrink-0 rounded-full', activeSection === section.id ? 'bg-primary-foreground' : 'bg-amber-500')}
-                        title="Needs attention before publishing"
-                        aria-hidden
-                      />
-                    )}
+                    {section.label}
                   </button>
 
                   {/* Design sub-navigation — only shown when Design is the active section */}
