@@ -323,6 +323,8 @@ export const defaultSubmitButtonAlignment: SubmitButtonAlignment = 'left'
 
 export const defaultStatusPages: StatusPages = {
   subscribe: {
+    bannerHeading: 'Stay in the loop',
+    bannerBlurb: 'Choose the communications that matter to you.',
     intro: {
       heading: 'Subscribe to Our Updates',
       message: 'Stay informed with the latest news, updates, and exclusive content. Customise your preferences to receive only what matters to you.',
@@ -332,11 +334,13 @@ export const defaultStatusPages: StatusPages = {
       message: "Thank you for subscribing. We've sent a confirmation email to your inbox.",
     },
     alreadySubscribed: {
-      heading: 'You’re already subscribed',
+      heading: "You're already subscribed",
       message: 'You are already subscribed to communications from us. You may manage your preferences if you wish to update your details or subscriptions.',
     },
   },
   managePreferences: {
+    bannerHeading: 'Your preferences',
+    bannerBlurb: 'Update your details and choose which communications you receive.',
     saved: {
       heading: 'Preferences saved',
       message: 'Your preferences have been saved successfully.',
@@ -347,6 +351,8 @@ export const defaultStatusPages: StatusPages = {
     },
   },
   unsubscribe: {
+    bannerHeading: 'Unsubscribe',
+    bannerBlurb: "We're sorry to see you go.",
     success: {
       heading: "You've been unsubscribed",
       message: "You've been successfully unsubscribed. We're sorry to see you go.",
@@ -357,6 +363,8 @@ export const defaultStatusPages: StatusPages = {
     },
   },
   resubscribe: {
+    bannerHeading: 'Welcome back',
+    bannerBlurb: 'Resubscribe to stay in touch.',
     prompt: {
       heading: 'You are currently unsubscribed',
       message: 'You unsubscribed from our communications. Would you like to resubscribe?',
@@ -371,6 +379,8 @@ export const defaultStatusPages: StatusPages = {
     },
   },
   unsubscribeRequest: {
+    bannerHeading: 'Unsubscribe',
+    bannerBlurb: "Enter your email and we'll send you a personalised link.",
     intro: {
       heading: 'Unsubscribe',
       message: 'We will send you an email with a personalised link that will allow you to unsubscribe.',
@@ -385,6 +395,8 @@ export const defaultStatusPages: StatusPages = {
     },
   },
   manageRequest: {
+    bannerHeading: 'Manage your preferences',
+    bannerBlurb: "Enter your email and we'll send you a personalised link.",
     intro: {
       heading: 'Manage your preferences',
       message: 'We will send you an email with a personalised link that will allow you to update your details and choose which communications you wish to receive.',
@@ -443,8 +455,17 @@ export function createSubscriptionCentre(name: string): SubscriptionCentre {
     singleCardStyleIndex: 0,
     contentBlocks: [],
     brand: {},
-    banner: null,
-    footer: null,
+    banner: {
+      layout: 'centred',
+      fullWidth: true,
+      backgroundColor: 'var(--primary)',
+      headingColor: 'var(--primary-foreground)',
+      bodyColor: 'var(--primary-foreground)',
+    },
+    footer: {
+      layout: 'minimal-line',
+      fullWidth: true,
+    },
     emailConfig: { ...defaultEmailConfig },
     createdAt: now,
     updatedAt: now,
