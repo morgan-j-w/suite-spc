@@ -47,7 +47,9 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">Logo, social links, and contact details used across banner, footer, and email layouts.</p>
 
-      <SettingGroup title="Logo" icon={Image} collapsible defaultOpen>
+      {/* Open until a logo is set — same pattern as the email Layout group — then the
+          panel reads as four collapsed rows like every other editor */}
+      <SettingGroup title="Logo" icon={Image} collapsible defaultOpen={!brand.logoUrl}>
         <ImageUploadField
           value={brand.logoUrl}
           onChange={(url) => patch({ logoUrl: url })}
