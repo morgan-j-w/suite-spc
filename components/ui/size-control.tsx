@@ -34,9 +34,8 @@ export function SizeControl({ value, onChange, defaultCustomValue, min = 0, max 
   const segValue: 'compact' | 'normal' | 'spacious' | 'custom' = isCustom ? 'custom' : (value ?? 'normal')
 
   return (
-    <div className="space-y-2">
+    <div className="w-full space-y-2">
       <Segmented
-        size="sm"
         options={OPTIONS}
         value={segValue}
         onChange={(v) => {

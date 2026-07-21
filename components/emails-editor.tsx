@@ -799,10 +799,10 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             <p className="text-sm font-semibold">Email style</p>
             <p className="text-xs text-muted-foreground">Global settings applied across every outbound email.</p>
           </div>
-          <SettingGroup title="Theme">
+          <SettingGroup title="Theme" collapsible>
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
           </SettingGroup>
-          <SettingGroup title="Container">
+          <SettingGroup title="Container" collapsible>
             <p className="text-xs text-muted-foreground">The middle card between the banner and footer.</p>
             <SettingRow label="Padding">
               <SizeControl
@@ -813,7 +813,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               />
             </SettingRow>
           </SettingGroup>
-          <SettingGroup title="Colours">
+          <SettingGroup title="Colours" collapsible>
             <div className="space-y-1">
               <ColorRow
                 label="Page background"
