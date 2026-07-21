@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, MailCheck, MailOpen, MailX, RefreshCw } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
@@ -190,6 +190,7 @@ interface EmailLayoutSectionProps {
   onHtmlChange: (html: string) => void
   onCssChange: (css: string) => void
   onPopulate: () => void
+  preview?: ReactNode
 }
 
 function EmailLayoutSection({
@@ -217,6 +218,7 @@ function EmailLayoutSection({
   onHtmlChange,
   onCssChange,
   onPopulate,
+  preview,
 }: EmailLayoutSectionProps) {
   const [showCustomHtml, setShowCustomHtml] = useState(false)
   const [showCustomCss, setShowCustomCss] = useState(false)
@@ -239,6 +241,8 @@ function EmailLayoutSection({
           ))}
         </div>
       </div>
+
+      {preview}
 
       {/* Content card — editable text for text-based banner layouts */}
       {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
@@ -624,6 +628,36 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
     })
   }
 
+  // Rendered banner/footer preview — falls back to the layout generator when no custom
+  // HTML override is set, same as the Messages sub-section's per-template preview.
+  const previewHtmlWrapper = (html: string) => (
+    <div className="overflow-hidden rounded-lg border p-4" style={{ backgroundColor: cfg.emailBodyBgColor ?? '#f4f4f4' }}>
+      <div className="mx-auto overflow-x-auto bg-white shadow-sm" style={{ width: 650, maxWidth: '100%' }} dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  )
+
+  const bannerPreviewHtml = cfg.bannerLayout
+    ? cfg.bannerHtml || generateEmailBannerHtml(cfg.bannerLayout, brand ?? {}, {
+        bgColor: cfg.bannerBgColor,
+        textColor: cfg.bannerTextColor,
+        heading: cfg.bannerHeading,
+        subheading: cfg.bannerSubheading,
+        logoMaxWidth: cfg.bannerLogoMaxWidth,
+        logoMaxHeight: cfg.bannerLogoMaxHeight,
+        logoPosition: cfg.bannerLogoPosition,
+      })
+    : undefined
+
+  const footerPreviewHtml = cfg.footerLayout
+    ? cfg.footerHtml || generateEmailFooterHtml(cfg.footerLayout, brand ?? {}, {
+        bgColor: cfg.footerBgColor,
+        textColor: cfg.footerTextColor,
+        logoMaxWidth: cfg.footerLogoMaxWidth,
+        logoMaxHeight: cfg.footerLogoMaxHeight,
+        logoPosition: cfg.footerLogoPosition,
+      })
+    : undefined
+
   return (
     <div className="space-y-4">
 
@@ -673,6 +707,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               onCssChange={(bannerCustomCss) => patch({ bannerCustomCss })}
               cssValue={cfg.bannerCustomCss ?? ''}
               onPopulate={() => populateBanner()}
+              preview={bannerPreviewHtml ? previewHtmlWrapper(bannerPreviewHtml) : undefined}
             />
           )}
         </>
@@ -713,6 +748,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               onCssChange={(footerCustomCss) => patch({ footerCustomCss })}
               cssValue={cfg.footerCustomCss ?? ''}
               onPopulate={() => populateFooter()}
+              preview={footerPreviewHtml ? previewHtmlWrapper(footerPreviewHtml) : undefined}
             />
           )}
         </>

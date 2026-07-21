@@ -29,7 +29,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, Paintbrush, Share2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
-import { generateEmailBannerHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
 import { ExportEditor } from '@/components/export-editor'
 
 interface BuilderPageProps {
@@ -314,6 +313,19 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   )
   const hasMissingSuppress = optionsMissingSuppress.length > 0
 
+  // Per-section "ready" signal shown as a small dot in the sidebar. Build reuses the same
+  // gate as Publish; Design/Emails look for real content beyond the seeded defaults; Pages
+  // ships with valid copy from the moment a centre is created, so it's always ready.
+  const emailCfgForStatus = centre.emailConfig ?? defaultEmailConfig
+  const sectionReady: Record<BuilderSection, boolean> = {
+    build: hasCatchAllMailGroup && !hasMissingSuppress,
+    design: Boolean(centre.brand?.logoUrl),
+    emails: [emailCfgForStatus.doubleOptIn, emailCfgForStatus.confirmation, emailCfgForStatus.unsubscribed]
+      .some((t) => t?.subject?.trim() && t?.bodyHtml?.trim()),
+    pages: true,
+    export: false,
+  }
+
   // Clear suppress errors once all issues are resolved by the user
   if (showSuppressErrors && !hasMissingSuppress) setShowSuppressErrors(false)
 
@@ -565,7 +577,13 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     )}
                   >
                     <section.icon className="h-4 w-4 shrink-0" />
-                    {section.label}
+                    <span className="flex-1">{section.label}</span>
+                    {sectionReady[section.id] && (
+                      <span
+                        className={cn('h-1.5 w-1.5 shrink-0 rounded-full', activeSection === section.id ? 'bg-primary-foreground' : 'bg-emerald-500')}
+                        aria-hidden
+                      />
+                    )}
                   </button>
 
                   {/* Design sub-navigation — only shown when Design is the active section */}
@@ -682,57 +700,20 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
               </div>
             )}
 
-            {activeSection === 'emails' && (() => {
-              const emailCfg = centre.emailConfig ?? defaultEmailConfig
-              return (
-                <div className="space-y-6">
-                  <Card className="gap-0 py-0">
-                    <CardContent className="px-6 py-6">
-                      <EmailsEditor
-                        section={emailSection}
-                        emailConfig={emailCfg}
-                        onEmailConfigChange={handleEmailConfigChange}
-                        brand={centre.brand}
-                        themeId={centre.themePresetId}
-                        onThemeChange={handleThemeChange}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  {emailSection === 'banner' && emailCfg.bannerEnabled && emailCfg.bannerLayout && (
-                    <div className="overflow-hidden rounded-lg border p-4" style={{ backgroundColor: emailCfg.emailBodyBgColor ?? '#f4f4f4' }}>
-                      <div
-                        className="mx-auto overflow-x-auto bg-white shadow-sm"
-                        style={{ width: 650, maxWidth: '100%' }}
-                        dangerouslySetInnerHTML={{
-                          __html: generateEmailBannerHtml(
-                            emailCfg.bannerLayout,
-                            centre.brand ?? {},
-                            { bgColor: emailCfg.bannerBgColor, textColor: emailCfg.bannerTextColor, heading: emailCfg.bannerHeading, subheading: emailCfg.bannerSubheading, logoMaxWidth: emailCfg.bannerLogoMaxWidth, logoMaxHeight: emailCfg.bannerLogoMaxHeight, logoPosition: emailCfg.bannerLogoPosition }
-                          ),
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {emailSection === 'footer' && emailCfg.footerEnabled && emailCfg.footerLayout && (
-                    <div className="overflow-hidden rounded-lg border p-4" style={{ backgroundColor: emailCfg.emailBodyBgColor ?? '#f4f4f4' }}>
-                      <div
-                        className="mx-auto overflow-x-auto bg-white shadow-sm"
-                        style={{ width: 650, maxWidth: '100%' }}
-                        dangerouslySetInnerHTML={{
-                          __html: generateEmailFooterHtml(
-                            emailCfg.footerLayout,
-                            centre.brand ?? {},
-                            { bgColor: emailCfg.footerBgColor, textColor: emailCfg.footerTextColor, logoMaxWidth: emailCfg.footerLogoMaxWidth, logoMaxHeight: emailCfg.footerLogoMaxHeight, logoPosition: emailCfg.footerLogoPosition }
-                          ),
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
+            {activeSection === 'emails' && (
+              <Card className="gap-0 py-0">
+                <CardContent className="px-6 py-6">
+                  <EmailsEditor
+                    section={emailSection}
+                    emailConfig={centre.emailConfig ?? defaultEmailConfig}
+                    onEmailConfigChange={handleEmailConfigChange}
+                    brand={centre.brand}
+                    themeId={centre.themePresetId}
+                    onThemeChange={handleThemeChange}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             {activeSection === 'pages' && (
               <StatusPagesEditor
