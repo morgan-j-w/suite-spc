@@ -489,8 +489,8 @@ export function PreviewEditor({
                   <RenderedBanner
                     config={centre.banner}
                     brand={centre.brand}
-                    heading="Your page heading"
-                    blurb="A short description shown on all subscriber-facing pages."
+                    heading={centre.statusPages.subscribe.bannerHeading}
+                    blurb={centre.statusPages.subscribe.bannerBlurb}
                     contentMaxWidth={getContentMaxWidth(centre.formWidth)}
                   />
                 </div>
