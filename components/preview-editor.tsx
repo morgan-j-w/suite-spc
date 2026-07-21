@@ -36,8 +36,10 @@ import { SortablePreviewBlock } from '@/components/sortable-preview-block'
 import { StylePicker } from '@/components/style-picker'
 import { ThemePresetPicker } from '@/components/theme-preset-picker'
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
+import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Segmented } from '@/components/ui/segmented'
 import { cn } from '@/lib/utils'
 
 const EMPTY_PROFILE: SubscriberProfile = {
@@ -245,115 +247,72 @@ export function PreviewEditor({
           {designSection === 'theme' && (() => {
             const cs = centre.cardStyle ?? {}
             const patchCs = (u: Partial<CardStyle>) => onCardStyleChange({ ...cs, ...u })
-            const seg = (opts: { value: string; label: string }[], current: string | undefined, fallback: string, onChange: (v: string) => void) => (
-              <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                {opts.map(({ value, label }) => (
-                  <button key={value} type="button" onClick={() => onChange(value)}
-                    className={cn('flex-1 rounded px-2 py-1.5 text-xs transition-colors font-medium',
-                      (current ?? fallback) === value ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground')}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )
+            const onOff = [{ value: 'on', label: 'On' }, { value: 'off', label: 'Off' }] as const
+            const density = [{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'spacious', label: 'Spacious' }] as const
             return (
               <Card className="gap-0 py-0">
                 <CardHeader className="px-6 pt-4 pb-2">
                   <CardTitle className="text-base">Style</CardTitle>
                 </CardHeader>
-                <CardContent className="px-6 pt-0 pb-6 space-y-6">
+                <CardContent className="px-6 pt-0 pb-6 space-y-5">
                   <div>
                     <p className="mb-4 text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
                     <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
                   </div>
 
-                  <div className="rounded-lg border border-border/60 bg-card p-3 space-y-2">
-                    <p className="mb-2 text-sm font-medium">Page</p>
+                  <SettingGroup title="Page">
                     <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
-                    <div className="flex items-center gap-2.5 py-0.5">
-                      <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Content width</span>
-                      <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                        {(['narrow', 'default', 'wide'] as const).map((w) => (
-                          <button key={w} type="button" onClick={() => onFormWidthChange(w)}
-                            className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors font-medium capitalize',
-                              (centre.formWidth ?? 'default') === w ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground')}>
-                            {w}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                    <SettingRow label="Content width">
+                      <Segmented
+                        options={[{ value: 'narrow', label: 'Narrow' }, { value: 'default', label: 'Default' }, { value: 'wide', label: 'Wide' }]}
+                        value={centre.formWidth ?? 'default'}
+                        onChange={onFormWidthChange}
+                      />
+                    </SettingRow>
+                  </SettingGroup>
 
-                  <div className="rounded-lg border border-border/60 bg-card p-3 space-y-3">
-                    <p className="text-sm font-medium">Form cards</p>
-                    <div className="space-y-2.5">
-                      <div className="flex items-center gap-3">
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Border</span>
-                        {seg([{ value: 'on', label: 'On' }, { value: 'off', label: 'Off' }],
-                          cs.borderEnabled === false ? 'off' : 'on', 'on',
-                          (v) => patchCs({ borderEnabled: v === 'off' ? false : undefined }))}
+                  <SettingGroup title="Form cards">
+                    <SettingRow label="Border">
+                      <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
+                        onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
+                    </SettingRow>
+                    <SettingRow label="Border colour" dimmed={cs.borderEnabled === false}>
+                      <div className="-my-0.5">
+                        <ColorRow label="" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
                       </div>
-                      <div className={cn('flex items-center gap-3 transition-opacity', cs.borderEnabled === false && 'opacity-40 pointer-events-none')}>
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Border colour</span>
-                        <div className="-my-0.5">
-                          <ColorRow
-                            label=""
-                            value={cs.borderColor}
-                            onChange={(v) => patchCs({ borderColor: v })}
-                            themeId={centre.themePresetId}
-                          />
-                        </div>
-                      </div>
-                      <div className={cn('flex items-center gap-3 transition-opacity', cs.borderEnabled === false && 'opacity-40 pointer-events-none')}>
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Border width</span>
-                        <div className="flex items-center gap-1.5">
-                          <Input
-                            type="number"
-                            min={1}
-                            max={4}
-                            value={cs.borderWidth ?? ''}
-                            placeholder="Theme"
-                            onChange={(e) => {
-                              const v = e.target.value === '' ? undefined : Math.max(1, Math.min(4, Number(e.target.value)))
-                              patchCs({ borderWidth: v })
-                            }}
-                            className="h-7 w-20 text-xs font-mono"
-                          />
-                          <span className="text-xs text-muted-foreground">px</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Border radius</span>
-                        <div className="flex items-center gap-1.5">
-                          <Input
-                            type="number"
-                            min={0}
-                            max={24}
-                            value={cs.borderRadius ?? ''}
-                            placeholder="Theme"
-                            onChange={(e) => {
-                              const v = e.target.value === '' ? undefined : Math.max(0, Math.min(24, Number(e.target.value)))
-                              patchCs({ borderRadius: v })
-                            }}
-                            className="h-7 w-20 text-xs font-mono"
-                          />
-                          <span className="text-xs text-muted-foreground">px</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Drop shadow</span>
-                        {seg([{ value: 'on', label: 'On' }, { value: 'off', label: 'Off' }], cs.shadow, 'on', (v) => patchCs({ shadow: v as CardStyle['shadow'] }))}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Card padding</span>
-                        {seg([{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'spacious', label: 'Spacious' }], cs.padding, 'normal', (v) => patchCs({ padding: v as CardStyle['padding'] }))}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Card spacing</span>
-                        {seg([{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'spacious', label: 'Spacious' }], cs.spacing, 'normal', (v) => patchCs({ spacing: v as CardStyle['spacing'] }))}
-                      </div>
-                    </div>
-                  </div>
+                    </SettingRow>
+                    <SettingRow label="Border width" dimmed={cs.borderEnabled === false}>
+                      <Input
+                        type="number" min={1} max={4} value={cs.borderWidth ?? ''} placeholder="Theme"
+                        onChange={(e) => {
+                          const v = e.target.value === '' ? undefined : Math.max(1, Math.min(4, Number(e.target.value)))
+                          patchCs({ borderWidth: v })
+                        }}
+                        className="h-7 w-20 text-xs font-mono tabular-nums"
+                      />
+                      <span className="text-xs text-muted-foreground">px</span>
+                    </SettingRow>
+                    <SettingRow label="Border radius">
+                      <Input
+                        type="number" min={0} max={24} value={cs.borderRadius ?? ''} placeholder="Theme"
+                        onChange={(e) => {
+                          const v = e.target.value === '' ? undefined : Math.max(0, Math.min(24, Number(e.target.value)))
+                          patchCs({ borderRadius: v })
+                        }}
+                        className="h-7 w-20 text-xs font-mono tabular-nums"
+                      />
+                      <span className="text-xs text-muted-foreground">px</span>
+                    </SettingRow>
+                    <SettingRow label="Drop shadow">
+                      <Segmented options={onOff} value={(cs.shadow ?? 'on') as 'on' | 'off'} onChange={(v) => patchCs({ shadow: v as CardStyle['shadow'] })} />
+                    </SettingRow>
+                    <SettingRow label="Card padding">
+                      <Segmented options={density} value={(cs.padding ?? 'normal') as NonNullable<CardStyle['padding']>} onChange={(v) => patchCs({ padding: v as CardStyle['padding'] })} />
+                    </SettingRow>
+                    <SettingRow label="Card spacing">
+                      <Segmented options={density} value={(cs.spacing ?? 'normal') as NonNullable<CardStyle['spacing']>} onChange={(v) => patchCs({ spacing: v as CardStyle['spacing'] })} />
+                    </SettingRow>
+                  </SettingGroup>
                 </CardContent>
               </Card>
             )
@@ -426,43 +385,35 @@ export function PreviewEditor({
                 <CardContent className="space-y-5 px-6 pt-2 pb-6">
                   <div className="space-y-2">
                     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Card presentation</p>
-                    <div className="flex gap-1 rounded-md bg-muted p-1">
-                      {([
+                    <Segmented
+                      size="sm"
+                      options={[
                         { value: 'separate', label: 'Separate cards', icon: GalleryVertical },
                         { value: 'single', label: 'Single card', icon: RectangleHorizontal },
-                      ] as const).map(({ value: mode, label, icon: Icon }) => (
-                        <button key={mode} type="button" onClick={() => onFormCardModeChange(mode)}
-                          className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors', formCardMode === mode ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                          <Icon className="h-3.5 w-3.5" />
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                      ]}
+                      value={formCardMode}
+                      onChange={onFormCardModeChange}
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Field arrangement</p>
-                    <div className="flex gap-1 rounded-md bg-muted p-1">
-                      {([
+                    <Segmented
+                      size="sm"
+                      options={[
                         { value: 'stacked', label: 'Stacked', icon: Rows2 },
                         { value: 'inline', label: 'Side by side', icon: Columns2 },
-                      ] as const).map(({ value: layout, label, icon: Icon }) => (
-                        <button key={layout} type="button" onClick={() => onFormLayoutChange(layout)}
-                          className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors', formLayout === layout ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                          <Icon className="h-3.5 w-3.5" />
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                      ]}
+                      value={formLayout}
+                      onChange={onFormLayoutChange}
+                    />
                     {formLayout === 'inline' && (
-                      <div className="flex gap-1 rounded-md bg-muted p-1">
-                        {([25, 33, 50] as const).map((w) => (
-                          <button key={w} type="button" onClick={() => onFormLabelWidthChange(w)}
-                            className={cn('flex-1 rounded-sm px-2 py-1.5 text-sm font-medium transition-colors', formLabelWidth === w ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                            {w}%
-                          </button>
-                        ))}
-                      </div>
+                      <Segmented
+                        size="sm"
+                        options={[{ value: '25', label: '25%' }, { value: '33', label: '33%' }, { value: '50', label: '50%' }]}
+                        value={String(formLabelWidth) as '25' | '33' | '50'}
+                        onChange={(v) => onFormLabelWidthChange(Number(v))}
+                      />
                     )}
                   </div>
                 </CardContent>

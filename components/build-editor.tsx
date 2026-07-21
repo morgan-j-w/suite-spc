@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Segmented } from '@/components/ui/segmented'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { FolderOpen, Pencil, Plus, Sparkles, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -404,18 +405,15 @@ function CatchAllMailGroupForm({ mailGroups, currentMailGroupId, onAddMailGroup,
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-1 rounded-md bg-muted p-1">
-        <button type="button" onClick={() => setMode('existing')} disabled={mailGroups.length === 0}
-          className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50',
-            mode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-          <FolderOpen className="h-3.5 w-3.5" /> Use Existing
-        </button>
-        <button type="button" onClick={() => setMode('new')}
-          className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-            mode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-          <Sparkles className="h-3.5 w-3.5" /> Create New
-        </button>
-      </div>
+      <Segmented
+        size="sm"
+        options={[
+          { value: 'existing', label: 'Use Existing', icon: FolderOpen, disabled: mailGroups.length === 0 },
+          { value: 'new', label: 'Create New', icon: Sparkles },
+        ]}
+        value={mode}
+        onChange={setMode}
+      />
 
       {mode === 'existing' ? (
         <>

@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { ImageUploadField } from '@/components/image-upload-field'
 import { ColorRow } from '@/components/colour-row'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
+import { SettingGroup, SettingRow } from '@/components/setting-row'
+import { Segmented } from '@/components/ui/segmented'
 import { cn } from '@/lib/utils'
 
 // ─── Layout thumbnails ────────────────────────────────────────────────────────
@@ -495,10 +497,9 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
       </div>
 
       {enabled && (
-        <div className="space-y-3">
-          {/* Layout card */}
-          <div className="rounded-lg border p-3 space-y-2.5">
-            <p className="text-sm font-medium">Layout</p>
+        <div className="space-y-4">
+          {/* Layout */}
+          <SettingGroup title="Layout">
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(B) as [BannerLayout, typeof B[BannerLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -506,13 +507,12 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
                 </Thumb>
               ))}
             </div>
-          </div>
+          </SettingGroup>
 
           {preview}
 
-          {/* Options card */}
-          <div className="rounded-lg border p-3 space-y-3">
-            <p className="text-sm font-medium">Options</p>
+          {/* Options */}
+          <SettingGroup title="Options">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Edge to edge</span>
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
@@ -521,34 +521,27 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
               <span className="text-xs text-muted-foreground">Sticky (fixed to top)</span>
               <Switch checked={!!cfg.sticky} onCheckedChange={(v) => patch({ sticky: v || undefined })} />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Section padding</span>
-              <div className="flex flex-1 items-center gap-1.5">
-                <Input
-                  type="number"
-                  min={0}
-                  max={200}
-                  placeholder="auto"
-                  value={cfg.padding ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                    patch({ padding: Number.isFinite(v) ? v : undefined })
-                  }}
-                  className="h-7 flex-1 text-xs"
-                />
-                <span className="text-xs text-muted-foreground">px</span>
-              </div>
-            </div>
+            <SettingRow label="Section padding">
+              <Input
+                type="number" min={0} max={200} placeholder="auto"
+                value={cfg.padding ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                  patch({ padding: Number.isFinite(v) ? v : undefined })
+                }}
+                className="h-7 flex-1 text-xs tabular-nums"
+              />
+              <span className="text-xs text-muted-foreground">px</span>
+            </SettingRow>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
-          </div>
+          </SettingGroup>
 
-          {/* Background image card (conditional) */}
+          {/* Background image (conditional) */}
           {isImageBg && (
-            <div className="rounded-lg border p-3 space-y-3">
-              <p className="text-sm font-medium">Background image</p>
+            <SettingGroup title="Background image">
               <ImageUploadField
                 label="Image"
                 value={cfg.imageUrl}
@@ -556,49 +549,34 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
                 previewClassName="max-h-24 max-w-full"
               />
               <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
-              <div className="flex items-center gap-2.5 py-0.5">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Overlay opacity</span>
+              <SettingRow label="Overlay opacity">
                 <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
                   onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
                   className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-xs text-muted-foreground">{cfg.imageOverlayOpacity ?? 45}%</span>
-              </div>
-              <div className="flex items-center gap-2.5 py-0.5">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Image fit</span>
-                <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                  {(['cover', 'contain', 'auto'] as const).map((s) => (
-                    <button key={s} type="button" onClick={() => patch({ backgroundSize: s })}
-                      className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors capitalize',
-                        (cfg.backgroundSize ?? 'cover') === s ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5 py-0.5">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Tiling</span>
-                <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                  {([['no-repeat', 'None'], ['repeat', 'Tile'], ['repeat-x', 'Horiz'], ['repeat-y', 'Vert']] as [string, string][]).map(([val, lbl]) => (
-                    <button key={val} type="button" onClick={() => patch({ backgroundRepeat: val })}
-                      className={cn('flex-1 rounded px-2 py-1 text-xs transition-colors',
-                        (cfg.backgroundRepeat ?? 'no-repeat') === val ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+                <span className="w-8 text-right text-xs text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+              </SettingRow>
+              <SettingRow label="Image fit">
+                <Segmented
+                  options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
+                  value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
+                  onChange={(v) => patch({ backgroundSize: v })}
+                />
+              </SettingRow>
+              <SettingRow label="Tiling">
+                <Segmented
+                  options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
+                  value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
+                  onChange={(v) => patch({ backgroundRepeat: v })}
+                />
+              </SettingRow>
+            </SettingGroup>
           )}
 
-          {/* Banner image card — full-width band rendered below the banner layout */}
-          <div className="rounded-lg border p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Banner image</p>
-              <Switch
-                checked={!!cfg.bannerImageEnabled}
-                onCheckedChange={(on) => patch({ bannerImageEnabled: on })}
-              />
-            </div>
+          {/* Banner image — full-width band rendered below the banner layout */}
+          <SettingGroup
+            title="Banner image"
+            action={<Switch checked={!!cfg.bannerImageEnabled} onCheckedChange={(on) => patch({ bannerImageEnabled: on })} />}
+          >
             <p className="text-xs text-muted-foreground">An edge-to-edge image shown below the banner, above the page content.</p>
             {cfg.bannerImageEnabled && (
               <>
@@ -608,94 +586,75 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
                   onChange={(url) => patch({ bannerImageUrl: url })}
                   previewClassName="max-h-24 max-w-full"
                 />
-                <div className="flex items-center gap-3">
-                  <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Height</span>
-                  <div className="flex flex-1 items-center gap-1.5">
-                    <Input
-                      type="number" min={60} max={600} placeholder="240"
-                      value={cfg.bannerImageHeight ?? ''}
-                      onChange={(e) => {
-                        const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                        patch({ bannerImageHeight: Number.isFinite(v) ? v : undefined })
-                      }}
-                      className="h-7 flex-1 text-xs"
-                    />
-                    <span className="text-xs text-muted-foreground">px</span>
-                  </div>
-                </div>
+                <SettingRow label="Height">
+                  <Input
+                    type="number" min={60} max={600} placeholder="240"
+                    value={cfg.bannerImageHeight ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                      patch({ bannerImageHeight: Number.isFinite(v) ? v : undefined })
+                    }}
+                    className="h-7 flex-1 text-xs tabular-nums"
+                  />
+                  <span className="text-xs text-muted-foreground">px</span>
+                </SettingRow>
               </>
             )}
-          </div>
+          </SettingGroup>
 
-          {/* Logo card (conditional) */}
+          {/* Logo (conditional) */}
           {cfg.layout !== 'minimal' && (
-            <div className="rounded-lg border p-3 space-y-3">
-              <p className="text-sm font-medium">Logo</p>
-              <div className="flex items-center gap-3">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Max width</span>
-                <div className="flex flex-1 items-center gap-1.5">
-                  <Input
-                    type="number" min={20} max={600} placeholder="auto"
-                    value={cfg.logoMaxWidth ?? ''}
-                    onChange={(e) => {
-                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                      patch({ logoMaxWidth: Number.isFinite(v) ? v : undefined })
-                    }}
-                    className="h-7 flex-1 text-xs"
-                  />
-                  <span className="text-xs text-muted-foreground">px</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Max height</span>
-                <div className="flex flex-1 items-center gap-1.5">
-                  <Input
-                    type="number" min={16} max={300} placeholder="auto"
-                    value={cfg.logoMaxHeight ?? ''}
-                    onChange={(e) => {
-                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                      patch({ logoMaxHeight: Number.isFinite(v) ? v : undefined })
-                    }}
-                    className="h-7 flex-1 text-xs"
-                  />
-                  <span className="text-xs text-muted-foreground">px</span>
-                </div>
-              </div>
+            <SettingGroup title="Logo">
+              <SettingRow label="Max width">
+                <Input
+                  type="number" min={20} max={600} placeholder="auto"
+                  value={cfg.logoMaxWidth ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                    patch({ logoMaxWidth: Number.isFinite(v) ? v : undefined })
+                  }}
+                  className="h-7 flex-1 text-xs tabular-nums"
+                />
+                <span className="text-xs text-muted-foreground">px</span>
+              </SettingRow>
+              <SettingRow label="Max height">
+                <Input
+                  type="number" min={16} max={300} placeholder="auto"
+                  value={cfg.logoMaxHeight ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                    patch({ logoMaxHeight: Number.isFinite(v) ? v : undefined })
+                  }}
+                  className="h-7 flex-1 text-xs tabular-nums"
+                />
+                <span className="text-xs text-muted-foreground">px</span>
+              </SettingRow>
               {cfg.layout === 'logo-only' && (
-                <div className="flex items-center gap-3">
-                  <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Position</span>
-                  <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                    {(['left', 'center', 'right'] as const).map((pos) => (
-                      <button key={pos} type="button" onClick={() => patch({ logoPosition: pos })}
-                        className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors font-medium capitalize',
-                          (cfg.logoPosition ?? 'center') === pos
-                            ? 'bg-background shadow-sm text-foreground'
-                            : 'text-muted-foreground hover:text-foreground')}>
-                        {pos}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <SettingRow label="Position">
+                  <Segmented
+                    options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centre' }, { value: 'right', label: 'Right' }]}
+                    value={cfg.logoPosition ?? 'center'}
+                    onChange={(v) => patch({ logoPosition: v })}
+                  />
+                </SettingRow>
               )}
-            </div>
+            </SettingGroup>
           )}
 
-          {/* Split image card (conditional) */}
+          {/* Split image (conditional) */}
           {needsSplitImage && (
-            <div className="rounded-lg border p-3 space-y-2">
-              <p className="text-sm font-medium">Image</p>
+            <SettingGroup title="Image">
               <ImageUploadField
                 label="Split image"
                 value={cfg.imageUrl}
                 onChange={(url) => patch({ imageUrl: url })}
                 previewClassName="max-h-24 max-w-full"
               />
-            </div>
+            </SettingGroup>
           )}
 
-          {/* Colours card */}
-          <div className="rounded-lg border p-3 space-y-2">
-            <p className="text-sm font-medium">Colours</p>
+          {/* Colours */}
+          <SettingGroup title="Colours">
             <div className="space-y-1">
               {BANNER_COLOUR_FIELDS[cfg.layout].map(({ key, label }) => (
                 <ColorRow
@@ -707,7 +666,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
                 />
               ))}
             </div>
-          </div>
+          </SettingGroup>
 
           {/* Custom HTML */}
           <div>
@@ -822,10 +781,9 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
       </div>
 
       {enabled && (
-        <div className="space-y-3">
-          {/* Layout card */}
-          <div className="rounded-lg border p-3 space-y-2.5">
-            <p className="text-sm font-medium">Layout</p>
+        <div className="space-y-4">
+          {/* Layout */}
+          <SettingGroup title="Layout">
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(F) as [FooterLayout, typeof F[FooterLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -833,45 +791,37 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 </Thumb>
               ))}
             </div>
-          </div>
+          </SettingGroup>
 
           {preview}
 
-          {/* Options card */}
-          <div className="rounded-lg border p-3 space-y-3">
-            <p className="text-sm font-medium">Options</p>
+          {/* Options */}
+          <SettingGroup title="Options">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Edge to edge</span>
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Section padding</span>
-              <div className="flex flex-1 items-center gap-1.5">
-                <Input
-                  type="number"
-                  min={0}
-                  max={200}
-                  placeholder="auto"
-                  value={cfg.padding ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                    patch({ padding: Number.isFinite(v) ? v : undefined })
-                  }}
-                  className="h-7 flex-1 text-xs"
-                />
-                <span className="text-xs text-muted-foreground">px</span>
-              </div>
-            </div>
+            <SettingRow label="Section padding">
+              <Input
+                type="number" min={0} max={200} placeholder="auto"
+                value={cfg.padding ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                  patch({ padding: Number.isFinite(v) ? v : undefined })
+                }}
+                className="h-7 flex-1 text-xs tabular-nums"
+              />
+              <span className="text-xs text-muted-foreground">px</span>
+            </SettingRow>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
-          </div>
+          </SettingGroup>
 
-          {/* Background image card (conditional) */}
+          {/* Background image (conditional) */}
           {isImageBg && (
-            <div className="rounded-lg border p-3 space-y-3">
-              <p className="text-sm font-medium">Background image</p>
+            <SettingGroup title="Background image">
               <ImageUploadField
                 label="Image"
                 value={cfg.imageUrl}
@@ -879,49 +829,34 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 previewClassName="max-h-24 max-w-full"
               />
               <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
-              <div className="flex items-center gap-2.5 py-0.5">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Overlay opacity</span>
+              <SettingRow label="Overlay opacity">
                 <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
                   onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
                   className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-xs text-muted-foreground">{cfg.imageOverlayOpacity ?? 45}%</span>
-              </div>
-              <div className="flex items-center gap-2.5 py-0.5">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Image fit</span>
-                <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                  {(['cover', 'contain', 'auto'] as const).map((s) => (
-                    <button key={s} type="button" onClick={() => patch({ backgroundSize: s })}
-                      className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors capitalize',
-                        (cfg.backgroundSize ?? 'cover') === s ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5 py-0.5">
-                <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Tiling</span>
-                <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                  {([['no-repeat', 'None'], ['repeat', 'Tile'], ['repeat-x', 'Horiz'], ['repeat-y', 'Vert']] as [string, string][]).map(([val, lbl]) => (
-                    <button key={val} type="button" onClick={() => patch({ backgroundRepeat: val })}
-                      className={cn('flex-1 rounded px-2 py-1 text-xs transition-colors',
-                        (cfg.backgroundRepeat ?? 'no-repeat') === val ? 'bg-background font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+                <span className="w-8 text-right text-xs text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+              </SettingRow>
+              <SettingRow label="Image fit">
+                <Segmented
+                  options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
+                  value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
+                  onChange={(v) => patch({ backgroundSize: v })}
+                />
+              </SettingRow>
+              <SettingRow label="Tiling">
+                <Segmented
+                  options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
+                  value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
+                  onChange={(v) => patch({ backgroundRepeat: v })}
+                />
+              </SettingRow>
+            </SettingGroup>
           )}
 
-          {/* Footer image card — full-width band rendered above the footer layout */}
-          <div className="rounded-lg border p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Footer image</p>
-              <Switch
-                checked={!!cfg.footerImageEnabled}
-                onCheckedChange={(on) => patch({ footerImageEnabled: on })}
-              />
-            </div>
+          {/* Footer image — full-width band rendered above the footer layout */}
+          <SettingGroup
+            title="Footer image"
+            action={<Switch checked={!!cfg.footerImageEnabled} onCheckedChange={(on) => patch({ footerImageEnabled: on })} />}
+          >
             <p className="text-xs text-muted-foreground">An edge-to-edge image shown above the footer, below the page content.</p>
             {cfg.footerImageEnabled && (
               <>
@@ -931,28 +866,24 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                   onChange={(url) => patch({ footerImageUrl: url })}
                   previewClassName="max-h-24 max-w-full"
                 />
-                <div className="flex items-center gap-3">
-                  <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Height</span>
-                  <div className="flex flex-1 items-center gap-1.5">
-                    <Input
-                      type="number" min={60} max={600} placeholder="240"
-                      value={cfg.footerImageHeight ?? ''}
-                      onChange={(e) => {
-                        const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                        patch({ footerImageHeight: Number.isFinite(v) ? v : undefined })
-                      }}
-                      className="h-7 flex-1 text-xs"
-                    />
-                    <span className="text-xs text-muted-foreground">px</span>
-                  </div>
-                </div>
+                <SettingRow label="Height">
+                  <Input
+                    type="number" min={60} max={600} placeholder="240"
+                    value={cfg.footerImageHeight ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                      patch({ footerImageHeight: Number.isFinite(v) ? v : undefined })
+                    }}
+                    className="h-7 flex-1 text-xs tabular-nums"
+                  />
+                  <span className="text-xs text-muted-foreground">px</span>
+                </SettingRow>
               </>
             )}
-          </div>
+          </SettingGroup>
 
-          {/* Links card */}
-          <div className="rounded-lg border p-3 space-y-3">
-            <p className="text-sm font-medium">Links</p>
+          {/* Links */}
+          <SettingGroup title="Links">
             <LinksEditor
               links={links}
               onChange={(l) => patch({ links: l })}
@@ -965,11 +896,10 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 label="Quick links column"
               />
             )}
-          </div>
+          </SettingGroup>
 
-          {/* Colours card */}
-          <div className="rounded-lg border p-3 space-y-2">
-            <p className="text-sm font-medium">Colours</p>
+          {/* Colours */}
+          <SettingGroup title="Colours">
             <div className="space-y-1">
               {FOOTER_COLOUR_FIELDS[cfg.layout].map(({ key, label }) => (
                 <ColorRow
@@ -981,7 +911,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 />
               ))}
             </div>
-          </div>
+          </SettingGroup>
 
           {/* Custom HTML */}
           <div>

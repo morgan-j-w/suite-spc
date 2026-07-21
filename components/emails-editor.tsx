@@ -9,6 +9,8 @@ import { generateEmailBannerHtml, generateEmailFooterHtml } from '@/lib/email-la
 import { ColorRow } from '@/components/colour-row'
 import { getThemeBrandColors } from '@/lib/style-previews'
 import { RichTextEditor, richTextContentClass } from '@/components/rich-text-editor'
+import { SettingGroup, SettingRow } from '@/components/setting-row'
+import { Segmented } from '@/components/ui/segmented'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -228,10 +230,9 @@ function EmailLayoutSection({
   const [showCustomCss, setShowCustomCss] = useState(false)
 
   return (
-    <div className="space-y-3">
-      {/* Layout card */}
-      <div className="rounded-lg border p-3 space-y-2.5">
-        <p className="text-sm font-medium">Layout</p>
+    <div className="space-y-4">
+      {/* Layout */}
+      <SettingGroup title="Layout">
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
@@ -244,14 +245,13 @@ function EmailLayoutSection({
             </EmailThumb>
           ))}
         </div>
-      </div>
+      </SettingGroup>
 
       {preview}
 
-      {/* Content card — editable text for text-based banner layouts */}
+      {/* Content — editable text for text-based banner layouts */}
       {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
-        <div className="rounded-lg border p-3 space-y-2.5">
-          <p className="text-sm font-medium">Content</p>
+        <SettingGroup title="Content">
           <div className="space-y-2">
             {selectedLayout !== 'split' && (
               <div className="space-y-1">
@@ -274,68 +274,53 @@ function EmailLayoutSection({
               />
             </div>
           </div>
-        </div>
+        </SettingGroup>
       )}
 
-      {/* Logo card — banner: all layouts; footer: links-copyright only */}
+      {/* Logo — banner: all layouts; footer: links-copyright only */}
       {selectedLayout && (section === 'banner' || (section === 'footer' && selectedLayout === 'links-copyright')) && (
-        <div className="rounded-lg border p-3 space-y-3">
-          <p className="text-sm font-medium">Logo</p>
-          <div className="flex items-center gap-3">
-            <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Max width</span>
-            <div className="flex flex-1 items-center gap-1.5">
-              <Input
-                type="number" min={20} max={600} placeholder="auto"
-                value={logoMaxWidth ?? ''}
-                onChange={(e) => {
-                  const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                  onLogoMaxWidthChange(Number.isFinite(v) ? v : undefined)
-                }}
-                className="h-7 flex-1 text-xs"
-              />
-              <span className="text-xs text-muted-foreground">px</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Max height</span>
-            <div className="flex flex-1 items-center gap-1.5">
-              <Input
-                type="number" min={16} max={300} placeholder="auto"
-                value={logoMaxHeight ?? ''}
-                onChange={(e) => {
-                  const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
-                  onLogoMaxHeightChange(Number.isFinite(v) ? v : undefined)
-                }}
-                className="h-7 flex-1 text-xs"
-              />
-              <span className="text-xs text-muted-foreground">px</span>
-            </div>
-          </div>
+        <SettingGroup title="Logo">
+          <SettingRow label="Max width">
+            <Input
+              type="number" min={20} max={600} placeholder="auto"
+              value={logoMaxWidth ?? ''}
+              onChange={(e) => {
+                const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                onLogoMaxWidthChange(Number.isFinite(v) ? v : undefined)
+              }}
+              className="h-7 flex-1 text-xs tabular-nums"
+            />
+            <span className="text-xs text-muted-foreground">px</span>
+          </SettingRow>
+          <SettingRow label="Max height">
+            <Input
+              type="number" min={16} max={300} placeholder="auto"
+              value={logoMaxHeight ?? ''}
+              onChange={(e) => {
+                const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                onLogoMaxHeightChange(Number.isFinite(v) ? v : undefined)
+              }}
+              className="h-7 flex-1 text-xs tabular-nums"
+            />
+            <span className="text-xs text-muted-foreground">px</span>
+          </SettingRow>
           {/* Position only makes sense for layouts where the logo isn't already anchored by
               the layout itself (logo-left is always left; heading-band is always centred) */}
           {(section !== 'banner' || selectedLayout === 'logo-centered') && (
-            <div className="flex items-center gap-3">
-              <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Position</span>
-              <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-                {(['left', 'center', 'right'] as const).map((pos) => (
-                  <button key={pos} type="button" onClick={() => onLogoPositionChange(pos)}
-                    className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors font-medium capitalize',
-                      (logoPosition ?? 'center') === pos
-                        ? 'bg-background shadow-sm text-foreground'
-                        : 'text-muted-foreground hover:text-foreground')}>
-                    {pos}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <SettingRow label="Position">
+              <Segmented
+                options={[{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centre' }, { value: 'right', label: 'Right' }]}
+                value={logoPosition ?? 'center'}
+                onChange={(v) => onLogoPositionChange(v)}
+              />
+            </SettingRow>
           )}
-        </div>
+        </SettingGroup>
       )}
 
-      {/* Colours card (shown when a layout is selected) */}
+      {/* Colours (shown when a layout is selected) */}
       {selectedLayout && (
-        <div className="rounded-lg border p-3 space-y-2">
-          <p className="text-sm font-medium">Colours</p>
+        <SettingGroup title="Colours">
           <div className="space-y-1">
             <ColorRow
               label="Background"
@@ -356,7 +341,7 @@ function EmailLayoutSection({
               themeId={themeId ?? defaultTheme}
             />
           </div>
-        </div>
+        </SettingGroup>
       )}
 
       {/* Custom HTML */}
@@ -802,19 +787,17 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             <p className="text-sm font-semibold">Email style</p>
             <p className="text-xs text-muted-foreground">Global settings applied across every outbound email.</p>
           </div>
-          <div className="rounded-lg border p-3 space-y-2">
-            <p className="text-sm font-medium">Theme</p>
+          <SettingGroup title="Theme">
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
-          </div>
-          <div className="rounded-lg border p-3 space-y-2">
-            <p className="text-sm font-medium">Colours</p>
+          </SettingGroup>
+          <SettingGroup title="Colours">
             <ColorRow
               label="Body background"
               value={cfg.emailBodyBgColor}
               onChange={(v) => patch({ emailBodyBgColor: v || undefined })}
               themeId={themeId ?? defaultTheme}
             />
-          </div>
+          </SettingGroup>
         </>
       )}
     </div>

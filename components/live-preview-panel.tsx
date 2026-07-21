@@ -5,7 +5,7 @@ import { Monitor, Smartphone, X } from 'lucide-react'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { FormLivePreview } from '@/components/form-live-preview'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Segmented } from '@/components/ui/segmented'
 
 interface LivePreviewPanelProps {
   centre: SubscriptionCentre
@@ -20,24 +20,15 @@ export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
   const [width, setWidth] = useState<'mobile' | 'desktop'>('mobile')
 
   const toggle = (
-    <div className="flex gap-1 rounded-md bg-muted p-1">
-      <button
-        type="button"
-        title="Mobile width"
-        onClick={() => setWidth('mobile')}
-        className={cn('flex items-center justify-center rounded-sm px-2 py-1 transition-colors', width === 'mobile' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}
-      >
-        <Smartphone className="h-3.5 w-3.5" />
-      </button>
-      <button
-        type="button"
-        title="Desktop width"
-        onClick={() => setWidth('desktop')}
-        className={cn('flex items-center justify-center rounded-sm px-2 py-1 transition-colors', width === 'desktop' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}
-      >
-        <Monitor className="h-3.5 w-3.5" />
-      </button>
-    </div>
+    <Segmented
+      className="flex-none"
+      options={[
+        { value: 'mobile', icon: Smartphone, title: 'Mobile width' },
+        { value: 'desktop', icon: Monitor, title: 'Desktop width' },
+      ]}
+      value={width}
+      onChange={setWidth}
+    />
   )
 
   return (
