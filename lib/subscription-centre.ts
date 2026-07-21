@@ -481,6 +481,11 @@ export function createSubscriptionCentre(name: string): SubscriptionCentre {
     footer: {
       layout: 'minimal-line',
       fullWidth: true,
+      // Starter links so a fresh centre's footer (and its preview) isn't an empty strip
+      links: [
+        { id: uuidv4(), label: 'Privacy Policy', url: '#' },
+        { id: uuidv4(), label: 'Terms of Service', url: '#' },
+      ],
     },
     emailConfig: { ...defaultEmailConfig },
     createdAt: now,

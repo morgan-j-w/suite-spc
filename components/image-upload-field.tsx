@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 interface ImageUploadFieldProps {
   value?: string
   onChange: (url: string | undefined) => void
-  label: string
+  label?: string
   hint?: string
   previewClassName?: string
 }
@@ -41,7 +41,7 @@ export function ImageUploadField({ value, onChange, label, hint, previewClassNam
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       <div className="flex gap-2">
         <Input
           placeholder="https://..."

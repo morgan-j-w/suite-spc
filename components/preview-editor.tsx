@@ -56,6 +56,20 @@ const EMPTY_PROFILE: SubscriberProfile = {
   customFields: {},
 }
 
+// A footer with no links and nothing to pull from Brand renders as a bare strip, which
+// reads as broken in the preview — swap in a hint instead of showing an empty box.
+function isFooterContentEmpty(footer: FooterConfig, brand: Brand): boolean {
+  return (
+    !footer.customHtml &&
+    !footer.links?.length &&
+    !footer.quickLinks?.length &&
+    !brand.logoUrl &&
+    !brand.copyrightText &&
+    !brand.address &&
+    !brand.socialLinks?.length
+  )
+}
+
 const BANNER_TEXT_FLOWS: { id: keyof StatusPages; label: string }[] = [
   { id: 'subscribe', label: 'Subscribe' },
   { id: 'managePreferences', label: 'Manage preferences' },
@@ -391,7 +405,13 @@ export function PreviewEditor({
                   brand={centre.brand}
                   preview={centre.footer && (
                     <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
-                      <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
+                      {isFooterContentEmpty(centre.footer, centre.brand) ? (
+                        <p className="px-4 py-5 text-center text-xs text-muted-foreground">
+                          Add footer links below — or a logo or copyright text under Brand — to see your footer here.
+                        </p>
+                      ) : (
+                        <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
+                      )}
                     </div>
                   )}
                 />

@@ -330,7 +330,9 @@ function EmailLayoutSection({
       {preview}
 
       {/* Layout */}
-      <SettingGroup title="Layout" icon={LayoutTemplate} collapsible>
+      {/* Open until a layout is picked — choosing one is what unlocks the Text/Logo/Colours
+          groups below, so guide first-time users straight to it */}
+      <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen={!selectedLayout}>
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
