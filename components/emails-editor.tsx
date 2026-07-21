@@ -55,7 +55,7 @@ function EmailThumb({
 const EMAIL_BANNER_LAYOUTS: { id: EmailBannerLayout; label: string; sketch: React.ReactNode }[] = [
   {
     id: 'logo-centered',
-    label: 'Logo',
+    label: 'Logo only',
     sketch: (
       <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-card px-2 pt-2 pb-1">
         <div className="h-2.5 w-12 rounded bg-muted" />
@@ -78,7 +78,7 @@ const EMAIL_BANNER_LAYOUTS: { id: EmailBannerLayout; label: string; sketch: Reac
   },
   {
     id: 'heading-band',
-    label: 'Heading band',
+    label: 'Centred',
     sketch: (
       <div className="flex h-full flex-col items-center justify-center gap-1 bg-foreground/80 px-2 py-1.5">
         <div className="h-2 w-8 rounded bg-background/50" />
@@ -175,7 +175,7 @@ const EMAIL_FOOTER_LAYOUTS: { id: EmailFooterLayout; label: string; sketch: Reac
   },
   {
     id: 'two-col',
-    label: 'Two col',
+    label: 'Two column',
     sketch: (
       <div className="flex h-full items-start justify-between bg-card p-1.5 border-t border-border gap-2">
         <div className="flex flex-col gap-0.5">

@@ -149,7 +149,7 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
     ),
   },
   'editorial-split': {
-    label: 'Editorial',
+    label: 'Editorial split',
     sketch: (
       <div className="flex h-full gap-2 bg-card p-1.5 border-b border-border">
         <div className="flex flex-[3] flex-col justify-center gap-1">
@@ -206,7 +206,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
     ),
   },
   'multi-column': {
-    label: 'Multi-col',
+    label: 'Multi-column',
     sketch: (
       <div className="flex h-full flex-col bg-card p-1.5 border-t border-border">
         <div className="flex gap-1.5 flex-1">
@@ -266,7 +266,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
     ),
   },
   'unsubscribe-focus': {
-    label: 'Unsub focus',
+    label: 'Unsubscribe focus',
     sketch: (
       <div className="flex h-full flex-col items-center justify-center gap-1 bg-card p-1.5 border-t border-border">
         <div className="h-1 w-20 rounded bg-muted-foreground/25"/>
@@ -276,7 +276,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
     ),
   },
   'two-col': {
-    label: 'Two col',
+    label: 'Two column',
     sketch: (
       <div className="flex h-full items-start justify-between bg-card p-1.5 border-t border-border gap-2">
         <div className="flex flex-col gap-0.5">
@@ -304,7 +304,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
     ),
   },
   'stacked-card': {
-    label: 'Card',
+    label: 'Stacked card',
     sketch: (
       <div className="flex h-full items-center justify-center bg-background p-1.5 border-t border-border">
         <div className="flex w-full flex-col items-center gap-1 rounded border border-border bg-card p-1.5 shadow-sm">
