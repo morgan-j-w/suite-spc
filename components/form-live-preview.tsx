@@ -34,14 +34,20 @@ const EMPTY_PROFILE: SubscriberProfile = {
   customFields: {},
 }
 
+export type PreviewEditRegion = 'banner' | 'footer'
+
 interface FormLivePreviewProps {
   centre: SubscriptionCentre
+  // When set, the banner and footer become click targets that jump to their editors.
+  // The form body stays fully interactive (it's used to exercise conditional logic),
+  // so it deliberately does not get a click-to-edit wrapper.
+  onEditRegion?: (region: PreviewEditRegion) => void
 }
 
 // Read-only interactive preview of the form — identical rendering to the Preview tab's
 // "Preview" mode. Owns its own scratch profile/answers state so interactions (conditional
 // visibility, required highlighting) work without touching the builder state.
-export function FormLivePreview({ centre }: FormLivePreviewProps) {
+export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) {
   const [profile, setProfile] = useState<SubscriberProfile>(EMPTY_PROFILE)
   const [answers, setAnswers] = useState<CategoryAnswers>(() => buildDefaultAnswers(centre.categories))
   const [submitted, setSubmitted] = useState(false)
@@ -175,6 +181,25 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
   const cardSpacingClass = getCardSpacingClass(centre.cardStyle)
   const cardStyleCss = getCardStyleCss(centre.cardStyle)
 
+  // Click-to-edit wrapper for the banner/footer regions: hover shows a teal outline and
+  // an "Edit" chip; clicking jumps to that region's editor. preventDefault stops banner
+  // links from navigating away when the click was meant for editing.
+  const editRegion = (region: PreviewEditRegion, label: string, node: React.ReactNode) =>
+    onEditRegion ? (
+      <div
+        className="group/edit relative cursor-pointer"
+        onClick={(e) => { e.preventDefault(); onEditRegion(region) }}
+        role="button"
+        aria-label={`Edit ${label}`}
+      >
+        <div className="pointer-events-none absolute inset-0 z-20 hidden ring-2 ring-inset ring-primary/60 group-hover/edit:block" />
+        <div className="pointer-events-none absolute right-2 top-2 z-20 hidden group-hover/edit:block">
+          <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground shadow-sm">Edit {label}</span>
+        </div>
+        {node}
+      </div>
+    ) : node
+
   return (
     <div
       data-color-theme={centre.themePresetId}
@@ -184,13 +209,15 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
       {cardStyleCss && <style dangerouslySetInnerHTML={{ __html: cardStyleCss }} />}
       {centre.banner && (
         <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
-          <RenderedBanner
-            config={centre.banner}
-            brand={centre.brand}
-            contentMaxWidth={contentMaxWidth}
-            heading={centre.statusPages.subscribe.bannerHeading}
-            blurb={centre.statusPages.subscribe.bannerBlurb}
-          />
+          {editRegion('banner', 'banner',
+            <RenderedBanner
+              config={centre.banner}
+              brand={centre.brand}
+              contentMaxWidth={contentMaxWidth}
+              heading={centre.statusPages.subscribe.bannerHeading}
+              blurb={centre.statusPages.subscribe.bannerBlurb}
+            />
+          )}
         </div>
       )}
       <div data-card-canvas style={{ maxWidth: contentMaxWidth, margin: '0 auto', width: '100%', padding: '2rem 1.5rem' }}>
@@ -216,7 +243,7 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
           </div>
         )}
       </div>
-      {centre.footer && (
+      {centre.footer && editRegion('footer', 'footer',
         <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={contentMaxWidth} />
       )}
     </div>

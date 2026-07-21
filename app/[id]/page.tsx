@@ -26,9 +26,8 @@ import {
 } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, MoreHorizontal, Paintbrush, Share2 } from 'lucide-react'
+import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, MoreHorizontal, Paintbrush, Redo2, Share2, Undo2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
 import { ExportEditor } from '@/components/export-editor'
 
@@ -77,6 +76,25 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [demoTokenLoading, setDemoTokenLoading] = useState(false)
   const saveRef = useRef<(() => void) | null>(null)
 
+  // Undo/redo over the whole centre. Snapshots are debounced JSON blobs; time-travel
+  // applies a snapshot without re-recording it. historyVersion only exists so the
+  // Undo/Redo buttons re-render their disabled state (the stack itself lives in a ref).
+  const historyRef = useRef<{ stack: string[]; index: number }>({ stack: [], index: -1 })
+  const timeTravellingRef = useRef(false)
+  const [, setHistoryVersion] = useState(0)
+
+  const applyHistory = (delta: -1 | 1) => {
+    const h = historyRef.current
+    const newIndex = h.index + delta
+    if (newIndex < 0 || newIndex >= h.stack.length) return
+    h.index = newIndex
+    timeTravellingRef.current = true
+    setCentre(JSON.parse(h.stack[newIndex]))
+    setHistoryVersion((v) => v + 1)
+  }
+  const canUndo = historyRef.current.index > 0
+  const canRedo = historyRef.current.index < historyRef.current.stack.length - 1
+
   const fetchDemoToken = async () => {
     if (demoToken || demoTokenLoading) return
     setDemoTokenLoading(true)
@@ -107,11 +125,40 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     return () => clearTimeout(timer)
   }, [centre])
 
+  // Record undo history. Skipped when the change came from undo/redo itself.
+  useEffect(() => {
+    if (!centre) return
+    if (timeTravellingRef.current) {
+      timeTravellingRef.current = false
+      return
+    }
+    const timer = setTimeout(() => {
+      const h = historyRef.current
+      const snap = JSON.stringify(centre)
+      if (h.stack[h.index] === snap) return
+      h.stack = h.stack.slice(0, h.index + 1)
+      h.stack.push(snap)
+      if (h.stack.length > 100) h.stack.shift()
+      h.index = h.stack.length - 1
+      setHistoryVersion((v) => v + 1)
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [centre])
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault()
         saveRef.current?.()
+        return
+      }
+      // Undo/redo — but never hijack native text-editing undo inside a field.
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
+        const el = e.target as HTMLElement
+        const inField = el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el.isContentEditable
+        if (inField) return
+        e.preventDefault()
+        applyHistory(e.shiftKey ? 1 : -1)
       }
     }
     window.addEventListener('keydown', handler)
@@ -399,6 +446,14 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 className="h-9 w-full bg-background text-base font-semibold md:max-w-md md:flex-1"
               />
               <div className="flex items-center gap-2">
+              <div className="flex items-center">
+                <Button variant="ghost" size="sm" className="px-2" onClick={() => applyHistory(-1)} disabled={!canUndo} aria-label="Undo" title="Undo (⌘Z)">
+                  <Undo2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="px-2" onClick={() => applyHistory(1)} disabled={!canRedo} aria-label="Redo" title="Redo (⇧⌘Z)">
+                  <Redo2 className="h-4 w-4" />
+                </Button>
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="px-2" aria-label="More actions">
@@ -421,16 +476,22 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span tabIndex={isDirty ? -1 : 0}>
-                    <Button size="sm" onClick={handlePublish} disabled={!isDirty}>
-                      Publish
-                    </Button>
+              {isDirty ? (
+                <>
+                  <span className="hidden items-center gap-1.5 text-xs font-medium text-amber-600 lg:flex dark:text-amber-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    Unpublished changes
                   </span>
-                </TooltipTrigger>
-                {!isDirty && <TooltipContent>Already published</TooltipContent>}
-              </Tooltip>
+                  <Button size="sm" onClick={handlePublish}>
+                    Publish
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" variant="outline" disabled className="gap-1.5 disabled:opacity-100">
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                  Published
+                </Button>
+              )}
 
               <Popover onOpenChange={(open) => { if (open) fetchDemoToken() }}>
                 <PopoverTrigger asChild>
@@ -761,7 +822,13 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
         {/* Preview rail — own scroll region, only where a live preview makes sense */}
         {(activeSection === 'build' || activeSection === 'design') && (
           <aside className="hidden w-[360px] shrink-0 overflow-y-auto border-l bg-background p-4 xl:block">
-            <LivePreviewPanel centre={centre} />
+            <LivePreviewPanel
+              centre={centre}
+              onEditRegion={(region) => {
+                setActiveSection('design')
+                setDesignSection(region)
+              }}
+            />
           </aside>
         )}
       </div>
