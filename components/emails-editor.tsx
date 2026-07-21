@@ -802,17 +802,6 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
           <SettingGroup title="Theme" collapsible>
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
           </SettingGroup>
-          <SettingGroup title="Container" collapsible>
-            <p className="text-xs text-muted-foreground">The middle card between the banner and footer.</p>
-            <SettingRow label="Padding">
-              <SizeControl
-                value={cfg.emailContainerPadding}
-                onChange={(v) => patch({ emailContainerPadding: v === 'normal' ? undefined : v })}
-                defaultCustomValue={24}
-                max={100}
-              />
-            </SettingRow>
-          </SettingGroup>
           <SettingGroup title="Colours" collapsible>
             <div className="space-y-1">
               <ColorRow
@@ -852,6 +841,17 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
                 themeId={themeId ?? defaultTheme}
               />
             </div>
+          </SettingGroup>
+          <SettingGroup title="Container" collapsible>
+            <p className="text-xs text-muted-foreground">The middle card between the banner and footer.</p>
+            <SettingRow label="Padding">
+              <SizeControl
+                value={cfg.emailContainerPadding}
+                onChange={(v) => patch({ emailContainerPadding: v === 'normal' ? undefined : v })}
+                defaultCustomValue={24}
+                max={100}
+              />
+            </SettingRow>
           </SettingGroup>
         </>
       )}
