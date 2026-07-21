@@ -347,7 +347,10 @@ function CatchAllMailGroupSection({ mailGroups, onAddMailGroup, catchAllMailGrou
       <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
         <div className="flex items-center gap-2">
           <span className="font-medium">{currentGroup.name}</span>
-          <Badge variant="secondary">{currentGroup.folder}</Badge>
+          <Badge variant="outline" className="flex max-w-[10rem] items-center gap-1 truncate" title={currentGroup.folder}>
+            <FolderOpen className="h-3 w-3 shrink-0" />
+            <span className="truncate">{currentGroup.folder}</span>
+          </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setIsEditing(true)}>
