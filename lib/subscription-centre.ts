@@ -30,6 +30,7 @@ export interface EmailConfig {
   bannerLayout?: EmailBannerLayout
   bannerBgColor?: string
   bannerTextColor?: string
+  bannerLinkColor?: string
   bannerCustomCss?: string
   bannerLogoMaxWidth?: number
   bannerLogoMaxHeight?: number
@@ -37,6 +38,7 @@ export interface EmailConfig {
   footerLayout?: EmailFooterLayout
   footerBgColor?: string
   footerTextColor?: string
+  footerLinkColor?: string
   footerCustomCss?: string
   footerLogoMaxWidth?: number
   footerLogoMaxHeight?: number

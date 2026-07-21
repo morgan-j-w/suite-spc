@@ -73,6 +73,7 @@ function EmailPreviewContent() {
     || generateEmailBannerHtml(cfg.bannerLayout ?? 'logo-centered', brand, {
         bgColor:    cfg.bannerBgColor   ?? themeBrand,
         textColor:  cfg.bannerTextColor ?? themeLight,
+        linkColor:  cfg.bannerLinkColor,
         heading:    cfg.bannerHeading,
         subheading: cfg.bannerSubheading,
         logoMaxWidth:  cfg.bannerLogoMaxWidth,
@@ -84,6 +85,7 @@ function EmailPreviewContent() {
     || generateEmailFooterHtml(cfg.footerLayout ?? 'minimal', brand, {
         bgColor:   cfg.footerBgColor,
         textColor: cfg.footerTextColor,
+        linkColor: cfg.footerLinkColor,
         logoMaxWidth:  cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition:  cfg.footerLogoPosition,

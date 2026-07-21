@@ -3,6 +3,7 @@ import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscrip
 export interface EmailLayoutColorOptions {
   bgColor?: string
   textColor?: string
+  linkColor?: string
   heading?: string
   subheading?: string
   logoMaxWidth?: number
@@ -35,6 +36,7 @@ export function generateEmailBannerHtml(
 ): string {
   const bg = opts.bgColor ?? '#ffffff'
   const fg = opts.textColor ?? '#111111'
+  const link = opts.linkColor ?? fg
   const heading = opts.heading || 'Email from us'
   const subheading = opts.subheading || ''
   const logoH = opts.logoMaxHeight ?? 40
@@ -64,7 +66,7 @@ export function generateEmailBannerHtml(
         `      <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>`,
         `        <td align="${align}">${logoOrName(brand.logoUrl, fg, logoH, logoW)}</td>`,
         brand.backUrl
-          ? `        <td align="right"><a href="${escAttr(brand.backUrl)}" style="font-size:12px;color:${escAttr(fg)};text-decoration:none;opacity:0.55;font-family:Arial,sans-serif;">Back to website &rarr;</a></td>`
+          ? `        <td align="right"><a href="${escAttr(brand.backUrl)}" style="font-size:12px;color:${escAttr(link)};text-decoration:none;font-family:Arial,sans-serif;">Back to website &rarr;</a></td>`
           : '',
         `      </tr></table>`,
         `    </td>`,
@@ -109,6 +111,7 @@ export function generateEmailFooterHtml(
 ): string {
   const bg = opts.bgColor ?? 'transparent'
   const fg = opts.textColor ?? '#999999'
+  const link = opts.linkColor ?? fg
   const logoH = opts.logoMaxHeight ?? 28
   const logoW = opts.logoMaxWidth ?? 120
   const logoAlign = opts.logoPosition ?? 'left'
@@ -126,7 +129,7 @@ export function generateEmailFooterHtml(
         `  <tr><td style="border-top:1px solid ${escAttr(fg)};opacity:0.15;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>`,
         `  <tr>`,
         `    <td style="padding:18px 40px;text-align:center;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
-        `      ${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(fg)};text-decoration:underline;">Unsubscribe</a>`,
+        `      ${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a>`,
         `    </td>`,
         `  </tr>`,
         `</table>`,
@@ -142,7 +145,7 @@ export function generateEmailFooterHtml(
         `  <tr>`,
         `    <td style="padding:16px 40px 22px;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
         `      <p style="margin:0 0 4px;">${copyright}</p>`,
-        `      <p style="margin:0;"><a href="${UNSUB_URL}" style="color:${escAttr(fg)};text-decoration:underline;">Unsubscribe</a> &middot; <a href="${PREFS_URL}" style="color:${escAttr(fg)};text-decoration:underline;">Manage preferences</a></p>`,
+        `      <p style="margin:0;"><a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a> &middot; <a href="${PREFS_URL}" style="color:${escAttr(link)};text-decoration:underline;">Manage preferences</a></p>`,
         `    </td>`,
         `  </tr>`,
         `</table>`,
@@ -155,7 +158,7 @@ export function generateEmailFooterHtml(
         `  <tr>`,
         `    <td style="padding:18px 40px;font-size:11px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.7;">`,
         addressHtml ? `      <p style="margin:0 0 6px;">${addressHtml}</p>` : '',
-        `      <p style="margin:0;">${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(fg)};text-decoration:underline;">Unsubscribe</a></p>`,
+        `      <p style="margin:0;">${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a></p>`,
         `    </td>`,
         `  </tr>`,
         `</table>`,

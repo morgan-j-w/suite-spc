@@ -169,6 +169,7 @@ interface EmailLayoutSectionProps {
   selectedLayout?: string
   bgColor?: string
   textColor?: string
+  linkColor?: string
   htmlValue: string
   cssValue: string
   themeId?: ColorTheme
@@ -187,6 +188,7 @@ interface EmailLayoutSectionProps {
   onSelectLayout: (id: string) => void
   onBgColorChange: (color: string | undefined) => void
   onTextColorChange: (color: string | undefined) => void
+  onLinkColorChange: (color: string | undefined) => void
   onHtmlChange: (html: string) => void
   onCssChange: (css: string) => void
   onPopulate: () => void
@@ -199,6 +201,7 @@ function EmailLayoutSection({
   selectedLayout,
   bgColor,
   textColor,
+  linkColor,
   htmlValue,
   cssValue,
   themeId,
@@ -215,6 +218,7 @@ function EmailLayoutSection({
   onSelectLayout,
   onBgColorChange,
   onTextColorChange,
+  onLinkColorChange,
   onHtmlChange,
   onCssChange,
   onPopulate,
@@ -343,6 +347,12 @@ function EmailLayoutSection({
               label="Text"
               value={textColor}
               onChange={(v) => onTextColorChange(v || undefined)}
+              themeId={themeId ?? defaultTheme}
+            />
+            <ColorRow
+              label="Links"
+              value={linkColor}
+              onChange={(v) => onLinkColorChange(v || undefined)}
               themeId={themeId ?? defaultTheme}
             />
           </div>
@@ -481,6 +491,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
     || generateEmailBannerHtml(emailConfig.bannerLayout ?? 'logo-centered', brand ?? {}, {
         bgColor:    emailConfig.bannerBgColor   ?? themeBrand,
         textColor:  emailConfig.bannerTextColor ?? themeLight,
+        linkColor:  emailConfig.bannerLinkColor,
         heading:    emailConfig.bannerHeading,
         subheading: emailConfig.bannerSubheading,
         logoMaxWidth:  emailConfig.bannerLogoMaxWidth,
@@ -491,6 +502,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
     || generateEmailFooterHtml(emailConfig.footerLayout ?? 'minimal', brand ?? {}, {
         bgColor:   emailConfig.footerBgColor,
         textColor: emailConfig.footerTextColor,
+        linkColor: emailConfig.footerLinkColor,
         logoMaxWidth:  emailConfig.footerLogoMaxWidth,
         logoMaxHeight: emailConfig.footerLogoMaxHeight,
         logoPosition:  emailConfig.footerLogoPosition,
@@ -610,6 +622,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
       bannerHtml: generateEmailBannerHtml(cfg.bannerLayout, brand ?? {}, {
         bgColor: cfg.bannerBgColor,
         textColor: cfg.bannerTextColor,
+        linkColor: cfg.bannerLinkColor,
         heading: cfg.bannerHeading,
         subheading: cfg.bannerSubheading,
         logoMaxWidth: cfg.bannerLogoMaxWidth,
@@ -625,6 +638,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
       footerHtml: generateEmailFooterHtml(cfg.footerLayout, brand ?? {}, {
         bgColor: cfg.footerBgColor,
         textColor: cfg.footerTextColor,
+        linkColor: cfg.footerLinkColor,
         logoMaxWidth: cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
@@ -644,6 +658,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
     ? cfg.bannerHtml || generateEmailBannerHtml(cfg.bannerLayout, brand ?? {}, {
         bgColor: cfg.bannerBgColor,
         textColor: cfg.bannerTextColor,
+        linkColor: cfg.bannerLinkColor,
         heading: cfg.bannerHeading,
         subheading: cfg.bannerSubheading,
         logoMaxWidth: cfg.bannerLogoMaxWidth,
@@ -656,6 +671,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
     ? cfg.footerHtml || generateEmailFooterHtml(cfg.footerLayout, brand ?? {}, {
         bgColor: cfg.footerBgColor,
         textColor: cfg.footerTextColor,
+        linkColor: cfg.footerLinkColor,
         logoMaxWidth: cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
@@ -692,6 +708,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               selectedLayout={cfg.bannerLayout}
               bgColor={cfg.bannerBgColor}
               textColor={cfg.bannerTextColor}
+              linkColor={cfg.bannerLinkColor}
               htmlValue={cfg.bannerHtml}
               themeId={themeId ?? defaultTheme}
               heading={cfg.bannerHeading}
@@ -707,6 +724,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               onSelectLayout={(id) => patch({ bannerLayout: id as EmailBannerLayout })}
               onBgColorChange={(v) => patch({ bannerBgColor: v })}
               onTextColorChange={(v) => patch({ bannerTextColor: v })}
+              onLinkColorChange={(v) => patch({ bannerLinkColor: v })}
               onHtmlChange={(bannerHtml) => patch({ bannerHtml })}
               onCssChange={(bannerCustomCss) => patch({ bannerCustomCss })}
               cssValue={cfg.bannerCustomCss ?? ''}
@@ -737,6 +755,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               selectedLayout={cfg.footerLayout}
               bgColor={cfg.footerBgColor}
               textColor={cfg.footerTextColor}
+              linkColor={cfg.footerLinkColor}
               htmlValue={cfg.footerHtml}
               themeId={themeId ?? defaultTheme}
               logoMaxWidth={cfg.footerLogoMaxWidth}
@@ -748,6 +767,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               onSelectLayout={(id) => patch({ footerLayout: id as EmailFooterLayout })}
               onBgColorChange={(v) => patch({ footerBgColor: v })}
               onTextColorChange={(v) => patch({ footerTextColor: v })}
+              onLinkColorChange={(v) => patch({ footerLinkColor: v })}
               onHtmlChange={(footerHtml) => patch({ footerHtml })}
               onCssChange={(footerCustomCss) => patch({ footerCustomCss })}
               cssValue={cfg.footerCustomCss ?? ''}
