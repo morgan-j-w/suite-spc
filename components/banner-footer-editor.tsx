@@ -471,7 +471,7 @@ interface BannerEditorProps {
   brand?: Brand
 }
 
-export function BannerEditor({ banner, onBannerChange, themeId, brand }: BannerEditorProps) {
+export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }: BannerEditorProps & { preview?: React.ReactNode }) {
   const [showHtml, setShowHtml] = useState(false)
   const [showCss, setShowCss] = useState(false)
   const enabled = !!banner
@@ -507,6 +507,8 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand }: BannerE
               ))}
             </div>
           </div>
+
+          {preview}
 
           {/* Options card */}
           <div className="rounded-lg border p-3 space-y-3">
@@ -757,7 +759,7 @@ interface FooterEditorProps {
   brand?: Brand
 }
 
-export function FooterEditor({ footer, onFooterChange, themeId, brand }: FooterEditorProps) {
+export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }: FooterEditorProps & { preview?: React.ReactNode }) {
   const [showHtml, setShowHtml] = useState(false)
   const [showCss, setShowCss] = useState(false)
   const enabled = !!footer
@@ -795,6 +797,8 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand }: FooterE
               ))}
             </div>
           </div>
+
+          {preview}
 
           {/* Options card */}
           <div className="rounded-lg border p-3 space-y-3">
