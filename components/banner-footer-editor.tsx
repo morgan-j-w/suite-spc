@@ -415,11 +415,11 @@ const BANNER_COLOUR_FIELDS: Record<BannerLayout, ColourField[]> = {
 }
 
 const FOOTER_COLOUR_FIELDS: Record<FooterLayout, ColourField[]> = {
-  'minimal-line':      [{ key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }],
+  'minimal-line':      [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }],
   'centred-stack':     [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }, { key: 'iconColor', label: 'Icons' }],
   'split-cta':         [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }, { key: 'iconColor', label: 'Icons' }, { key: 'buttonBgColor', label: 'Button bg' }, { key: 'buttonTextColor', label: 'Button text' }],
   'multi-column':      [{ key: 'backgroundColor', label: 'Background' }, { key: 'headingColor', label: 'Heading' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }, { key: 'iconColor', label: 'Icons' }],
-  'dark-band':         [{ key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }, { key: 'iconColor', label: 'Icons' }, { key: 'accentColor', label: 'Top border' }],
+  'dark-band':         [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }, { key: 'iconColor', label: 'Icons' }, { key: 'accentColor', label: 'Top border' }],
   'unsubscribe-focus': [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }],
   'two-col':           [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }],
   'social-focused':    [{ key: 'backgroundColor', label: 'Background' }, { key: 'bodyColor', label: 'Body' }, { key: 'linkColor', label: 'Links' }, { key: 'iconColor', label: 'Icons' }],

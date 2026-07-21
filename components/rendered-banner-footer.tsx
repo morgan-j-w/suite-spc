@@ -602,25 +602,35 @@ function FooterSplitCta({ config, brand, maxWidth = 896 }: FooterProps) {
   const btnBg = config.buttonBgColor ?? 'var(--primary)'
   const btnText = config.buttonTextColor ?? 'var(--primary-foreground)'
   return (
-    <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem' }}>
-        <div>
-          {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
-          {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: 0, whiteSpace: 'pre-line' }}>{brand.address}</p>}
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.875rem' }}>
-          {brand.backUrl && (
-            <HoverLink href={brand.backUrl} bg={btnBg} text={btnText}>Back to website</HoverLink>
-          )}
-          {!!brand.socialLinks?.length && <SocialIcons links={brand.socialLinks} size="sm" color={icon} />}
-          {!!config.links?.length && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '0.25rem 0.875rem' }}>
-              {config.links.map((l) => <a key={l.id} href={l.url} style={{ fontSize: '0.75rem', color: link, textDecoration: 'none' }}>{l.label}</a>)}
-            </div>
-          )}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-splitcta-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
+          .spc-splitcta-left img { margin-left: auto !important; margin-right: auto !important; }
+          .spc-splitcta-right { align-items: center !important; }
+          .spc-splitcta-right-links { justify-content: center !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
+        <div className="spc-splitcta-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem' }}>
+          <div className="spc-splitcta-left">
+            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
+            {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: 0, whiteSpace: 'pre-line' }}>{brand.address}</p>}
+          </div>
+          <div className="spc-splitcta-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.875rem' }}>
+            {brand.backUrl && (
+              <HoverLink href={brand.backUrl} bg={btnBg} text={btnText}>Back to website</HoverLink>
+            )}
+            {!!brand.socialLinks?.length && <SocialIcons links={brand.socialLinks} size="sm" color={icon} />}
+            {!!config.links?.length && (
+              <div className="spc-splitcta-right-links" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '0.25rem 0.875rem' }}>
+                {config.links.map((l) => <a key={l.id} href={l.url} style={{ fontSize: '0.75rem', color: link, textDecoration: 'none' }}>{l.label}</a>)}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -652,22 +662,31 @@ function FooterTwoCol({ config, brand, maxWidth = 896 }: FooterProps) {
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
   return (
-    <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem', display: 'block' }} />}
-          {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: '0 0 0.375rem', whiteSpace: 'pre-line' }}>{brand.address}</p>}
-          {brand.copyrightText && <p style={{ fontSize: '0.75rem', color: body, margin: 0 }}>{brand.copyrightText}</p>}
-        </div>
-        {!!config.links?.length && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
-            {config.links.map((l) => (
-              <a key={l.id} href={l.url} style={{ fontSize: '0.875rem', color: link, textDecoration: 'none' }}>{l.label}</a>
-            ))}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-twocol-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
+          .spc-twocol-left img { margin-left: auto !important; margin-right: auto !important; }
+          .spc-twocol-right { align-items: center !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
+        <div className="spc-twocol-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div className="spc-twocol-left">
+            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem', display: 'block' }} />}
+            {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: '0 0 0.375rem', whiteSpace: 'pre-line' }}>{brand.address}</p>}
+            {brand.copyrightText && <p style={{ fontSize: '0.75rem', color: body, margin: 0 }}>{brand.copyrightText}</p>}
           </div>
-        )}
+          {!!config.links?.length && (
+            <div className="spc-twocol-right" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+              {config.links.map((l) => (
+                <a key={l.id} href={l.url} style={{ fontSize: '0.875rem', color: link, textDecoration: 'none' }}>{l.label}</a>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -678,33 +697,40 @@ function FooterSocialFocused({ config, brand, maxWidth = 896 }: FooterProps) {
   const link = config.linkColor ?? 'var(--muted-foreground)'
   const icon = config.iconColor ?? 'var(--foreground)'
   return (
-    <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5'), textAlign: 'center' }}>
-      <div style={wrap(config.fullWidth, maxWidth)}>
-        {!!brand.socialLinks?.length && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', marginBottom: '1.25rem' }}>
-            {brand.socialLinks.map((sl) => {
-              const Icon = SOCIAL_ICONS[sl.platform]
-              return Icon ? (
-                <a key={sl.id} href={sl.url} target="_blank" rel="noopener noreferrer"
-                  style={{ color: icon, display: 'block' }}
-                  className="transition-opacity hover:opacity-70">
-                  <Icon className="h-7 w-7" />
-                  <span className="sr-only">{sl.platform}</span>
-                </a>
-              ) : null
-            })}
-          </div>
-        )}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '0.25rem 1rem' }}>
-          {config.links?.map((l) => (
-            <a key={l.id} href={l.url} style={{ fontSize: '0.75rem', color: link, textDecoration: 'none' }}>{l.label}</a>
-          ))}
-          {brand.copyrightText && (
-            <span style={{ fontSize: '0.75rem', color: body }}>{brand.copyrightText}</span>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 480px) {
+          .spc-social-links-row { flex-direction: column !important; gap: 0.5rem !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5'), textAlign: 'center' }}>
+        <div style={wrap(config.fullWidth, maxWidth)}>
+          {!!brand.socialLinks?.length && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+              {brand.socialLinks.map((sl) => {
+                const Icon = SOCIAL_ICONS[sl.platform]
+                return Icon ? (
+                  <a key={sl.id} href={sl.url} target="_blank" rel="noopener noreferrer"
+                    style={{ color: icon, display: 'block' }}
+                    className="transition-opacity hover:opacity-70">
+                    <Icon className="h-7 w-7" />
+                    <span className="sr-only">{sl.platform}</span>
+                  </a>
+                ) : null
+              })}
+            </div>
           )}
+          <div className="spc-social-links-row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '0.25rem 1rem' }}>
+            {config.links?.map((l) => (
+              <a key={l.id} href={l.url} style={{ fontSize: '0.75rem', color: link, textDecoration: 'none' }}>{l.label}</a>
+            ))}
+            {brand.copyrightText && (
+              <span style={{ fontSize: '0.75rem', color: body }}>{brand.copyrightText}</span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -753,26 +779,39 @@ function FooterInlineLogo({ config, brand, maxWidth = 896 }: FooterProps) {
   const accent = config.accentColor ?? 'var(--primary)'
   const links = config.links ?? []
   return (
-    <div style={{ background: bg, borderTop: `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 24, maxWidth: 80, flexShrink: 0 }} />}
-        {brand.logoUrl && (links.length > 0 || !!brand.copyrightText) && (
-          <span style={{ color: body, opacity: 0.35 }}>•</span>
-        )}
-        {links.map((l, i) => (
-          <span key={l.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <a href={l.url} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>{l.label}</a>
-            {i < links.length - 1 && <span style={{ color: body, opacity: 0.35 }}>·</span>}
-          </span>
-        ))}
-        {brand.copyrightText && (
-          <>
-            {links.length > 0 && <span style={{ color: body, opacity: 0.35 }}>•</span>}
-            <span style={{ fontSize: '0.75rem', color: body }}>{brand.copyrightText}</span>
-          </>
-        )}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-inline-row { flex-direction: column !important; gap: 0.5rem !important; }
+          .spc-inline-sep { display: none !important; }
+          .spc-inline-links { flex-direction: column !important; gap: 0.375rem !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderTop: `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
+        <div className="spc-inline-row" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 24, maxWidth: 80, flexShrink: 0 }} />}
+          {brand.logoUrl && (links.length > 0 || !!brand.copyrightText) && (
+            <span className="spc-inline-sep" style={{ color: body, opacity: 0.35 }}>•</span>
+          )}
+          {links.length > 0 && (
+            <div className="spc-inline-links" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {links.map((l, i) => (
+                <span key={l.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <a href={l.url} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>{l.label}</a>
+                  {i < links.length - 1 && <span className="spc-inline-sep" style={{ color: body, opacity: 0.35 }}>·</span>}
+                </span>
+              ))}
+            </div>
+          )}
+          {brand.copyrightText && (
+            <>
+              {links.length > 0 && <span className="spc-inline-sep" style={{ color: body, opacity: 0.35 }}>•</span>}
+              <span style={{ fontSize: '0.75rem', color: body }}>{brand.copyrightText}</span>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -783,24 +822,34 @@ function FooterLeftPanel({ config, brand, maxWidth = 896 }: FooterProps) {
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
   return (
-    <div style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
-      <div style={{ background: panelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', minWidth: 160, flexShrink: 0 }}>
-        {brand.logoUrl
-          ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 120 }} />
-          : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary-foreground)' }}>Brand</span>}
-      </div>
-      <div style={{ background: mainBg, flex: '1 1 0', padding: sectionPad(config.padding, '1.5', '2'), display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem', justifyContent: 'space-between' }}>
-        <div>
-          {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: '0 0 0.25rem', whiteSpace: 'pre-line' }}>{brand.address}</p>}
-          {brand.copyrightText && <p style={{ fontSize: '0.75rem', color: body, margin: 0, opacity: 0.7 }}>{brand.copyrightText}</p>}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-leftpanel-outer { flex-direction: column !important; }
+          .spc-leftpanel-side { min-width: 0 !important; width: 100% !important; padding: 1.25rem 1.5rem !important; }
+          .spc-leftpanel-main { flex-direction: column !important; align-items: center !important; text-align: center !important; justify-content: center !important; }
+          .spc-leftpanel-links { justify-content: center !important; }
+        }
+      `}} />
+      <div className="spc-leftpanel-outer" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
+        <div className="spc-leftpanel-side" style={{ background: panelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', minWidth: 160, flexShrink: 0 }}>
+          {brand.logoUrl
+            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 120 }} />
+            : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary-foreground)' }}>Brand</span>}
         </div>
-        {!!config.links?.length && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem 1rem', justifyContent: 'flex-end' }}>
-            {config.links.map((l) => <a key={l.id} href={l.url} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>{l.label}</a>)}
+        <div className="spc-leftpanel-main" style={{ background: mainBg, flex: '1 1 0', padding: sectionPad(config.padding, '1.5', '2'), display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem', justifyContent: 'space-between' }}>
+          <div>
+            {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: '0 0 0.25rem', whiteSpace: 'pre-line' }}>{brand.address}</p>}
+            {brand.copyrightText && <p style={{ fontSize: '0.75rem', color: body, margin: 0, opacity: 0.7 }}>{brand.copyrightText}</p>}
           </div>
-        )}
+          {!!config.links?.length && (
+            <div className="spc-leftpanel-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem 1rem', justifyContent: 'flex-end' }}>
+              {config.links.map((l) => <a key={l.id} href={l.url} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>{l.label}</a>)}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -812,20 +861,27 @@ function FooterLogoCta({ config, brand, maxWidth = 896 }: FooterProps) {
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const copyright = brand.copyrightText ?? `© ${new Date().getFullYear()} Your Company`
   return (
-    <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-        {brand.logoUrl
-          ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 140, display: 'block' }} />
-          : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--foreground)' }}>Your Company</span>}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <a href="#" style={{ display: 'inline-block', padding: '0.375rem 1rem', background: btnBg, color: btnFg, fontSize: '0.8125rem', fontWeight: 500, borderRadius: '0.375rem', textDecoration: 'none' }}>
-            Manage preferences
-          </a>
-          <a href="#" style={{ fontSize: '0.8125rem', color: body, textDecoration: 'underline' }}>Unsubscribe</a>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 480px) {
+          .spc-logocta-actions { flex-direction: column !important; gap: 0.625rem !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
+        <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+          {brand.logoUrl
+            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 140, display: 'block' }} />
+            : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--foreground)' }}>Your Company</span>}
+          <div className="spc-logocta-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <a href="#" style={{ display: 'inline-block', padding: '0.375rem 1rem', background: btnBg, color: btnFg, fontSize: '0.8125rem', fontWeight: 500, borderRadius: '0.375rem', textDecoration: 'none' }}>
+              Manage preferences
+            </a>
+            <a href="#" style={{ fontSize: '0.8125rem', color: body, textDecoration: 'underline' }}>Unsubscribe</a>
+          </div>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: body, opacity: 0.7, textAlign: 'center' }}>{copyright}</p>
         </div>
-        <p style={{ margin: 0, fontSize: '0.75rem', color: body, opacity: 0.7, textAlign: 'center' }}>{copyright}</p>
       </div>
-    </div>
+    </>
   )
 }
 
