@@ -568,6 +568,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
                     linkColor: emailConfig.emailLinkColor ?? themeBrand,
                     buttonBgColor: emailConfig.emailButtonBgColor ?? themeBrand,
                     buttonTextColor: emailConfig.emailButtonTextColor,
+                    padding: emailConfig.emailContainerPadding,
                   }) }}
                 />
                 {previewFooterHtml && (
@@ -800,6 +801,17 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
           </div>
           <SettingGroup title="Theme">
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
+          </SettingGroup>
+          <SettingGroup title="Container">
+            <p className="text-xs text-muted-foreground">The middle card between the banner and footer.</p>
+            <SettingRow label="Padding">
+              <SizeControl
+                value={cfg.emailContainerPadding}
+                onChange={(v) => patch({ emailContainerPadding: v === 'normal' ? undefined : v })}
+                defaultCustomValue={24}
+                max={100}
+              />
+            </SettingRow>
           </SettingGroup>
           <SettingGroup title="Colours">
             <div className="space-y-1">

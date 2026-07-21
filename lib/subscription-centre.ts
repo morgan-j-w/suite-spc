@@ -31,6 +31,7 @@ export interface EmailConfig {
   emailLinkColor?: string        // link colour within the body content
   emailButtonBgColor?: string    // "Insert button" CTA background
   emailButtonTextColor?: string  // "Insert button" CTA text
+  emailContainerPadding?: number | 'compact' | 'spacious' // padding inside the 650px card, between banner and footer
   // Email layout selection — drives the layout picker UI and "Populate from layout" generator.
   bannerLayout?: EmailBannerLayout
   bannerBgColor?: string

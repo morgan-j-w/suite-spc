@@ -148,6 +148,7 @@ export interface EmailBodyOptions {
   bgColor?: string
   buttonBgColor?: string
   buttonTextColor?: string
+  padding?: number | 'compact' | 'spacious'
 }
 
 // Wraps rich-text bodyHtml in a 650px table matching the banner/footer's own structure,
@@ -158,6 +159,7 @@ export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions =
   const bg = opts.bgColor ?? '#ffffff'
   const btnBg = opts.buttonBgColor ?? '#2563eb'
   const btnFg = opts.buttonTextColor ?? '#ffffff'
+  const pad = Math.round(24 * paddingScale(opts.padding, 24))
 
   let html = bodyHtml || '<p style="color:#9ca3af;font-style:italic;margin:0;">No body content yet.</p>'
 
@@ -196,7 +198,7 @@ export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions =
   return [
     `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
     `  <tr>`,
-    `    <td style="padding:24px 40px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${escAttr(text)};">`,
+    `    <td style="padding:${pad}px 40px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${escAttr(text)};">`,
     `      ${html}`,
     `    </td>`,
     `  </tr>`,

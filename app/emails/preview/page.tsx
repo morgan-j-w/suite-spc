@@ -150,6 +150,7 @@ function EmailPreviewContent() {
           linkColor: cfg.emailLinkColor ?? themeBrand,
           buttonBgColor: cfg.emailButtonBgColor ?? themeBrand,
           buttonTextColor: cfg.emailButtonTextColor,
+          padding: cfg.emailContainerPadding,
         }) }} />
         {footerHtml && <div dangerouslySetInnerHTML={{ __html: footerHtml }} />}
       </div>
