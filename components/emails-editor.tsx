@@ -229,6 +229,8 @@ function EmailLayoutSection({
 
   return (
     <div className="space-y-4">
+      {preview}
+
       {/* Layout */}
       <SettingGroup title="Layout" collapsible>
         <div className="grid grid-cols-3 gap-2">
@@ -245,12 +247,9 @@ function EmailLayoutSection({
         </div>
       </SettingGroup>
 
-      {preview}
-
-      {/* Text — heading/subheading. Always available for parity with Design > Banner;
-          only the Heading band layout renders it, same as some Design banner layouts
-          (Minimal, Logo only, Logo band) not rendering heading/blurb either. */}
-      {section === 'banner' && selectedLayout && onHeadingChange && (
+      {/* Text — heading/subheading. Only Heading band (the 3rd banner layout) renders
+          this text; Logo centered and Logo left don't use it, so keep it gated. */}
+      {section === 'banner' && selectedLayout === 'heading-band' && onHeadingChange && (
         <SettingGroup title="Text" collapsible>
           <div className="space-y-2">
             <div className="space-y-1">

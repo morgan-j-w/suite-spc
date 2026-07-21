@@ -499,6 +499,8 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
       {enabled && (
         <div className="space-y-4">
+          {preview}
+
           {/* Layout */}
           <SettingGroup title="Layout" collapsible>
             <div className="grid grid-cols-3 gap-2">
@@ -509,8 +511,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               ))}
             </div>
           </SettingGroup>
-
-          {preview}
 
           {textEditor}
 
@@ -748,6 +748,8 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
 
       {enabled && (
         <div className="space-y-4">
+          {preview}
+
           {/* Layout */}
           <SettingGroup title="Layout" collapsible>
             <div className="grid grid-cols-3 gap-2">
@@ -758,8 +760,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               ))}
             </div>
           </SettingGroup>
-
-          {preview}
 
           {/* Options */}
           <SettingGroup title="Options" collapsible>
