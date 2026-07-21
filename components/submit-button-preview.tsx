@@ -28,7 +28,7 @@ interface SubmitButtonPreviewProps {
 
 const ALIGNMENT_OPTIONS: { value: SubmitButtonAlignment; label: string; icon: typeof AlignLeft }[] = [
   { value: 'left', label: 'Left', icon: AlignLeft },
-  { value: 'center', label: 'Center', icon: AlignCenter },
+  { value: 'center', label: 'Centre', icon: AlignCenter },
   { value: 'right', label: 'Right', icon: AlignRight },
   { value: 'full', label: 'Full width', icon: StretchHorizontal },
 ]

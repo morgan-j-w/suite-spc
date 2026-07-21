@@ -181,7 +181,7 @@ export const standardFieldCatalog: StandardFieldDef[] = [
     placeholder: 'you@example.com',
     required: true,
   },
-  { id: 'phone', label: 'Mobile', type: 'phone', placeholder: '+1 (555) 000-0000' },
+  { id: 'phone', label: 'Mobile', type: 'phone', placeholder: '+61 4XX XXX XXX' },
   { id: 'country', label: 'Country', type: 'country' },
 ]
 

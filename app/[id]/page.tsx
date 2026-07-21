@@ -266,8 +266,8 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
         brand: {
           logoUrl: 'https://placehold.co/160x48/3b82f6/ffffff?text=Your+Brand&font=inter',
           backUrl: 'https://example.com',
-          address: '123 Example Street\nLondon, UK, W1A 1AA',
-          copyrightText: `© ${new Date().getFullYear()} Acme Corp. All rights reserved.`,
+          address: '123 Example Street\nSydney NSW 2000, Australia',
+          copyrightText: `© ${new Date().getFullYear()} Your Company. All rights reserved.`,
           socialLinks: [
             { id: crypto.randomUUID(), platform: 'facebook' as const, url: '#' },
             { id: crypto.randomUUID(), platform: 'instagram' as const, url: '#' },

@@ -117,7 +117,7 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
         <div className="space-y-1.5">
           <Label>Address</Label>
           <Textarea
-            placeholder={"123 Example Street\nCity, Country, 00000"}
+            placeholder={"123 Example Street\nSydney NSW 2000, Australia"}
             value={brand.address ?? ''}
             onChange={(e) => patch({ address: e.target.value || undefined })}
             rows={2}
