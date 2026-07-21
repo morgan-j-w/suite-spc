@@ -25,7 +25,12 @@ export interface EmailConfig {
   bannerSubheading?: string  // editable subheading / tagline
   footerEnabled?: boolean
   footerHtml: string
-  emailBodyBgColor?: string  // outer wrapper background shown around the 650px email body
+  emailBodyBgColor?: string      // outer wrapper background shown around the 650px email body
+  emailContainerBgColor?: string // background of the 650px content card itself (default white)
+  emailTextColor?: string        // body text colour
+  emailLinkColor?: string        // link colour within the body content
+  emailButtonBgColor?: string    // "Insert button" CTA background
+  emailButtonTextColor?: string  // "Insert button" CTA text
   // Email layout selection — drives the layout picker UI and "Populate from layout" generator.
   bannerLayout?: EmailBannerLayout
   bannerBgColor?: string

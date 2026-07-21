@@ -525,6 +525,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
                 value={template.bodyHtml}
                 onChange={(bodyHtml) => onChange({ bodyHtml })}
                 placeholder="Write your email body…"
+                buttonColors={{ bg: emailConfig.emailButtonBgColor ?? themeBrand, text: emailConfig.emailButtonTextColor ?? '#ffffff' }}
               />
             )}
           </div>
@@ -547,7 +548,13 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
                   <div dangerouslySetInnerHTML={{ __html: previewBannerHtml }} />
                 )}
                 <div
-                  dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(template.bodyHtml, { linkColor: themeBrand }) }}
+                  dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(template.bodyHtml, {
+                    bgColor: emailConfig.emailContainerBgColor,
+                    textColor: emailConfig.emailTextColor,
+                    linkColor: emailConfig.emailLinkColor ?? themeBrand,
+                    buttonBgColor: emailConfig.emailButtonBgColor ?? themeBrand,
+                    buttonTextColor: emailConfig.emailButtonTextColor,
+                  }) }}
                 />
                 {previewFooterHtml && (
                   <div dangerouslySetInnerHTML={{ __html: previewFooterHtml }} />
@@ -773,12 +780,44 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
           </SettingGroup>
           <SettingGroup title="Colours">
-            <ColorRow
-              label="Body background"
-              value={cfg.emailBodyBgColor}
-              onChange={(v) => patch({ emailBodyBgColor: v || undefined })}
-              themeId={themeId ?? defaultTheme}
-            />
+            <div className="space-y-1">
+              <ColorRow
+                label="Page background"
+                value={cfg.emailBodyBgColor}
+                onChange={(v) => patch({ emailBodyBgColor: v || undefined })}
+                themeId={themeId ?? defaultTheme}
+              />
+              <ColorRow
+                label="Container background"
+                value={cfg.emailContainerBgColor}
+                onChange={(v) => patch({ emailContainerBgColor: v || undefined })}
+                themeId={themeId ?? defaultTheme}
+              />
+              <ColorRow
+                label="Body text"
+                value={cfg.emailTextColor}
+                onChange={(v) => patch({ emailTextColor: v || undefined })}
+                themeId={themeId ?? defaultTheme}
+              />
+              <ColorRow
+                label="Links"
+                value={cfg.emailLinkColor}
+                onChange={(v) => patch({ emailLinkColor: v || undefined })}
+                themeId={themeId ?? defaultTheme}
+              />
+              <ColorRow
+                label="Button background"
+                value={cfg.emailButtonBgColor}
+                onChange={(v) => patch({ emailButtonBgColor: v || undefined })}
+                themeId={themeId ?? defaultTheme}
+              />
+              <ColorRow
+                label="Button text"
+                value={cfg.emailButtonTextColor}
+                onChange={(v) => patch({ emailButtonTextColor: v || undefined })}
+                themeId={themeId ?? defaultTheme}
+              />
+            </div>
           </SettingGroup>
         </>
       )}

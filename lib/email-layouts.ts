@@ -131,6 +131,8 @@ export interface EmailBodyOptions {
   textColor?: string
   linkColor?: string
   bgColor?: string
+  buttonBgColor?: string
+  buttonTextColor?: string
 }
 
 // Wraps rich-text bodyHtml in a 650px table matching the banner/footer's own structure,
@@ -139,8 +141,25 @@ export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions =
   const text = opts.textColor ?? '#1a1a1a'
   const linkC = opts.linkColor ?? '#2563eb'
   const bg = opts.bgColor ?? '#ffffff'
+  const btnBg = opts.buttonBgColor ?? '#2563eb'
+  const btnFg = opts.buttonTextColor ?? '#ffffff'
 
   let html = bodyHtml || '<p style="color:#9ca3af;font-style:italic;margin:0;">No body content yet.</p>'
+
+  // Button-styled links (data-button="true", set via the editor's "Insert button" tool) get
+  // their own look BEFORE the general <a> pass below. styleTag's merge puts new css first and
+  // an existing style value after, so whichever comes LAST in the merged string wins for any
+  // overlapping property — running this pass first means the button's own colour/no-underline
+  // survive the general link pass rather than being stomped by it.
+  html = html.replace(/<a([^>]*\sdata-button="true"[^>]*)>/g, (_match, attrs: string) => {
+    const buttonCss = `display:inline-block;background:${btnBg};color:${btnFg};padding:10px 22px;border-radius:6px;font-weight:600;text-decoration:none;`
+    const styleMatch = /\sstyle="([^"]*)"/.exec(attrs)
+    if (styleMatch) {
+      const withoutStyle = attrs.slice(0, styleMatch.index) + attrs.slice(styleMatch.index + styleMatch[0].length)
+      return `<a${withoutStyle} style="${buttonCss};${styleMatch[1]}">`
+    }
+    return `<a${attrs} style="${buttonCss}">`
+  })
 
   html = styleTag(html, 'p', 'margin:0 0 16px;font-size:14px;line-height:1.6;')
   html = styleTag(html, 'h1', 'margin:0 0 16px;font-size:28px;font-weight:700;line-height:1.25;')

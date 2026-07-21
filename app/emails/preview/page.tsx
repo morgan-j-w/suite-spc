@@ -142,7 +142,13 @@ function EmailPreviewContent() {
 
       <div className="mx-auto bg-white shadow-sm" style={{ maxWidth: 650 }}>
         {bannerHtml && <div dangerouslySetInnerHTML={{ __html: bannerHtml }} />}
-        <div dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(tpl.bodyHtml, { linkColor: themeBrand }) }} />
+        <div dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(tpl.bodyHtml, {
+          bgColor: cfg.emailContainerBgColor,
+          textColor: cfg.emailTextColor,
+          linkColor: cfg.emailLinkColor ?? themeBrand,
+          buttonBgColor: cfg.emailButtonBgColor ?? themeBrand,
+          buttonTextColor: cfg.emailButtonTextColor,
+        }) }} />
         {footerHtml && <div dangerouslySetInnerHTML={{ __html: footerHtml }} />}
       </div>
     </div>

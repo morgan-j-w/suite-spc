@@ -8,7 +8,7 @@ import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import TextAlign from '@tiptap/extension-text-align'
 import Placeholder from '@tiptap/extension-placeholder'
-import Link from '@tiptap/extension-link'
+import TiptapLink from '@tiptap/extension-link'
 import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableHeader } from '@tiptap/extension-table-header'
@@ -28,6 +28,7 @@ import {
   ListOrdered,
   Minus,
   Palette,
+  RectangleHorizontal,
   Strikethrough,
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
@@ -52,15 +53,40 @@ export const richTextContentClass = [
   '[&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-sm [&_th]:font-semibold',
   '[&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_td]:text-sm',
   '[&_.selectedCell]:bg-primary/10',
+  // "Insert button" links (data-button, email templates only) — previewed here with the
+  // actual configured button colours via CSS vars set on the wrapper, falling back to a
+  // generic blue so it still looks button-shaped if no colours were passed in.
+  '[&_a[data-button]]:inline-block [&_a[data-button]]:rounded-md [&_a[data-button]]:px-3 [&_a[data-button]]:py-1.5 [&_a[data-button]]:font-medium [&_a[data-button]]:!no-underline [&_a[data-button]]:bg-[var(--email-btn-bg,#2563eb)] [&_a[data-button]]:!text-[var(--email-btn-text,#ffffff)]',
 ].join(' ')
+
+// Extends the Link mark to retain a data-button flag across parse/serialize round-trips —
+// how the editor knows a given link is a button (inserted via the toolbar's "Insert button")
+// rather than a plain text link, so it can preview/generate it differently.
+const Link = TiptapLink.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      'data-button': {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-button'),
+        renderHTML: (attributes) => (attributes['data-button'] ? { 'data-button': attributes['data-button'] } : {}),
+      },
+    }
+  },
+})
 
 interface RichTextEditorProps {
   value: string
   onChange: (html: string) => void
   placeholder?: string
+  // Email templates only: shows an "Insert button" tool and previews it with these colours.
+  // Content blocks / form field help text render straight through richTextContentClass with
+  // no email-safe conversion step, so a CTA-styled button doesn't have an obvious home there
+  // yet — omit this prop to hide the tool.
+  buttonColors?: { bg: string; text: string }
 }
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, buttonColors }: RichTextEditorProps) {
   const colorInputRef = useRef<HTMLInputElement>(null)
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
@@ -92,6 +118,10 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   })
 
   if (!editor) return null
+
+  const insertButton = () => {
+    editor.chain().focus().insertContent('<a href="#" data-button="true">Button text</a>').run()
+  }
 
   const openLinkPopover = (open: boolean) => {
     if (open) setLinkUrl((editor.getAttributes('link').href as string | undefined) || '')
@@ -222,6 +252,12 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           <Minus className="h-3.5 w-3.5" />
         </ToolbarButton>
 
+        {buttonColors && (
+          <ToolbarButton title="Insert button" onClick={insertButton}>
+            <RectangleHorizontal className="h-3.5 w-3.5" />
+          </ToolbarButton>
+        )}
+
         <Divider />
 
         <ToolbarButton title="Align left" active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()}>
@@ -289,6 +325,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
       <EditorContent
         editor={editor}
+        style={buttonColors ? ({ '--email-btn-bg': buttonColors.bg, '--email-btn-text': buttonColors.text } as React.CSSProperties) : undefined}
         className={cn(
           'min-h-[88px] rounded-md border bg-background px-3 py-2 text-sm focus-within:outline focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-ring/50',
           richTextContentClass
