@@ -313,18 +313,9 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   )
   const hasMissingSuppress = optionsMissingSuppress.length > 0
 
-  // Per-section "ready" signal shown as a small dot in the sidebar. Build reuses the same
-  // gate as Publish; Design/Emails look for real content beyond the seeded defaults; Pages
-  // ships with valid copy from the moment a centre is created, so it's always ready.
-  const emailCfgForStatus = centre.emailConfig ?? defaultEmailConfig
-  const sectionReady: Record<BuilderSection, boolean> = {
-    build: hasCatchAllMailGroup && !hasMissingSuppress,
-    design: Boolean(centre.brand?.logoUrl),
-    emails: [emailCfgForStatus.doubleOptIn, emailCfgForStatus.confirmation, emailCfgForStatus.unsubscribed]
-      .some((t) => t?.subject?.trim() && t?.bodyHtml?.trim()),
-    pages: true,
-    export: false,
-  }
+  // Only Build has a hard gate blocking Publish (catch-all mailgroup + suppress groups) — an
+  // amber dot in the sidebar surfaces that before the user hits Publish and gets the toast.
+  const buildNeedsAttention = !hasCatchAllMailGroup || hasMissingSuppress
 
   // Clear suppress errors once all issues are resolved by the user
   if (showSuppressErrors && !hasMissingSuppress) setShowSuppressErrors(false)
@@ -578,9 +569,10 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   >
                     <section.icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1">{section.label}</span>
-                    {sectionReady[section.id] && (
+                    {section.id === 'build' && buildNeedsAttention && (
                       <span
-                        className={cn('h-1.5 w-1.5 shrink-0 rounded-full', activeSection === section.id ? 'bg-primary-foreground' : 'bg-emerald-500')}
+                        className={cn('h-1.5 w-1.5 shrink-0 rounded-full', activeSection === section.id ? 'bg-primary-foreground' : 'bg-amber-500')}
+                        title="Needs attention before publishing"
                         aria-hidden
                       />
                     )}
