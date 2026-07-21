@@ -232,7 +232,7 @@ function EmailLayoutSection({
   return (
     <div className="space-y-4">
       {/* Layout */}
-      <SettingGroup title="Layout">
+      <SettingGroup title="Layout" collapsible defaultOpen>
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
@@ -251,7 +251,7 @@ function EmailLayoutSection({
 
       {/* Content — editable text for text-based banner layouts */}
       {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
-        <SettingGroup title="Content">
+        <SettingGroup title="Content" collapsible defaultOpen>
           <div className="space-y-2">
             {selectedLayout !== 'split' && (
               <div className="space-y-1">
@@ -279,7 +279,7 @@ function EmailLayoutSection({
 
       {/* Logo — banner: all layouts; footer: links-copyright only */}
       {selectedLayout && (section === 'banner' || (section === 'footer' && selectedLayout === 'links-copyright')) && (
-        <SettingGroup title="Logo">
+        <SettingGroup title="Logo" collapsible>
           <SettingRow label="Max width">
             <Input
               type="number" min={20} max={600} placeholder="auto"
@@ -320,7 +320,7 @@ function EmailLayoutSection({
 
       {/* Colours (shown when a layout is selected) */}
       {selectedLayout && (
-        <SettingGroup title="Colours">
+        <SettingGroup title="Colours" collapsible>
           <div className="space-y-1">
             <ColorRow
               label="Background"
@@ -344,6 +344,7 @@ function EmailLayoutSection({
         </SettingGroup>
       )}
 
+      <SettingGroup title="Advanced" collapsible>
       {/* Custom HTML */}
       <div>
         <button
@@ -414,6 +415,7 @@ function EmailLayoutSection({
           />
         )}
       </div>
+      </SettingGroup>
     </div>
   )
 }

@@ -260,7 +260,7 @@ export function PreviewEditor({
                     <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
                   </div>
 
-                  <SettingGroup title="Page">
+                  <SettingGroup title="Page" collapsible defaultOpen>
                     <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
                     <SettingRow label="Content width">
                       <Segmented
@@ -271,7 +271,7 @@ export function PreviewEditor({
                     </SettingRow>
                   </SettingGroup>
 
-                  <SettingGroup title="Form cards">
+                  <SettingGroup title="Form cards" collapsible>
                     <SettingRow label="Border">
                       <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
                         onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
