@@ -459,7 +459,15 @@ export function RenderedBanner({ config, brand, heading, blurb, contentMaxWidth 
   const wrapped = config.imageBackground && config.imageUrl
     ? <ImageBackgroundWrapper config={config}>{layout}</ImageBackgroundWrapper>
     : layout
-  return <>{config.customCss && <style dangerouslySetInnerHTML={{ __html: config.customCss }} />}{wrapped}</>
+  return (
+    <>
+      {config.customCss && <style dangerouslySetInnerHTML={{ __html: config.customCss }} />}
+      {wrapped}
+      {config.bannerImageEnabled && config.bannerImageUrl && (
+        <img src={config.bannerImageUrl} alt="" style={{ display: 'block', width: '100%', height: config.bannerImageHeight ?? 240, objectFit: 'cover' }} />
+      )}
+    </>
+  )
 }
 
 // ─── Footer layouts F1–F6 ─────────────────────────────────────────────────────
@@ -844,7 +852,15 @@ export function RenderedFooter({ config, brand, contentMaxWidth }: { config: Foo
   const wrapped = config.imageBackground && config.imageUrl
     ? <ImageBackgroundWrapper config={config}>{layout}</ImageBackgroundWrapper>
     : layout
-  return <>{config.customCss && <style dangerouslySetInnerHTML={{ __html: config.customCss }} />}{wrapped}</>
+  return (
+    <>
+      {config.customCss && <style dangerouslySetInnerHTML={{ __html: config.customCss }} />}
+      {config.footerImageEnabled && config.footerImageUrl && (
+        <img src={config.footerImageUrl} alt="" style={{ display: 'block', width: '100%', height: config.footerImageHeight ?? 240, objectFit: 'cover' }} />
+      )}
+      {wrapped}
+    </>
+  )
 }
 
 // Legacy shim — keeps old imports compiling while callers are migrated

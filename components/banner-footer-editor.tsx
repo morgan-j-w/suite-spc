@@ -590,6 +590,43 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
             </div>
           )}
 
+          {/* Banner image card — full-width band rendered below the banner layout */}
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Banner image</p>
+              <Switch
+                checked={!!cfg.bannerImageEnabled}
+                onCheckedChange={(on) => patch({ bannerImageEnabled: on })}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">An edge-to-edge image shown below the banner, above the page content.</p>
+            {cfg.bannerImageEnabled && (
+              <>
+                <ImageUploadField
+                  label="Image"
+                  value={cfg.bannerImageUrl}
+                  onChange={(url) => patch({ bannerImageUrl: url })}
+                  previewClassName="max-h-24 max-w-full"
+                />
+                <div className="flex items-center gap-3">
+                  <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Height</span>
+                  <div className="flex flex-1 items-center gap-1.5">
+                    <Input
+                      type="number" min={60} max={600} placeholder="240"
+                      value={cfg.bannerImageHeight ?? ''}
+                      onChange={(e) => {
+                        const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                        patch({ bannerImageHeight: Number.isFinite(v) ? v : undefined })
+                      }}
+                      className="h-7 flex-1 text-xs"
+                    />
+                    <span className="text-xs text-muted-foreground">px</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Logo card (conditional) */}
           {cfg.layout !== 'minimal' && (
             <div className="rounded-lg border p-3 space-y-3">
@@ -875,6 +912,43 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               </div>
             </div>
           )}
+
+          {/* Footer image card — full-width band rendered above the footer layout */}
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Footer image</p>
+              <Switch
+                checked={!!cfg.footerImageEnabled}
+                onCheckedChange={(on) => patch({ footerImageEnabled: on })}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">An edge-to-edge image shown above the footer, below the page content.</p>
+            {cfg.footerImageEnabled && (
+              <>
+                <ImageUploadField
+                  label="Image"
+                  value={cfg.footerImageUrl}
+                  onChange={(url) => patch({ footerImageUrl: url })}
+                  previewClassName="max-h-24 max-w-full"
+                />
+                <div className="flex items-center gap-3">
+                  <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Height</span>
+                  <div className="flex flex-1 items-center gap-1.5">
+                    <Input
+                      type="number" min={60} max={600} placeholder="240"
+                      value={cfg.footerImageHeight ?? ''}
+                      onChange={(e) => {
+                        const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10)
+                        patch({ footerImageHeight: Number.isFinite(v) ? v : undefined })
+                      }}
+                      className="h-7 flex-1 text-xs"
+                    />
+                    <span className="text-xs text-muted-foreground">px</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Links card */}
           <div className="rounded-lg border p-3 space-y-3">

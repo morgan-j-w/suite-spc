@@ -126,6 +126,9 @@ export interface BannerConfig {
   logoMaxHeight?: number                       // px, max-height for logo image
   fullWidth: boolean
   sticky?: boolean            // fix banner to top of viewport while scrolling
+  bannerImageEnabled?: boolean // edge-to-edge image band rendered below the banner layout
+  bannerImageUrl?: string
+  bannerImageHeight?: number  // px, default 240
   customHtml?: string
   customCss?: string          // injected as <style> alongside the rendered layout
 }
@@ -156,6 +159,9 @@ export interface FooterConfig {
   quickLinks?: BannerLink[] // secondary column (multi-column layout)
   padding?: number          // vertical section padding in px (undefined = layout default)
   fullWidth: boolean
+  footerImageEnabled?: boolean // edge-to-edge image band rendered above the footer layout
+  footerImageUrl?: string
+  footerImageHeight?: number  // px, default 240
   customHtml?: string
   customCss?: string       // injected as <style> alongside the rendered layout
 }
