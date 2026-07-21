@@ -71,6 +71,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [designSection, setDesignSection] = useState<DesignSection>('brand')
   const [emailSection, setEmailSection] = useState<EmailSection>('design')
   const [showSuppressErrors, setShowSuppressErrors] = useState(false)
+  const [justPublished, setJustPublished] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
   const [demoToken, setDemoToken] = useState<string | null>(null)
   const [demoTokenLoading, setDemoTokenLoading] = useState(false)
@@ -384,6 +385,8 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     clearDraft(centre.id)
     setSavedSnapshot(JSON.stringify(centre))
     toast.success('Published')
+    setJustPublished(true)
+    setTimeout(() => setJustPublished(false), 900)
   }
   // Keep the ⌘S handler pointing at the latest publish function each render
   saveRef.current = isDirty ? handlePublish : null
@@ -487,8 +490,27 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   </Button>
                 </>
               ) : (
-                <Button size="sm" variant="outline" disabled className="gap-1.5 disabled:opacity-100">
-                  <Check className="h-3.5 w-3.5 text-primary" />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled
+                  className={cn('gap-1.5 disabled:opacity-100', justPublished && 'animate-pill-pop')}
+                >
+                  {justPublished ? (
+                    <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M4 12l6 6L20 6"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        pathLength="1"
+                        className="animate-check-draw"
+                      />
+                    </svg>
+                  ) : (
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                  )}
                   Published
                 </Button>
               )}
@@ -731,7 +753,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
             </div>
           )}
 
-          <div className="mx-auto max-w-3xl px-4 py-6 md:px-8">
+          <div key={activeSection} className="mx-auto max-w-3xl animate-in fade-in-0 slide-in-from-bottom-1 px-4 py-6 duration-200 md:px-8">
             {activeSection === 'build' && (
                   <BuildEditor
                     profileFieldSections={centre.profileFieldSections}

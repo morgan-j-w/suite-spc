@@ -279,3 +279,23 @@
   height: 0;
   pointer-events: none;
 }
+
+/* Publish celebration: checkmark stroke draws in, pill pops slightly as it lands.
+   pathLength="1" on the SVG path lets the dasharray/offset be unit-agnostic. */
+@keyframes check-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pill-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.animate-check-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: check-draw 0.35s 0.1s ease-out forwards;
+}
+.animate-pill-pop {
+  animation: pill-pop 0.4s ease-out;
+}
