@@ -473,7 +473,7 @@ interface BannerEditorProps {
   brand?: Brand
 }
 
-export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }: BannerEditorProps & { preview?: ReactNode }) {
+export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, textEditor }: BannerEditorProps & { preview?: ReactNode; textEditor?: ReactNode }) {
   const [showHtml, setShowHtml] = useState(false)
   const [showCss, setShowCss] = useState(false)
   const enabled = !!banner
@@ -510,6 +510,8 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
           </SettingGroup>
 
           {preview}
+
+          {textEditor}
 
           {/* Options */}
           <SettingGroup title="Options" collapsible>

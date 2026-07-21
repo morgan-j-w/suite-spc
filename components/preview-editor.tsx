@@ -21,7 +21,7 @@ import {
   type Category,
   type SubscriberProfile,
 } from '@/lib/subscription-types'
-import type { SubscriptionCentre, SubmitButtonAlignment, ContentBlock, BannerConfig, FooterConfig, Brand, CardStyle, FormWidth } from '@/lib/subscription-centre'
+import type { SubscriptionCentre, StatusPages, SubmitButtonAlignment, ContentBlock, BannerConfig, FooterConfig, Brand, CardStyle, FormWidth } from '@/lib/subscription-centre'
 import { getContentMaxWidth } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { getStylePreviews } from '@/lib/style-previews'
@@ -40,6 +40,8 @@ import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Segmented } from '@/components/ui/segmented'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
 const EMPTY_PROFILE: SubscriberProfile = {
@@ -51,6 +53,15 @@ const EMPTY_PROFILE: SubscriberProfile = {
   jobTitle: '',
   customFields: {},
 }
+
+const BANNER_TEXT_FLOWS: { id: keyof StatusPages; label: string }[] = [
+  { id: 'subscribe', label: 'Subscribe' },
+  { id: 'managePreferences', label: 'Manage preferences' },
+  { id: 'manageRequest', label: 'Manage preferences request' },
+  { id: 'unsubscribe', label: 'Unsubscribe' },
+  { id: 'unsubscribeRequest', label: 'Unsubscribe request' },
+  { id: 'resubscribe', label: 'Resubscribe' },
+]
 
 interface PreviewEditorProps {
   centre: SubscriptionCentre
@@ -86,7 +97,7 @@ interface PreviewEditorProps {
   onFormLabelWidthChange: (width: number) => void
   onFormCardModeChange: (mode: 'separate' | 'single') => void
   onSingleCardStyleIndexChange: (index: number) => void
-  onNavigateToPagesTab?: () => void
+  onStatusPagesChange: (statusPages: StatusPages) => void
 }
 
 export function PreviewEditor({
@@ -122,9 +133,10 @@ export function PreviewEditor({
   onFormCardModeChange,
   onSingleCardStyleIndexChange,
   onFormWidthChange,
-  onNavigateToPagesTab,
+  onStatusPagesChange,
 }: PreviewEditorProps) {
   const [profile, setProfile] = useState<SubscriberProfile>(EMPTY_PROFILE)
+  const [bannerTextFlow, setBannerTextFlow] = useState<keyof StatusPages>('subscribe')
   const [answers, setAnswers] = useState<CategoryAnswers>(() => buildDefaultAnswers(centre.categories))
 
   const clearVisibleWhenOnFirstSection = (sections: ProfileFieldSection[], order: string[]) => {
@@ -319,21 +331,16 @@ export function PreviewEditor({
           })()}
 
           {/* Banner */}
-          {designSection === 'banner' && (
+          {designSection === 'banner' && (() => {
+            // Banner heading/blurb are per-page (they live on statusPages so subscribe,
+            // unsubscribe, etc. each get their own copy) but they're edited HERE, where
+            // the banner is composed — the preview follows the selected page.
+            const flowContent = centre.statusPages[bannerTextFlow] as { bannerHeading?: string; bannerBlurb?: string }
+            const patchBannerText = (u: { bannerHeading?: string; bannerBlurb?: string }) =>
+              onStatusPagesChange({ ...centre.statusPages, [bannerTextFlow]: { ...centre.statusPages[bannerTextFlow], ...u } })
+            return (
             <Card className="gap-0 py-0">
-              <CardContent className="p-4 space-y-4">
-                <div className="rounded-lg border border-border/60 bg-muted/40 px-4 py-3 flex items-start gap-2.5">
-                  <span className="text-xs text-muted-foreground leading-relaxed">
-                    Banner heading and description are set per page.{' '}
-                    <button
-                      type="button"
-                      onClick={() => onNavigateToPagesTab?.()}
-                      className="underline underline-offset-2 hover:text-foreground transition-colors"
-                    >
-                      Go to Pages tab
-                    </button>
-                  </span>
-                </div>
+              <CardContent className="p-4">
                 <BannerEditor
                   banner={centre.banner}
                   onBannerChange={onBannerChange}
@@ -344,16 +351,51 @@ export function PreviewEditor({
                       <RenderedBanner
                         config={centre.banner}
                         brand={centre.brand}
-                        heading={centre.statusPages.subscribe.bannerHeading}
-                        blurb={centre.statusPages.subscribe.bannerBlurb}
+                        heading={flowContent.bannerHeading}
+                        blurb={flowContent.bannerBlurb}
                         contentMaxWidth={getContentMaxWidth(centre.formWidth)}
                       />
                     </div>
                   )}
+                  textEditor={
+                    <SettingGroup title="Text" collapsible defaultOpen>
+                      <p className="text-xs text-muted-foreground">Each page has its own banner heading and description — pick a page, then edit its text. The preview above follows.</p>
+                      <SettingRow label="Page">
+                        <Select value={bannerTextFlow} onValueChange={(v) => setBannerTextFlow(v as keyof StatusPages)}>
+                          <SelectTrigger className="h-7 w-full text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BANNER_TEXT_FLOWS.map((f) => (
+                              <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </SettingRow>
+                      <SettingRow label="Heading">
+                        <Input
+                          value={flowContent.bannerHeading ?? ''}
+                          onChange={(e) => patchBannerText({ bannerHeading: e.target.value || undefined })}
+                          placeholder="e.g. Stay in the loop"
+                          className="h-7 flex-1 text-xs"
+                        />
+                      </SettingRow>
+                      <SettingRow label="Description">
+                        <Textarea
+                          value={flowContent.bannerBlurb ?? ''}
+                          onChange={(e) => patchBannerText({ bannerBlurb: e.target.value || undefined })}
+                          placeholder="e.g. Choose the communications that matter to you."
+                          rows={2}
+                          className="flex-1 resize-none text-xs"
+                        />
+                      </SettingRow>
+                    </SettingGroup>
+                  }
                 />
               </CardContent>
             </Card>
-          )}
+            )
+          })()}
 
           {/* Footer */}
           {designSection === 'footer' && (

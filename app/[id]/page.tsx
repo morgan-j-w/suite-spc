@@ -785,7 +785,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     onFormCardModeChange={handleFormCardModeChange}
                     onSingleCardStyleIndexChange={handleSingleCardStyleIndexChange}
                     onFormWidthChange={handleFormWidthChange}
-                    onNavigateToPagesTab={() => setActiveSection('pages')}
+                    onStatusPagesChange={handleStatusPagesChange}
                   />
             )}
 
