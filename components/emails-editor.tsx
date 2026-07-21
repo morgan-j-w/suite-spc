@@ -40,8 +40,8 @@ function EmailThumb({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center gap-1.5 rounded-lg border-2 p-2 text-center transition-colors',
-        selected ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'
+        'flex flex-col items-center gap-1.5 rounded-lg border-2 p-2 text-center transition-all duration-150 active:scale-[0.98]',
+        selected ? 'border-primary bg-primary/5' : 'border-border hover:-translate-y-0.5 hover:border-muted-foreground/40 hover:shadow-sm'
       )}
     >
       <div className="h-14 w-full overflow-hidden rounded bg-muted/30">{children}</div>

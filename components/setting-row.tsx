@@ -49,7 +49,7 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
     </>
   )
   return (
-    <div className={cn('space-y-2.5 border-t border-border/70 pt-4 first:border-t-0 first:pt-0', className)}>
+    <div className={cn('border-t border-border/70 pt-4 first:border-t-0 first:pt-0', className)}>
       <div className="flex items-center justify-between gap-2">
         {collapsible ? (
           <button
@@ -66,7 +66,25 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
         )}
         {action}
       </div>
-      {(!collapsible || open) && children}
+      {/* 0fr→1fr grid transition animates to the content's natural height; children stay
+          mounted so open/close also preserves any in-progress input state */}
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-200 ease-out',
+          !collapsible || open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div
+            className={cn(
+              'space-y-2.5 pt-2.5 transition-opacity duration-200',
+              collapsible && !open && 'opacity-0'
+            )}
+          >
+            {children}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
