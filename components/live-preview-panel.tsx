@@ -16,6 +16,11 @@ interface LivePreviewPanelProps {
 // "mobile" width that sits quietly in the sidebar; switching to "desktop" expands the
 // same render into a full-screen overlay rather than squeezing a desktop-width layout
 // into a 320px column.
+//
+// The mobile panel is deliberately un-capped (no max-height/overflow-y-auto) so its own
+// rounded corners and shadow always render in full — a fixed-height + internal scrollbar
+// here would hide the card's bottom inside a second, easy-to-miss scroll region nested
+// inside the page's own scroll.
 export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
   const [width, setWidth] = useState<'mobile' | 'desktop'>('mobile')
 
@@ -42,7 +47,7 @@ export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
 
   return (
     <div className={className}>
-      <div className="sticky top-[85px] overflow-y-auto px-2 pb-4" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+      <div className="sticky top-[85px] px-2 pb-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live preview</p>
           {toggle}
