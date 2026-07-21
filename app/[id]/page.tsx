@@ -636,7 +636,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   />
                 </div>
                 <div className="hidden w-80 shrink-0 xl:block">
-                  <div className="sticky top-[85px] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                  <div className="sticky top-[85px] overflow-y-auto px-2 pb-4" style={{ maxHeight: 'calc(100vh - 100px)' }}>
                     <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live preview</p>
                     <div className="rounded-xl shadow-lg">
                       <div className="overflow-hidden rounded-xl">
