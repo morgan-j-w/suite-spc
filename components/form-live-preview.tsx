@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import {
   buildDefaultAnswers,
@@ -15,6 +15,7 @@ import {
 } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { getContentMaxWidth } from '@/lib/subscription-centre'
+import { buildPersonaState, type PreviewPersona } from '@/lib/preview-personas'
 import { getStylePreviews } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
@@ -42,15 +43,28 @@ interface FormLivePreviewProps {
   // The form body stays fully interactive (it's used to exercise conditional logic),
   // so it deliberately does not get a click-to-edit wrapper.
   onEditRegion?: (region: PreviewEditRegion) => void
+  // Seeds the scratch state when changed. Deliberately only applied on persona *change* —
+  // not on every centre edit — so manual tweaks made in the preview aren't wiped mid-testing.
+  persona?: PreviewPersona
 }
 
 // Read-only interactive preview of the form — identical rendering to the Preview tab's
 // "Preview" mode. Owns its own scratch profile/answers state so interactions (conditional
 // visibility, required highlighting) work without touching the builder state.
-export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) {
+export function FormLivePreview({ centre, onEditRegion, persona }: FormLivePreviewProps) {
   const [profile, setProfile] = useState<SubscriberProfile>(EMPTY_PROFILE)
   const [answers, setAnswers] = useState<CategoryAnswers>(() => buildDefaultAnswers(centre.categories))
   const [submitted, setSubmitted] = useState(false)
+
+  const personaRef = useRef(persona)
+  useEffect(() => {
+    if (persona === undefined || persona === personaRef.current) return
+    personaRef.current = persona
+    const seeded = buildPersonaState(centre, persona)
+    setProfile(seeded.profile)
+    setAnswers(seeded.answers)
+    setSubmitted(false)
+  }, [persona, centre])
 
   // Merge in default answers for any categories added after mount, without
   // wiping selections the user has already made in the preview panel.
