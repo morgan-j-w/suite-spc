@@ -463,7 +463,7 @@ export function RenderedBanner({ config, brand, heading, blurb, contentMaxWidth 
     <>
       {config.customCss && <style dangerouslySetInnerHTML={{ __html: config.customCss }} />}
       {wrapped}
-      {config.bannerImageEnabled && config.bannerImageUrl && (
+      {config.bannerImageUrl && (
         <img src={config.bannerImageUrl} alt="" style={{ display: 'block', width: '100%', height: config.bannerImageHeight ?? 240, objectFit: 'cover' }} />
       )}
     </>
@@ -855,7 +855,7 @@ export function RenderedFooter({ config, brand, contentMaxWidth }: { config: Foo
   return (
     <>
       {config.customCss && <style dangerouslySetInnerHTML={{ __html: config.customCss }} />}
-      {config.footerImageEnabled && config.footerImageUrl && (
+      {config.footerImageUrl && (
         <img src={config.footerImageUrl} alt="" style={{ display: 'block', width: '100%', height: config.footerImageHeight ?? 240, objectFit: 'cover' }} />
       )}
       {wrapped}

@@ -534,10 +534,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
               <span className="text-xs text-muted-foreground">px</span>
             </SettingRow>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Banner image</span>
-              <Switch checked={!!cfg.bannerImageEnabled} onCheckedChange={(on) => patch({ bannerImageEnabled: on || undefined })} />
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
@@ -609,16 +605,16 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
             </div>
           </SettingGroup>
 
-          {/* Banner image — full-width band rendered below the banner layout */}
-          {cfg.bannerImageEnabled && (
-            <SettingGroup title="Banner image" collapsible defaultOpen>
-              <p className="text-xs text-muted-foreground">An edge-to-edge image shown below the banner, above the page content.</p>
-              <ImageUploadField
-                label="Image"
-                value={cfg.bannerImageUrl}
-                onChange={(url) => patch({ bannerImageUrl: url })}
-                previewClassName="max-h-24 max-w-full"
-              />
+          {/* Banner image — full-width band below the banner; uploading an image enables it */}
+          <SettingGroup title="Banner image" collapsible>
+            <p className="text-xs text-muted-foreground">Optional edge-to-edge image shown below the banner, above the page content. Upload an image to enable it.</p>
+            <ImageUploadField
+              label="Image"
+              value={cfg.bannerImageUrl}
+              onChange={(url) => patch({ bannerImageUrl: url })}
+              previewClassName="max-h-24 max-w-full"
+            />
+            {cfg.bannerImageUrl && (
               <SettingRow label="Height">
                 <Input
                   type="number" min={60} max={600} placeholder="240"
@@ -631,8 +627,8 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview }
                 />
                 <span className="text-xs text-muted-foreground">px</span>
               </SettingRow>
-            </SettingGroup>
-          )}
+            )}
+          </SettingGroup>
 
           {/* Background image (conditional) */}
           {isImageBg && (
@@ -815,10 +811,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               <span className="text-xs text-muted-foreground">px</span>
             </SettingRow>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Footer image</span>
-              <Switch checked={!!cfg.footerImageEnabled} onCheckedChange={(on) => patch({ footerImageEnabled: on || undefined })} />
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
@@ -855,16 +847,16 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             </div>
           </SettingGroup>
 
-          {/* Footer image — full-width band rendered above the footer layout */}
-          {cfg.footerImageEnabled && (
-            <SettingGroup title="Footer image" collapsible defaultOpen>
-              <p className="text-xs text-muted-foreground">An edge-to-edge image shown above the footer, below the page content.</p>
-              <ImageUploadField
-                label="Image"
-                value={cfg.footerImageUrl}
-                onChange={(url) => patch({ footerImageUrl: url })}
-                previewClassName="max-h-24 max-w-full"
-              />
+          {/* Footer image — full-width band above the footer; uploading an image enables it */}
+          <SettingGroup title="Footer image" collapsible>
+            <p className="text-xs text-muted-foreground">Optional edge-to-edge image shown above the footer, below the page content. Upload an image to enable it.</p>
+            <ImageUploadField
+              label="Image"
+              value={cfg.footerImageUrl}
+              onChange={(url) => patch({ footerImageUrl: url })}
+              previewClassName="max-h-24 max-w-full"
+            />
+            {cfg.footerImageUrl && (
               <SettingRow label="Height">
                 <Input
                   type="number" min={60} max={600} placeholder="240"
@@ -877,8 +869,8 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 />
                 <span className="text-xs text-muted-foreground">px</span>
               </SettingRow>
-            </SettingGroup>
-          )}
+            )}
+          </SettingGroup>
 
           {/* Background image (conditional) */}
           {isImageBg && (
