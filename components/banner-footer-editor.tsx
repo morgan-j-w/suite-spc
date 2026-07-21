@@ -558,7 +558,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Split image (conditional) */}
           {needsSplitImage && (
-            <SettingGroup title="Image" collapsible defaultOpen>
+            <SettingGroup title="Image" collapsible>
               <ImageUploadField
                 label="Split image"
                 value={cfg.imageUrl}
@@ -601,7 +601,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Background image (conditional) */}
           {isImageBg && (
-            <SettingGroup title="Background image" collapsible defaultOpen>
+            <SettingGroup title="Background image" collapsible>
               <ImageUploadField
                 label="Image"
                 value={cfg.imageUrl}
@@ -825,7 +825,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
 
           {/* Background image (conditional) */}
           {isImageBg && (
-            <SettingGroup title="Background image" collapsible defaultOpen>
+            <SettingGroup title="Background image" collapsible>
               <ImageUploadField
                 label="Image"
                 value={cfg.imageUrl}

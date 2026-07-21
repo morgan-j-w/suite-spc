@@ -341,7 +341,7 @@ export function PreviewEditor({
                     </div>
                   )}
                   textEditor={
-                    <SettingGroup title="Text" collapsible defaultOpen>
+                    <SettingGroup title="Text" collapsible>
                       <p className="text-xs text-muted-foreground">Each page has its own banner heading and description — pick a page, then edit its text. The preview above follows.</p>
                       <SettingRow label="Page">
                         <Select value={bannerTextFlow} onValueChange={(v) => setBannerTextFlow(v as keyof StatusPages)}>

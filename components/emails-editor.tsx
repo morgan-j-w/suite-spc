@@ -163,9 +163,6 @@ function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle:
 
 // ─── Email layout section editor ───────────────────────────────────────────────
 
-// Layouts that expose editable heading / subheading text
-const TEXT_BANNER_LAYOUTS: EmailBannerLayout[] = ['heading-band']
-
 interface EmailLayoutSectionProps {
   section: 'banner' | 'footer'
   layouts: { id: string; label: string; sketch: React.ReactNode }[]
@@ -250,27 +247,27 @@ function EmailLayoutSection({
 
       {preview}
 
-      {/* Content — editable text for text-based banner layouts */}
-      {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
-        <SettingGroup title="Content" collapsible>
+      {/* Text — heading/subheading. Always available for parity with Design > Banner;
+          only the Heading band layout renders it, same as some Design banner layouts
+          (Minimal, Logo only, Logo band) not rendering heading/blurb either. */}
+      {section === 'banner' && selectedLayout && onHeadingChange && (
+        <SettingGroup title="Text" collapsible>
           <div className="space-y-2">
-            {selectedLayout !== 'split' && (
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Heading</Label>
-                <Input
-                  value={heading ?? ''}
-                  onChange={(e) => onHeadingChange(e.target.value)}
-                  placeholder="Email from us"
-                  className="text-sm"
-                />
-              </div>
-            )}
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">{selectedLayout === 'split' ? 'Tagline' : 'Subheading'}</Label>
+              <Label className="text-xs text-muted-foreground">Heading</Label>
+              <Input
+                value={heading ?? ''}
+                onChange={(e) => onHeadingChange(e.target.value)}
+                placeholder="Email from us"
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Subheading</Label>
               <Input
                 value={subheading ?? ''}
                 onChange={(e) => onSubheadingChange?.(e.target.value)}
-                placeholder={selectedLayout === 'split' ? 'Your email from us' : 'Optional subheading'}
+                placeholder="Optional subheading"
                 className="text-sm"
               />
             </div>
