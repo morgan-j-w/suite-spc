@@ -1,10 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Columns2, Eye, GalleryVertical, Monitor, Pencil, RectangleHorizontal, Rows2, Smartphone } from 'lucide-react'
+import { Columns2, GalleryVertical, RectangleHorizontal, Rows2 } from 'lucide-react'
 
 type DesignSection = 'brand' | 'theme' | 'banner' | 'footer' | 'form'
-import { toast } from 'sonner'
 import {
   DndContext,
   closestCenter,
@@ -17,12 +16,6 @@ import {
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import {
   buildDefaultAnswers,
-  flattenProfileFields,
-  isCategoryAnswered,
-  isCategoryVisible,
-  isProfileFieldAnswered,
-  isProfileFieldVisible,
-  isSectionVisible,
   type CategoryAnswers,
   type ProfileFieldSection,
   type Category,
@@ -43,7 +36,6 @@ import { SortablePreviewBlock } from '@/components/sortable-preview-block'
 import { StylePicker } from '@/components/style-picker'
 import { ThemePresetPicker } from '@/components/theme-preset-picker'
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
-import { AnimatedVisibility } from '@/components/animated-visibility'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -62,8 +54,6 @@ interface PreviewEditorProps {
   centre: SubscriptionCentre
   designSection: DesignSection
   onDesignSectionChange: (section: DesignSection) => void
-  isFinalPreview: boolean
-  onIsFinalPreviewChange: (v: boolean) => void
   pageBackgroundColor?: string
   onPageBackgroundColorChange: (v?: string) => void
   onCardStyleChange: (v: CardStyle) => void
@@ -100,8 +90,6 @@ interface PreviewEditorProps {
 export function PreviewEditor({
   centre,
   designSection,
-  isFinalPreview,
-  onIsFinalPreviewChange,
   pageBackgroundColor,
   onPageBackgroundColorChange,
   onCardStyleChange,
@@ -136,25 +124,6 @@ export function PreviewEditor({
 }: PreviewEditorProps) {
   const [profile, setProfile] = useState<SubscriberProfile>(EMPTY_PROFILE)
   const [answers, setAnswers] = useState<CategoryAnswers>(() => buildDefaultAnswers(centre.categories))
-  const [previewWidth, setPreviewWidth] = useState<'desktop' | 'mobile'>('desktop')
-  const [submitted, setSubmitted] = useState(false)
-
-  const isFormValid =
-    flattenProfileFields(centre.profileFieldSections)
-      .filter((field) => isProfileFieldVisible(field, profile))
-      .every((field) => !field.required || isProfileFieldAnswered(field, profile)) &&
-    centre.categories
-      .filter((category) => isCategoryVisible(category, profile, answers))
-      .every((category) => !category.required || isCategoryAnswered(category, answers))
-
-  const handlePreviewSubmit = () => {
-    setSubmitted(true)
-    if (isFormValid) {
-      toast.success('Form valid — this is where submission would happen.')
-    }
-  }
-
-  const firstSectionId = centre.sectionOrder.find((id) => centre.profileFieldSections.some((s) => s.id === id))
 
   const clearVisibleWhenOnFirstSection = (sections: ProfileFieldSection[], order: string[]) => {
     const firstId = order.find((id) => sections.some((s) => s.id === id))
@@ -191,19 +160,14 @@ export function PreviewEditor({
   const cardSpacingClass = getCardSpacingClass(centre.cardStyle)
   const cardStyleCss = getCardStyleCss(centre.cardStyle)
 
-  // blocks renders with SortablePreviewBlock wrappers when !isFinalPreview (Form sub-section)
-  // and as plain content when isFinalPreview (Preview mode). The flag controls both layouts.
+  // The Form sub-section is edit-only — the full read-only render (with conditional
+  // visibility applied) lives in the persistent LivePreviewPanel alongside this tab.
   const blocks = centre.sectionOrder.map((id, index) => {
     const section = centre.profileFieldSections.find((s) => s.id === id)
     if (section) {
-      const isFirstSection = section.id === firstSectionId
-      const hasVisibleField =
-        section.fields.length === 0 || section.fields.some((field) => isProfileFieldVisible(field, profile))
-      const visible = (isFirstSection || isSectionVisible(section, profile, answers)) && hasVisibleField
-
       if (formCardMode === 'single') {
-        const embeddedSection = <RenderedSection key={id} section={section} stylePreview={singleStylePreview} profile={profile} onProfileChange={setProfile} visible={isFinalPreview ? visible : true} showValidation={isFinalPreview && submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} embedded />
-        return isFinalPreview ? embeddedSection : (
+        const embeddedSection = <RenderedSection key={id} section={section} stylePreview={singleStylePreview} profile={profile} onProfileChange={setProfile} visible showValidation={false} formLayout={formLayout} formLabelWidth={formLabelWidth} embedded />
+        return (
           <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={singleCardStyleIndex} onCardStyleChange={onSingleCardStyleIndexChange} hideStylePicker isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
             {embeddedSection}
           </SortablePreviewBlock>
@@ -211,20 +175,9 @@ export function PreviewEditor({
       }
 
       const stylePreview = getStylePreviews(centre.themePresetId)[section.cardStyleIndex ?? 0]
-      if (isFinalPreview) {
-        // Use external AnimatedVisibility so RenderedSection always mounts with visible=true,
-        // ensuring the Card background colour is applied from the very first render.
-        return (
-          <div key={id}>
-            <AnimatedVisibility visible={visible}>
-              <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible={true} showValidation={submitted} formLayout={formLayout} formLabelWidth={formLabelWidth} />
-            </AnimatedVisibility>
-          </div>
-        )
-      }
       return (
         <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={section.cardStyleIndex} onCardStyleChange={(i) => onProfileFieldSectionsChange(centre.profileFieldSections.map((s) => s.id === id ? { ...s, cardStyleIndex: i } : s))} isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
-          <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible={true} showValidation={false} formLayout={formLayout} formLabelWidth={formLabelWidth} />
+          <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible showValidation={false} formLayout={formLayout} formLabelWidth={formLabelWidth} />
         </SortablePreviewBlock>
       )
     }
@@ -232,12 +185,8 @@ export function PreviewEditor({
     const category = centre.categories.find((c) => c.id === id)
     if (category) {
       if (formCardMode === 'single') {
-        const embeddedCategory = (
-          <AnimatedVisibility key={id} visible={isFinalPreview ? isCategoryVisible(category, profile, answers) : true}>
-            <RenderedCategory category={category} stylePreview={singleStylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={isFinalPreview && submitted} embedded />
-          </AnimatedVisibility>
-        )
-        return isFinalPreview ? embeddedCategory : (
+        const embeddedCategory = <RenderedCategory key={id} category={category} stylePreview={singleStylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={false} embedded />
+        return (
           <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={singleCardStyleIndex} onCardStyleChange={onSingleCardStyleIndexChange} hideStylePicker isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
             {embeddedCategory}
           </SortablePreviewBlock>
@@ -245,26 +194,18 @@ export function PreviewEditor({
       }
 
       const stylePreview = getStylePreviews(centre.themePresetId)[category.cardStyleIndex ?? 0]
-      const content = (
-        <AnimatedVisibility visible={isFinalPreview ? isCategoryVisible(category, profile, answers) : true}>
-          <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={isFinalPreview && submitted} />
-        </AnimatedVisibility>
-      )
-      return isFinalPreview ? (
-        <div key={id}>{content}</div>
-      ) : (
+      return (
         <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={category.cardStyleIndex} onCardStyleChange={(i) => onCategoriesChange(centre.categories.map((c) => c.id === id ? { ...c, cardStyleIndex: i } : c))} isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
-          {content}
+          <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={false} />
         </SortablePreviewBlock>
       )
     }
 
     const contentBlock = (centre.contentBlocks ?? []).find((b) => b.id === id)
     if (contentBlock) {
-      const rendered = <RenderedContentBlock key={id} block={contentBlock} showPlaceholder={!isFinalPreview} />
-      return isFinalPreview ? rendered : (
+      return (
         <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={undefined} onCardStyleChange={() => {}} hideStylePicker isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
-          {rendered}
+          <RenderedContentBlock block={contentBlock} showPlaceholder />
         </SortablePreviewBlock>
       )
     }
@@ -272,7 +213,7 @@ export function PreviewEditor({
     return null
   })
 
-  const submitButtonPreview = (readOnly: boolean) => (
+  const submitButtonPreview = () => (
     <SubmitButtonPreview
       theme={centre.themePresetId}
       text={submitButtonText}
@@ -283,58 +224,12 @@ export function PreviewEditor({
       onTextChange={onSubmitButtonTextChange}
       onStyleIndexChange={onSubmitButtonStyleIndexChange}
       onAlignmentChange={onSubmitButtonAlignmentChange}
-      readOnly={readOnly}
-      onSubmit={readOnly ? handlePreviewSubmit : undefined}
     />
   )
 
   return (
     <div className="space-y-6">
-      {/* Edit / Preview toggle */}
-      <div className="flex items-center gap-2">
-        <div className="flex flex-1 gap-1 rounded-md bg-muted p-1">
-          <button
-            type="button"
-            onClick={() => { onIsFinalPreviewChange(false); setSubmitted(false) }}
-            className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-              !isFinalPreview ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            Edit
-          </button>
-          <button
-            type="button"
-            onClick={() => onIsFinalPreviewChange(true)}
-            className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-              isFinalPreview ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Preview
-          </button>
-        </div>
-        {isFinalPreview && (
-          <div className="flex gap-1 rounded-md bg-muted p-1">
-            <button type="button" title="Desktop width" onClick={() => setPreviewWidth('desktop')}
-              className={cn('flex items-center justify-center rounded-sm px-2 py-1.5 transition-colors', previewWidth === 'desktop' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-              <Monitor className="h-3.5 w-3.5" />
-            </button>
-            <button type="button" title="Mobile width" onClick={() => setPreviewWidth('mobile')}
-              className={cn('flex items-center justify-center rounded-sm px-2 py-1.5 transition-colors', previewWidth === 'mobile' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
-              <Smartphone className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* ── Edit mode — sub-section content ─────────────────────────────────── */}
-      {!isFinalPreview && (
-        <div className="space-y-6">
-
-          {/* Brand */}
+      {/* Brand */}
           {designSection === 'brand' && (
             <Card className="gap-0 py-0">
               <CardHeader className="px-6 pt-4 pb-2">
@@ -574,7 +469,7 @@ export function PreviewEditor({
               </Card>
 
               {/* Form blocks — draggable, with style pickers */}
-              {centre.cardStyle && <style dangerouslySetInnerHTML={{ __html: getCardStyleCss(centre.cardStyle) }} />}
+              {cardStyleCss && <style dangerouslySetInnerHTML={{ __html: cardStyleCss }} />}
               <div data-color-theme={centre.themePresetId} data-card-canvas className="space-y-0">
                 {formCardMode === 'single' ? (
                   <>
@@ -588,7 +483,7 @@ export function PreviewEditor({
                             <div className={cardSpacingClass}>{blocks}</div>
                           </SortableContext>
                         </DndContext>
-                        {submitButtonPreview(false)}
+                        {submitButtonPreview()}
                       </CardContent>
                     </Card>
                   </>
@@ -601,43 +496,9 @@ export function PreviewEditor({
                 )}
               </div>
 
-              {formCardMode === 'separate' && submitButtonPreview(false)}
+              {formCardMode === 'separate' && submitButtonPreview()}
             </>
           )}
-        </div>
-      )}
-
-      {/* ── Preview mode — full page render ─────────────────────────────────── */}
-      {isFinalPreview && (
-        <div className={cn('transition-all duration-300', previewWidth === 'mobile' ? 'max-w-[390px] mx-auto' : '')}>
-          {cardStyleCss && <style dangerouslySetInnerHTML={{ __html: cardStyleCss }} />}
-          <div data-color-theme={centre.themePresetId} className="flex min-h-[560px] flex-col rounded-lg border overflow-hidden" style={{ background: pageBackgroundColor ?? 'var(--background)' }}>
-            {centre.banner && (
-              <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
-                <RenderedBanner config={centre.banner} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
-              </div>
-            )}
-            <div className="flex-1 p-6" data-card-canvas>
-              <div style={{ maxWidth: getContentMaxWidth(centre.formWidth), margin: '0 auto' }}>
-              {formCardMode === 'single' ? (
-                <Card className="gap-0 py-0" style={{ backgroundColor: singleStylePreview.background, ...(singleStylePreview.cardBorder ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 } : {}) }}>
-                  <CardContent className="p-6">
-                    <div className={cardSpacingClass}>{blocks}</div>
-                    {submitButtonPreview(true)}
-                  </CardContent>
-                </Card>
-              ) : (
-                <>
-                  <div className={cardSpacingClass}>{blocks}</div>
-                  {formCardMode === 'separate' && <div className="mt-6">{submitButtonPreview(true)}</div>}
-                </>
-              )}
-              </div>
-            </div>
-            {centre.footer && <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

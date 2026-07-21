@@ -10,7 +10,7 @@ import { defaultEmailConfig, defaultMailGroups, type EmailConfig, type MailGroup
 import type { ColorTheme } from '@/lib/brand-config'
 import { BuildEditor } from '@/components/build-editor'
 import { type TemplateConfig, makeFull } from '@/components/template-picker-dialog'
-import { FormLivePreview } from '@/components/form-live-preview'
+import { LivePreviewPanel } from '@/components/live-preview-panel'
 import { PreviewEditor } from '@/components/preview-editor'
 import { StatusPagesEditor } from '@/components/status-pages-editor'
 import { Button } from '@/components/ui/button'
@@ -72,7 +72,6 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [designSection, setDesignSection] = useState<DesignSection>('brand')
   const [emailSection, setEmailSection] = useState<EmailSection>('design')
   const [showSuppressErrors, setShowSuppressErrors] = useState(false)
-  const [isPreview, setIsPreview] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
   const [demoToken, setDemoToken] = useState<string | null>(null)
   const [demoTokenLoading, setDemoTokenLoading] = useState(false)
@@ -576,7 +575,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                         <button
                           key={sub.id}
                           type="button"
-                          onClick={() => { setDesignSection(sub.id); setIsPreview(false) }}
+                          onClick={() => setDesignSection(sub.id)}
                           className={cn(
                             'rounded-md px-2.5 py-1.5 text-left text-sm font-medium transition-colors',
                             designSection === sub.id
@@ -635,58 +634,52 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     suppressErrors={showSuppressErrors}
                   />
                 </div>
-                <div className="hidden w-80 shrink-0 xl:block">
-                  <div className="sticky top-[85px] overflow-y-auto px-2 pb-4" style={{ maxHeight: 'calc(100vh - 100px)' }}>
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live preview</p>
-                    <div className="rounded-xl border shadow-lg">
-                      <div className="overflow-hidden rounded-xl">
-                        <FormLivePreview centre={centre} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <LivePreviewPanel centre={centre} className="hidden w-80 shrink-0 xl:block" />
               </div>
             )}
 
             {activeSection === 'design' && (
-              <PreviewEditor
-                centre={centre}
-                designSection={designSection}
-                onDesignSectionChange={setDesignSection}
-                isFinalPreview={isPreview}
-                onIsFinalPreviewChange={setIsPreview}
-                pageBackgroundColor={centre.pageBackgroundColor}
-                onPageBackgroundColorChange={handlePageBackgroundColorChange}
-                onCardStyleChange={handleCardStyleChange}
-                onThemeChange={handleThemeChange}
-                onSectionOrderChange={handleSectionOrderChange}
-                onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
-                onCategoriesChange={handleCategoriesChange}
-                onContentBlocksChange={handleContentBlocksChange}
-                onBrandChange={handleBrandChange}
-                onBannerChange={handleBannerChange}
-                onFooterChange={handleFooterChange}
-                submitButtonText={centre.submitButtonText}
-                submitButtonStyleIndex={centre.submitButtonStyleIndex}
-                submitButtonAlignment={centre.submitButtonAlignment}
-                submitButtonBgColor={centre.submitButtonBgColor}
-                submitButtonTextColor={centre.submitButtonTextColor}
-                onSubmitButtonTextChange={handleSubmitButtonTextChange}
-                onSubmitButtonStyleIndexChange={handleSubmitButtonStyleIndexChange}
-                onSubmitButtonAlignmentChange={handleSubmitButtonAlignmentChange}
-                onSubmitButtonBgColorChange={handleSubmitButtonBgColorChange}
-                onSubmitButtonTextColorChange={handleSubmitButtonTextColorChange}
-                formLayout={centre.formLayout}
-                formLabelWidth={centre.formLabelWidth}
-                formCardMode={centre.formCardMode}
-                singleCardStyleIndex={centre.singleCardStyleIndex}
-                onFormLayoutChange={handleFormLayoutChange}
-                onFormLabelWidthChange={handleFormLabelWidthChange}
-                onFormCardModeChange={handleFormCardModeChange}
-                onSingleCardStyleIndexChange={handleSingleCardStyleIndexChange}
-                onFormWidthChange={handleFormWidthChange}
-                onNavigateToPagesTab={() => setActiveSection('pages')}
-              />
+              <div className="flex gap-6">
+                <div className="min-w-0 flex-1">
+                  <PreviewEditor
+                    centre={centre}
+                    designSection={designSection}
+                    onDesignSectionChange={setDesignSection}
+                    pageBackgroundColor={centre.pageBackgroundColor}
+                    onPageBackgroundColorChange={handlePageBackgroundColorChange}
+                    onCardStyleChange={handleCardStyleChange}
+                    onThemeChange={handleThemeChange}
+                    onSectionOrderChange={handleSectionOrderChange}
+                    onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
+                    onCategoriesChange={handleCategoriesChange}
+                    onContentBlocksChange={handleContentBlocksChange}
+                    onBrandChange={handleBrandChange}
+                    onBannerChange={handleBannerChange}
+                    onFooterChange={handleFooterChange}
+                    submitButtonText={centre.submitButtonText}
+                    submitButtonStyleIndex={centre.submitButtonStyleIndex}
+                    submitButtonAlignment={centre.submitButtonAlignment}
+                    submitButtonBgColor={centre.submitButtonBgColor}
+                    submitButtonTextColor={centre.submitButtonTextColor}
+                    onSubmitButtonTextChange={handleSubmitButtonTextChange}
+                    onSubmitButtonStyleIndexChange={handleSubmitButtonStyleIndexChange}
+                    onSubmitButtonAlignmentChange={handleSubmitButtonAlignmentChange}
+                    onSubmitButtonBgColorChange={handleSubmitButtonBgColorChange}
+                    onSubmitButtonTextColorChange={handleSubmitButtonTextColorChange}
+                    formLayout={centre.formLayout}
+                    formLabelWidth={centre.formLabelWidth}
+                    formCardMode={centre.formCardMode}
+                    singleCardStyleIndex={centre.singleCardStyleIndex}
+                    onFormLayoutChange={handleFormLayoutChange}
+                    onFormLabelWidthChange={handleFormLabelWidthChange}
+                    onFormCardModeChange={handleFormCardModeChange}
+                    onSingleCardStyleIndexChange={handleSingleCardStyleIndexChange}
+                    onFormWidthChange={handleFormWidthChange}
+                    onNavigateToPagesTab={() => setActiveSection('pages')}
+                  />
+                </div>
+                <LivePreviewPanel centre={centre} className="hidden w-80 shrink-0 xl:block" />
+              </div>
             )}
 
             {activeSection === 'emails' && (() => {

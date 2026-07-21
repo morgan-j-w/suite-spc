@@ -22,6 +22,7 @@ import { AnimatedVisibility } from '@/components/animated-visibility'
 import { Card, CardContent } from '@/components/ui/card'
 import { RenderedContentBlock } from '@/components/rendered-content-block'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
+import { getCardSpacingClass, getCardStyleCss } from '@/lib/card-style'
 
 const EMPTY_PROFILE: SubscriberProfile = {
   email: '',
@@ -171,6 +172,8 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
   )
 
   const contentMaxWidth = getContentMaxWidth(centre.formWidth)
+  const cardSpacingClass = getCardSpacingClass(centre.cardStyle)
+  const cardStyleCss = getCardStyleCss(centre.cardStyle)
 
   return (
     <div
@@ -178,6 +181,7 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
       className="flex flex-col"
       style={{ background: centre.pageBackgroundColor ?? undefined }}
     >
+      {cardStyleCss && <style dangerouslySetInnerHTML={{ __html: cardStyleCss }} />}
       {centre.banner && (
         <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
           <RenderedBanner
@@ -189,7 +193,7 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
           />
         </div>
       )}
-      <div style={{ maxWidth: contentMaxWidth, margin: '0 auto', width: '100%', padding: '2rem 1.5rem' }}>
+      <div data-card-canvas style={{ maxWidth: contentMaxWidth, margin: '0 auto', width: '100%', padding: '2rem 1.5rem' }}>
         {centre.formCardMode === 'single' ? (
           <Card
             className="gap-0 py-0"
@@ -201,12 +205,12 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
             }}
           >
             <CardContent className="space-y-6 p-6">
-              <div className="space-y-6">{blocks}</div>
+              <div className={cardSpacingClass}>{blocks}</div>
               {submitButton}
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <div className={cardSpacingClass}>
             {blocks}
             {submitButton}
           </div>
