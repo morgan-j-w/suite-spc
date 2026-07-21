@@ -17,10 +17,11 @@ interface LivePreviewPanelProps {
 // same render into a full-screen overlay rather than squeezing a desktop-width layout
 // into a 320px column.
 //
-// The mobile panel is deliberately un-capped (no max-height/overflow-y-auto) so its own
-// rounded corners and shadow always render in full — a fixed-height + internal scrollbar
-// here would hide the card's bottom inside a second, easy-to-miss scroll region nested
-// inside the page's own scroll.
+// Deliberately NOT `position: sticky`. A sticky element taller than the viewport traps its
+// own overflow off-screen while pinned — no amount of scrolling can reveal the rest of it,
+// since a "stuck" element doesn't move and there's nothing to internally scroll either. A
+// plain block avoids that trap entirely: it just flows with the page's one scroll, so its
+// full height (rounded corners, shadow, and all) is always reachable.
 export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
   const [width, setWidth] = useState<'mobile' | 'desktop'>('mobile')
 
@@ -47,14 +48,14 @@ export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
 
   return (
     <div className={className}>
-      <div className="sticky top-[85px] px-2 pb-4">
+      <div className="px-2 pb-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live preview</p>
           {toggle}
         </div>
 
         {width === 'mobile' ? (
-          <div className="rounded-xl border shadow-lg">
+          <div className="rounded-xl border shadow-sm">
             <div className="overflow-hidden rounded-xl">
               <FormLivePreview centre={centre} />
             </div>
@@ -84,7 +85,7 @@ export function LivePreviewPanel({ centre, className }: LivePreviewPanelProps) {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-6">
-            <div className="mx-auto max-w-5xl overflow-hidden rounded-xl border shadow-lg">
+            <div className="mx-auto max-w-5xl overflow-hidden rounded-xl border shadow-sm">
               <FormLivePreview centre={centre} />
             </div>
           </div>
