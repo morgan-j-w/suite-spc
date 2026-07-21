@@ -273,8 +273,8 @@ function EmailLayoutSection({
         </div>
       )}
 
-      {/* Logo card — banner: logo-centered only; footer: links-copyright only */}
-      {selectedLayout && ((section === 'banner' && selectedLayout === 'logo-centered') || (section === 'footer' && selectedLayout === 'links-copyright')) && (
+      {/* Logo card — banner: all layouts; footer: links-copyright only */}
+      {selectedLayout && (section === 'banner' || (section === 'footer' && selectedLayout === 'links-copyright')) && (
         <div className="rounded-lg border p-3 space-y-3">
           <p className="text-sm font-medium">Logo</p>
           <div className="flex items-center gap-3">
@@ -307,20 +307,24 @@ function EmailLayoutSection({
               <span className="text-xs text-muted-foreground">px</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Position</span>
-            <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
-              {(['left', 'center', 'right'] as const).map((pos) => (
-                <button key={pos} type="button" onClick={() => onLogoPositionChange(pos)}
-                  className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors font-medium capitalize',
-                    (logoPosition ?? 'center') === pos
-                      ? 'bg-background shadow-sm text-foreground'
-                      : 'text-muted-foreground hover:text-foreground')}>
-                  {pos}
-                </button>
-              ))}
+          {/* Position only makes sense for layouts where the logo isn't already anchored by
+              the layout itself (logo-left is always left; heading-band is always centred) */}
+          {(section !== 'banner' || selectedLayout === 'logo-centered') && (
+            <div className="flex items-center gap-3">
+              <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">Position</span>
+              <div className="flex flex-1 gap-1 rounded-md bg-muted p-0.5">
+                {(['left', 'center', 'right'] as const).map((pos) => (
+                  <button key={pos} type="button" onClick={() => onLogoPositionChange(pos)}
+                    className={cn('flex-1 rounded px-2.5 py-1 text-xs transition-colors font-medium capitalize',
+                      (logoPosition ?? 'center') === pos
+                        ? 'bg-background shadow-sm text-foreground'
+                        : 'text-muted-foreground hover:text-foreground')}>
+                    {pos}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 

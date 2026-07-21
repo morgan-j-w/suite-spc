@@ -274,7 +274,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
             { id: crypto.randomUUID(), platform: 'linkedin' as const, url: '#' },
           ],
         },
-        banner: { layout: 'brand-band' as const, fullWidth: false },
+        banner: { layout: 'centred' as const, fullWidth: false },
         footer: {
           layout: 'centred-stack' as const,
           fullWidth: false,
