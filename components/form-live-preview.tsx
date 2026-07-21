@@ -53,6 +53,23 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
   const [answers, setAnswers] = useState<CategoryAnswers>(() => buildDefaultAnswers(centre.categories))
   const [submitted, setSubmitted] = useState(false)
 
+  // Colour-morph on theme change: briefly let every colour property transition so the
+  // preview glides to the new palette instead of snapping. The state adjustment happens
+  // during render (not in an effect) so the transition rule is already in the DOM in the
+  // same paint that applies the new colours; the window then closes after the transition
+  // finishes so the rule can't slow down hover feedback or fight other animations.
+  const [prevTheme, setPrevTheme] = useState(centre.themePresetId)
+  const [themeMorphing, setThemeMorphing] = useState(false)
+  if (prevTheme !== centre.themePresetId) {
+    setPrevTheme(centre.themePresetId)
+    setThemeMorphing(true)
+  }
+  useEffect(() => {
+    if (!themeMorphing) return
+    const t = setTimeout(() => setThemeMorphing(false), 500)
+    return () => clearTimeout(t)
+  }, [themeMorphing])
+
   // Merge in default answers for any categories added after mount, without
   // wiping selections the user has already made in the preview panel.
   useEffect(() => {
@@ -204,9 +221,19 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
   return (
     <div
       data-color-theme={centre.themePresetId}
+      data-theme-morph={themeMorphing ? '' : undefined}
       className="flex flex-col"
       style={{ background: centre.pageBackgroundColor ?? undefined }}
     >
+      {themeMorphing && (
+        <style dangerouslySetInnerHTML={{ __html: `
+          [data-theme-morph], [data-theme-morph] * {
+            transition-property: background-color, border-color, color, fill, stroke !important;
+            transition-duration: 400ms !important;
+            transition-timing-function: ease !important;
+          }
+        ` }} />
+      )}
       {cardStyleCss && <style dangerouslySetInnerHTML={{ __html: cardStyleCss }} />}
       {centre.banner && (
         <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
