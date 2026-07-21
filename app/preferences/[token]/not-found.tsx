@@ -1,15 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SubmitButton } from '@/components/submit-button'
 import { defaultStatusPages, type StatusPageContent, type SubscriptionCentre } from '@/lib/subscription-centre'
 import { ensureSeedCentre } from '@/lib/subscription-centre-store'
+import { CentrePageShell } from '@/components/centre-page-shell'
 
-export default function NotFound() {
+function NotFoundContent() {
   const [content, setContent] = useState<StatusPageContent>(defaultStatusPages.managePreferences.notFound)
   const [centre, setCentre] = useState<SubscriptionCentre>(ensureSeedCentre())
 
@@ -44,5 +44,13 @@ export default function NotFound() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function NotFound() {
+  return (
+    <CentrePageShell flowKey="managePreferences">
+      <NotFoundContent />
+    </CentrePageShell>
   )
 }
