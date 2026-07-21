@@ -12,10 +12,19 @@ import { richTextContentClass } from '@/components/rich-text-editor'
 import { cn } from '@/lib/utils'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 
-const TEMPLATE_LABELS: Record<string, string> = {
-  doubleOptIn: 'Double opt-in',
-  confirmation: 'Confirmation',
-  unsubscribed: 'Unsubscribed',
+// "View online" is conventionally a quiet, muted link — not a bold CTA — so rather than
+// flipping to stark black/white we pick between two muted greys based on background
+// luminance, same idea as getReadableTextColor but tuned to stay subtle either way.
+// emailBodyBgColor is user-configurable and could be dark, so a hardcoded grey would
+// risk becoming illegible.
+function mutedLinkColorFor(bg: string): string {
+  const match = /^#([0-9a-fA-F]{6})$/.exec(bg)
+  if (!match) return '#6b7280'
+  const r = parseInt(match[1].slice(0, 2), 16)
+  const g = parseInt(match[1].slice(2, 4), 16)
+  const b = parseInt(match[1].slice(4, 6), 16)
+  const luma = 0.299 * r + 0.587 * g + 0.114 * b
+  return luma > 150 ? '#6b7280' : '#9ca3af'
 }
 
 function EmailPreviewContent() {
@@ -62,7 +71,6 @@ function EmailPreviewContent() {
 
   const cfg = centre.emailConfig
   const tpl = cfg[template as 'doubleOptIn' | 'confirmation' | 'unsubscribed']
-  const label = TEMPLATE_LABELS[template] ?? template
   const brand = centre.brand ?? {}
 
   const themeColors = getThemeBrandColors(centre.themePresetId ?? defaultTheme)
@@ -92,16 +100,14 @@ function EmailPreviewContent() {
       })
 
   const wrapperBg = cfg.emailBodyBgColor ?? '#f4f4f4'
+  const linkColor = mutedLinkColorFor(wrapperBg)
 
   return (
     <div className="min-h-screen py-8" style={{ background: wrapperBg }}>
-      <div className="mx-auto mb-4 px-4" style={{ maxWidth: 650 }}>
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span className="font-medium uppercase tracking-wide">{centre.name} — {label} email</span>
-          {tpl.subject && (
-            <span className="truncate pl-4 text-right text-gray-400">Subject: {tpl.subject}</span>
-          )}
-        </div>
+      <div className="mx-auto mb-4 px-4 text-center" style={{ maxWidth: 650 }}>
+        <a href="#" style={{ fontSize: '12px', color: linkColor, textDecoration: 'underline' }}>
+          View the email online
+        </a>
       </div>
 
       <div className="mx-auto bg-white shadow-sm" style={{ maxWidth: 650 }}>
