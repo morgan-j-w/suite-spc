@@ -144,7 +144,7 @@ function BannerBarCta({ config, brand, heading, blurb, maxWidth = 896 }: BannerP
   return (
     <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '1.5', '1.5') }}>
       <div style={wrap(config.fullWidth, maxWidth)}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: heading || blurb ? '1.25rem' : 0 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', rowGap: '0.5rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: heading || blurb ? '1.25rem' : 0 }}>
           {brand.logoUrl
             ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140 }} />
             : <span style={{ fontWeight: 600, color: fg }}>Your Brand</span>}
@@ -202,21 +202,29 @@ function BannerSplitImage({ config, brand, heading, blurb, maxWidth = 896 }: Ban
   const fg = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   return (
-    <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5') }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '2rem' }}>
-        <div style={{ flex: '1 1 0' }}>
-          {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140, marginBottom: '1rem' }} />}
-          {heading && <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: fg, margin: '0 0 0.5rem' }}>{heading}</h1>}
-          {blurb && <p style={{ color: body, margin: 0 }}>{blurb}</p>}
-        </div>
-        {config.imageUrl
-          ? <img src={config.imageUrl} alt="" style={{ flex: '0 0 auto', width: '40%', maxWidth: 280, borderRadius: '0.5rem', objectFit: 'cover' }} />
-          : <div style={{ flex: '0 0 auto', width: '40%', maxWidth: 280, height: 160, borderRadius: '0.5rem', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem' }}>Illustration</span>
-            </div>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-split-image-inner { flex-direction: column !important; align-items: stretch !important; gap: 1.5rem !important; }
+          .spc-split-image-media { width: 100% !important; max-width: 100% !important; }
         }
+      `}} />
+      <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5') }}>
+        <div className="spc-split-image-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div style={{ flex: '1 1 0' }}>
+            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140, marginBottom: '1rem' }} />}
+            {heading && <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: fg, margin: '0 0 0.5rem' }}>{heading}</h1>}
+            {blurb && <p style={{ color: body, margin: 0 }}>{blurb}</p>}
+          </div>
+          {config.imageUrl
+            ? <img src={config.imageUrl} alt="" className="spc-split-image-media" style={{ flex: '0 0 auto', width: '40%', maxWidth: 280, borderRadius: '0.5rem', objectFit: 'cover' }} />
+            : <div className="spc-split-image-media" style={{ flex: '0 0 auto', width: '40%', maxWidth: 280, height: 160, borderRadius: '0.5rem', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem' }}>Illustration</span>
+              </div>
+          }
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -225,7 +233,7 @@ function BannerMinimal({ config, brand, maxWidth = 896 }: BannerProps) {
   const label = config.bodyColor ?? 'var(--muted-foreground)'
   return (
     <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: '1.25rem 1.5rem' }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem' }}>
         {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120 }} />}
         <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: label }}>
           Preference Centre
@@ -262,7 +270,7 @@ function BannerNavStrip({ config, brand, heading, blurb, maxWidth = 896 }: Banne
   return (
     <div>
       <div style={{ background: navBg, borderBottom: '1px solid var(--border)', padding: '0.75rem 1.5rem' }}>
-        <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', rowGap: '0.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
           {brand.logoUrl
             ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 32, maxWidth: 120 }} />
             : <span style={{ fontWeight: 700, fontSize: '0.9rem', color: fg }}>Brand</span>}
@@ -330,21 +338,29 @@ function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }:
   const accent = config.accentColor ?? 'var(--primary)'
   const sz = logoSz(config, 'sm')
   return (
-    <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '3', '1.5') }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
-        <div style={{ flex: '3 1 0' }}>
-          <div style={{ width: '2.5rem', height: '3px', background: accent, marginBottom: '1rem', borderRadius: 2 }} />
-          {heading && <h1 style={{ fontSize: '2rem', fontWeight: 700, color: fg, margin: '0 0 0.5rem', lineHeight: 1.15 }}>{heading}</h1>}
-          {blurb && <p style={{ color: body, margin: 0, fontSize: '1rem', lineHeight: 1.6 }}>{blurb}</p>}
-        </div>
-        <div style={{ flex: '1 1 0', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem', paddingTop: '0.25rem' }}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
-            : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg }}>Brand</span>}
-          {brand.backUrl && <a href={brand.backUrl} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>← Back to website</a>}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-editorial-inner { flex-direction: column !important; gap: 1.5rem !important; }
+          .spc-editorial-side { align-items: flex-start !important; padding-top: 0 !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '3', '1.5') }}>
+        <div className="spc-editorial-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
+          <div style={{ flex: '3 1 0' }}>
+            <div style={{ width: '2.5rem', height: '3px', background: accent, marginBottom: '1rem', borderRadius: 2 }} />
+            {heading && <h1 style={{ fontSize: '2rem', fontWeight: 700, color: fg, margin: '0 0 0.5rem', lineHeight: 1.15 }}>{heading}</h1>}
+            {blurb && <p style={{ color: body, margin: 0, fontSize: '1rem', lineHeight: 1.6 }}>{blurb}</p>}
+          </div>
+          <div className="spc-editorial-side" style={{ flex: '1 1 0', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem', paddingTop: '0.25rem' }}>
+            {brand.logoUrl
+              ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
+              : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg }}>Brand</span>}
+            {brand.backUrl && <a href={brand.backUrl} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>← Back to website</a>}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
