@@ -8,9 +8,11 @@ export const metadata = {
 
 export default function ManagePreferencesRequestPage() {
   return (
-    <CentrePageShell>
+    <CentrePageShell flowKey="manageRequest">
       <div className="px-4 py-12">
-        <RequestLinkForm type="manage" />
+        <div className="mx-auto max-w-2xl">
+          <RequestLinkForm type="manage" />
+        </div>
       </div>
     </CentrePageShell>
   )

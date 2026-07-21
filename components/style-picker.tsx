@@ -19,7 +19,7 @@ export function StylePicker({ theme, value, onChange, className, size, id }: Sty
 
   return (
     <Select value={String(selected)} onValueChange={(next) => onChange(Number(next))}>
-      <SelectTrigger id={id} size={size} className={className}>
+      <SelectTrigger id={id} size={size} controlColor="var(--border)" className={className}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

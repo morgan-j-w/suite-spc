@@ -17,5 +17,8 @@ node_modules
 .vercel
 *.tsbuildinfo
 
+# User-uploaded files (stored locally, not committed)
+/public/uploads/
+
 # Claude Code local settings (machine-specific paths)
 .claude/settings.local.json

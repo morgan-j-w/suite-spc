@@ -18,13 +18,9 @@ interface CategoryMailgroupPickerProps {
   category: Category
   mailGroups: MailGroup[]
   onAddMailGroup: (group: MailGroup) => void
-  onToggleMailGroup: (group: MailGroup, checked: boolean) => void
+  onToggleMailGroup: (group: MailGroup, checked: boolean, suppressMailGroupId?: string | null) => void
 }
 
-// Mirrors the Parent Mailgroup's "Use Existing / Create New" + Folder pattern, but the
-// Mailgroup field is a multi-select so several groups from the same folder can be linked at
-// once -- inline in the card, no modal. Checking/unchecking a mailgroup adds or removes it as
-// a CategoryOption immediately, same as the option rows' own editing -- no staging step.
 export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, onToggleMailGroup }: CategoryMailgroupPickerProps) {
   const folders = Array.from(new Set(mailGroups.map((g) => g.folder)))
 
@@ -34,19 +30,20 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
   const [newFolderName, setNewFolderName] = useState('')
   const [newGroupName, setNewGroupName] = useState('')
 
-  const mailGroupsInFolder = mailGroups.filter((g) => g.folder === selectedFolder)
-  const checkedMailGroupIds = category.options.map((o) => o.mailGroupId).filter((id): id is string => !!id)
-  const selectedInFolder = checkedMailGroupIds.filter((id) => mailGroupsInFolder.some((g) => g.id === id))
+  const groupsInFolder = mailGroups.filter((g) => g.folder === selectedFolder)
+  const selectedIdsInFolder = category.options
+    .filter((o) => o.mailGroupId && groupsInFolder.some((g) => g.id === o.mailGroupId))
+    .map((o) => o.mailGroupId as string)
 
-  const handleSelectedChange = (nextSelected: string[]) => {
-    const added = nextSelected.filter((id) => !selectedInFolder.includes(id))
-    const removed = selectedInFolder.filter((id) => !nextSelected.includes(id))
+  const handleMultiSelectChange = (newIds: string[]) => {
+    const added = newIds.filter((id) => !selectedIdsInFolder.includes(id))
+    const removed = selectedIdsInFolder.filter((id) => !newIds.includes(id))
     added.forEach((id) => {
-      const group = mailGroupsInFolder.find((g) => g.id === id)
-      if (group) onToggleMailGroup(group, true)
+      const group = groupsInFolder.find((g) => g.id === id)
+      if (group) onToggleMailGroup(group, true, undefined)
     })
     removed.forEach((id) => {
-      const group = mailGroupsInFolder.find((g) => g.id === id)
+      const group = groupsInFolder.find((g) => g.id === id)
       if (group) onToggleMailGroup(group, false)
     })
   }
@@ -58,7 +55,7 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
     if (!canCreate) return
     const group: MailGroup = { id: uuidv4(), name: newGroupName.trim(), folder: resolvedNewFolder }
     onAddMailGroup(group)
-    onToggleMailGroup(group, true)
+    onToggleMailGroup(group, true, undefined)
     setSelectedFolder(group.folder)
     setNewGroupName('')
     setNewFolderName('')
@@ -96,77 +93,78 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
       </div>
 
       {mode === 'existing' ? (
-        <>
-          <div className="space-y-2">
-            <Label htmlFor={`category-add-folder-${category.id}`}>Folder<span className="ml-px text-destructive">*</span></Label>
-            <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-              <SelectTrigger id={`category-add-folder-${category.id}`} className="w-full">
-                <SelectValue placeholder="Select a folder" />
-              </SelectTrigger>
-              <SelectContent>
-                {folders.map((folder) => (
-                  <SelectItem key={folder} value={folder}>
-                    {folder}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a folder" />
+            </SelectTrigger>
+            <SelectContent>
+              {folders.map((folder) => (
+                <SelectItem key={folder} value={folder}>{folder}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <div className="space-y-2">
-            <Label htmlFor={`category-add-mailgroups-${category.id}`}>Mailgroups<span className="ml-px text-destructive">*</span></Label>
+          {selectedFolder && groupsInFolder.length > 0 && (
             <MultiSelect
-              id={`category-add-mailgroups-${category.id}`}
-              options={mailGroupsInFolder.map((g) => ({ value: g.id, label: g.name }))}
-              selected={selectedInFolder}
-              onChange={handleSelectedChange}
-              placeholder={selectedFolder ? 'Select mailgroups' : 'Choose a folder first'}
+              options={groupsInFolder.map((g) => ({ value: g.id, label: g.name }))}
+              selected={selectedIdsInFolder}
+              onChange={handleMultiSelectChange}
+              placeholder="Select mailgroups…"
             />
-          </div>
-        </>
+          )}
+
+          {selectedFolder && groupsInFolder.length === 0 && (
+            <p className="text-xs text-muted-foreground">No mailgroups in this folder yet.</p>
+          )}
+        </div>
       ) : (
         <>
           <div className="space-y-2">
-            <Label htmlFor={`category-new-folder-${category.id}`}>Folder<span className="ml-px text-destructive">*</span></Label>
+            <Label htmlFor={`category-new-folder-${category.id}`}>Folder</Label>
             <Select value={newFolderChoice} onValueChange={setNewFolderChoice}>
               <SelectTrigger id={`category-new-folder-${category.id}`} className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {folders.map((folder) => (
-                  <SelectItem key={folder} value={folder}>
-                    {folder}
-                  </SelectItem>
+                  <SelectItem key={folder} value={folder}>{folder}</SelectItem>
                 ))}
                 <SelectItem value={NEW_FOLDER}>+ New folder</SelectItem>
               </SelectContent>
             </Select>
             {newFolderChoice === NEW_FOLDER && (
-              <Input value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} placeholder="e.g., Partnerships" autoFocus />
+              <Input
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                placeholder="e.g., Partnerships"
+                autoFocus
+              />
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`category-new-mailgroup-name-${category.id}`}>Mailgroup Name<span className="ml-px text-destructive">*</span></Label>
+            <Label htmlFor={`category-new-mailgroup-name-${category.id}`}>Mailgroup name</Label>
             <Input
               id={`category-new-mailgroup-name-${category.id}`}
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
               placeholder="e.g., Product Updates"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleCreateMailGroup()
-                }
-              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateMailGroup() } }}
             />
           </div>
 
-          <div className="flex justify-end">
-            <Button type="button" size="sm" className="gap-2" disabled={!canCreate} onClick={handleCreateMailGroup}>
-              Add Mailgroup
-            </Button>
-          </div>
+          <p className="text-xs text-muted-foreground">Set the suppress group after adding via the edit panel.</p>
+
+          <Button
+            type="button"
+            size="sm"
+            className="gap-2"
+            disabled={!canCreate}
+            onClick={handleCreateMailGroup}
+          >
+            Add Mailgroup
+          </Button>
         </>
       )}
     </div>

@@ -29,6 +29,7 @@ interface MailgroupsEditorProps {
   profileFields: CustomProfileField[]
   sectionOrder: string[]
   onSectionOrderChange: (order: string[]) => void
+  suppressErrors?: boolean
 }
 
 export function MailgroupsEditor({
@@ -41,6 +42,7 @@ export function MailgroupsEditor({
   profileFields,
   sectionOrder,
   onSectionOrderChange,
+  suppressErrors = false,
 }: MailgroupsEditorProps) {
   const categoryIds = sectionOrder.filter((id) => categories.some((c) => c.id === id))
 
@@ -101,9 +103,15 @@ export function MailgroupsEditor({
     onSectionOrderChange(sectionOrder.filter((id) => id !== categoryId))
   }
 
-  const handleToggleCategoryMailGroup = (categoryId: string, group: MailGroup, checked: boolean) => {
+  const handleToggleCategoryMailGroup = (categoryId: string, group: MailGroup, checked: boolean, suppressMailGroupId?: string | null) => {
     if (checked) {
-      const option: CategoryOption = { key: uuidv4(), label: group.name, description: '', mailGroupId: group.id }
+      const option: CategoryOption = {
+        key: uuidv4(),
+        label: group.name,
+        description: '',
+        mailGroupId: group.id,
+        ...(suppressMailGroupId !== undefined ? { suppressMailGroupId } : {}),
+      }
       onCategoriesChange(categories.map((c) => (c.id === categoryId ? { ...c, options: [...c.options, option] } : c)))
       flashJustAddedOption(option.key)
     } else {
@@ -183,7 +191,8 @@ export function MailgroupsEditor({
                         expandedOptionKey={expandedOptionKey}
                         justAddedOptionKey={justAddedOptionKey}
                         onToggleOptionExpand={(optionKey) => setExpandedOptionKey(expandedOptionKey === optionKey ? null : optionKey)}
-                        onToggleMailGroup={(group, checked) => handleToggleCategoryMailGroup(category.id, group, checked)}
+                        suppressErrors={suppressErrors}
+                        onToggleMailGroup={(group, checked, suppressId) => handleToggleCategoryMailGroup(category.id, group, checked, suppressId)}
                         onUpdateOption={(optionKey, patch) => handleUpdateOption(category.id, optionKey, patch)}
                         onRemoveOption={(optionKey) => handleRemoveOption(category.id, optionKey)}
                       />

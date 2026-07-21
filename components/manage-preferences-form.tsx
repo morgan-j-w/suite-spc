@@ -7,8 +7,9 @@ import { SubscriberProfile, CategoryAnswers, flattenProfileFields, isCategoryAns
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { ensureSeedCentre, getCentre } from '@/lib/subscription-centre-store'
 import { SubscriptionCentreWidget } from '@/components/subscription-centre-widget'
+import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
-import { Save, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 
 interface ManagePreferencesFormProps {
   subscriber: Subscriber
@@ -117,7 +118,7 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="space-y-8">
       {successMessage && (
         <div className="flex items-center gap-3 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
           <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
@@ -142,24 +143,18 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
         />
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Button variant="destructive" asChild>
           <Link href={`/preferences/${subscriber.token}/unsubscribe`}>Unsubscribe from all</Link>
         </Button>
-
-        <Button onClick={handleSave} disabled={isSaving || !isFormValid}>
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Save Preferences
-            </>
-          )}
-        </Button>
+        <SubmitButton
+          centre={centre}
+          label={isSaving ? 'Saving…' : 'Save Preferences'}
+          type="button"
+          disabled={isSaving || !isFormValid}
+          isSubmitting={isSaving}
+          onClick={handleSave}
+        />
       </div>
     </div>
   )

@@ -41,7 +41,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             className={cn(
               'flex h-7 shrink-0 cursor-grab items-center gap-1.5 rounded-md border bg-background px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors',
               'hover:bg-muted hover:text-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600',
               isDragging && 'cursor-grabbing'
             )}
             {...attributes}
@@ -59,7 +59,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
               'hover:bg-muted hover:text-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600',
               'disabled:pointer-events-none disabled:opacity-30'
             )}
           >
@@ -73,7 +73,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
               'hover:bg-muted hover:text-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600',
               'disabled:pointer-events-none disabled:opacity-30'
             )}
           >
@@ -84,7 +84,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
           <StylePicker theme={theme} value={cardStyleIndex} onChange={onCardStyleChange} size="sm" className="w-[130px] bg-background shadow-sm" />
         )}
       </div>
-      <div className={cn(isDragging && 'opacity-60 shadow-lg ring-2 ring-primary/20')}>{children}</div>
+      <div className={cn(isDragging && 'opacity-60 shadow-lg ring-2 ring-zinc-300 dark:ring-zinc-600')}>{children}</div>
     </div>
   )
 }

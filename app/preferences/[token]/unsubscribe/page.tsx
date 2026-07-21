@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { CentrePageShell } from '@/components/centre-page-shell'
+import { SubmitButton } from '@/components/submit-button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -11,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Loader2, MailX, CheckCircle2, ArrowLeft, AlertTriangle } from 'lucide-react'
 import type { Subscriber } from '@/lib/subscriber-store'
-import { defaultStatusPages, defaultUnsubscribeFeedback, type StatusPageContent, type UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
+import { defaultStatusPages, defaultUnsubscribeFeedback, type StatusPageContent, type SubscriptionCentre, type UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
 import { ensureSeedCentre, getCentre } from '@/lib/subscription-centre-store'
 
 interface UnsubscribePageProps {
@@ -26,6 +27,7 @@ function UnsubscribePageInner({ params }: UnsubscribePageProps) {
   const [error, setError] = useState<string | null>(null)
   const [subscriberEmail, setSubscriberEmail] = useState<string>('')
   const [confirmChecked, setConfirmChecked] = useState(false)
+  const [centre, setCentre] = useState<SubscriptionCentre>(ensureSeedCentre())
   const [successContent, setSuccessContent] = useState<StatusPageContent>(defaultStatusPages.unsubscribe.success)
   const [errorContent, setErrorContent] = useState<StatusPageContent>(defaultStatusPages.managePreferences.notFound)
   const [submitErrorContent, setSubmitErrorContent] = useState<StatusPageContent>(defaultStatusPages.unsubscribe.error)
@@ -38,7 +40,9 @@ function UnsubscribePageInner({ params }: UnsubscribePageProps) {
       try {
         const response = await fetch(`/api/preferences/${token}`)
         if (!response.ok) {
-          setErrorContent(ensureSeedCentre().statusPages.managePreferences.notFound)
+          const seed = ensureSeedCentre()
+          setCentre(seed)
+          setErrorContent(seed.statusPages.managePreferences.notFound)
           if (response.status === 404) {
             setError('Subscription not found. The link may be invalid or expired.')
           } else {
@@ -48,16 +52,19 @@ function UnsubscribePageInner({ params }: UnsubscribePageProps) {
         }
         const { subscriber } = (await response.json()) as { subscriber: Subscriber }
         setSubscriberEmail(subscriber.profile.email)
-        const centre = getCentre(subscriber.centreId) || ensureSeedCentre()
-        setSuccessContent(centre.statusPages.unsubscribe.success)
-        setSubmitErrorContent(centre.statusPages.unsubscribe.error)
-        setFeedbackConfig(centre.unsubscribeFeedback)
+        const loadedCentre = getCentre(subscriber.centreId) || ensureSeedCentre()
+        setCentre(loadedCentre)
+        setSuccessContent(loadedCentre.statusPages.unsubscribe.success)
+        setSubmitErrorContent(loadedCentre.statusPages.unsubscribe.error)
+        setFeedbackConfig(loadedCentre.unsubscribeFeedback)
         if (!subscriber.isActive) {
           setIsUnsubscribed(true)
         }
       } catch {
+        const seed = ensureSeedCentre()
+        setCentre(seed)
         setError('Something went wrong. Please try again later.')
-        setErrorContent(ensureSeedCentre().statusPages.managePreferences.notFound)
+        setErrorContent(seed.statusPages.managePreferences.notFound)
       } finally {
         setIsLoading(false)
       }
@@ -109,64 +116,63 @@ function UnsubscribePageInner({ params }: UnsubscribePageProps) {
 
   if (error && !subscriberEmail) {
     return (
-      <div className="flex flex-1 items-center justify-center p-4">
-        <Card className="mx-auto max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-              <AlertTriangle className="h-8 w-8 text-destructive" />
-            </div>
-            <CardTitle>{errorContent.heading}</CardTitle>
-            <CardDescription>{error}</CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center">
-            <Button asChild variant="outline">
-              <Link href="/subscribe">Subscribe Again</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="px-4 py-12">
+        <div className="mx-auto max-w-2xl">
+          <Card className="w-full">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-8 w-8 text-destructive" />
+              </div>
+              <CardTitle>{errorContent.heading}</CardTitle>
+              <CardDescription>{error}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SubmitButton centre={centre} label="Subscribe Again" type="button" onClick={() => { window.location.href = '/subscribe' }} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
 
   if (isUnsubscribed) {
     return (
-      <div className="flex flex-1 items-center justify-center p-4">
-        <Card className="mx-auto max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
-              <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <CardTitle>{successContent.heading}</CardTitle>
-            <CardDescription className="text-balance">
-              {successContent.message}{' '}
-              <span className="font-medium text-foreground">{subscriberEmail}</span> will no longer receive emails from
-              us.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
-            <p className="text-center text-sm text-muted-foreground">
-              Changed your mind? You can resubscribe at any time.
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button asChild variant="outline">
+      <div className="px-4 py-12">
+        <div className="mx-auto max-w-2xl">
+          <Card className="w-full">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <CardTitle>{successContent.heading}</CardTitle>
+              <CardDescription className="text-balance">
+                {successContent.message}{' '}
+                <span className="font-medium text-foreground">{subscriberEmail}</span> will no longer receive emails from
+                us.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-center text-sm text-muted-foreground">
+                Changed your mind? You can resubscribe at any time.
+              </p>
+              <Button asChild variant="outline" className="w-full">
                 <Link href={`/preferences/${token}`}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Manage Preferences
                 </Link>
               </Button>
-              <Button asChild>
-                <Link href="/subscribe">Resubscribe</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              <SubmitButton centre={centre} label="Resubscribe" type="button" onClick={() => { window.location.href = '/subscribe' }} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center p-4">
-      <Card className="mx-auto max-w-md">
+    <div className="px-4 py-12">
+      <div className="mx-auto max-w-2xl">
+      <Card className="w-full">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
             <MailX className="h-8 w-8 text-destructive" />
@@ -286,13 +292,14 @@ function UnsubscribePageInner({ params }: UnsubscribePageProps) {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
 
 export default function UnsubscribePage({ params }: UnsubscribePageProps) {
   return (
-    <CentrePageShell>
+    <CentrePageShell flowKey="unsubscribe">
       <UnsubscribePageInner params={params} />
     </CentrePageShell>
   )

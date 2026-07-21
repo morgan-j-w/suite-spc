@@ -14,14 +14,14 @@ import {
   type SubscriberProfile,
 } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
+import { getContentMaxWidth } from '@/lib/subscription-centre'
 import { getStylePreviews } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
 import { AnimatedVisibility } from '@/components/animated-visibility'
 import { Card, CardContent } from '@/components/ui/card'
 import { RenderedContentBlock } from '@/components/rendered-content-block'
-import { richTextContentClass } from '@/components/rich-text-editor'
-import { cn } from '@/lib/utils'
+import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 
 const EMPTY_PROFILE: SubscriberProfile = {
   email: '',
@@ -170,38 +170,44 @@ export function FormLivePreview({ centre }: FormLivePreviewProps) {
     />
   )
 
+  const contentMaxWidth = getContentMaxWidth(centre.formWidth)
+
   return (
-    <div data-color-theme={centre.themePresetId}>
-      {centre.banner?.html && (
-        <div className={cn('py-3 text-sm', richTextContentClass, centre.banner.fullWidth ? '' : 'px-1')}>
-          <div dangerouslySetInnerHTML={{ __html: centre.banner.html }} />
+    <div
+      data-color-theme={centre.themePresetId}
+      className="flex flex-col"
+      style={{ background: centre.pageBackgroundColor ?? undefined }}
+    >
+      {centre.banner && (
+        <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
+          <RenderedBanner config={centre.banner} brand={centre.brand} contentMaxWidth={contentMaxWidth} />
         </div>
       )}
-      {centre.formCardMode === 'single' ? (
-        <Card
-          className="gap-0 py-0"
-          style={{
-            backgroundColor: singleStylePreview.background,
-            ...(singleStylePreview.cardBorder
-              ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 }
-              : {}),
-          }}
-        >
-          <CardContent className="space-y-6 p-6">
-            <div className="space-y-6">{blocks}</div>
+      <div style={{ maxWidth: contentMaxWidth, margin: '0 auto', width: '100%', padding: '2rem 1.5rem' }}>
+        {centre.formCardMode === 'single' ? (
+          <Card
+            className="gap-0 py-0"
+            style={{
+              backgroundColor: singleStylePreview.background,
+              ...(singleStylePreview.cardBorder
+                ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 }
+                : {}),
+            }}
+          >
+            <CardContent className="space-y-6 p-6">
+              <div className="space-y-6">{blocks}</div>
+              {submitButton}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {blocks}
             {submitButton}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          {blocks}
-          {submitButton}
-        </div>
-      )}
-      {centre.footer?.html && (
-        <div className={cn('py-3 text-sm', richTextContentClass, centre.footer.fullWidth ? '' : 'px-1')}>
-          <div dangerouslySetInnerHTML={{ __html: centre.footer.html }} />
-        </div>
+          </div>
+        )}
+      </div>
+      {centre.footer && (
+        <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={contentMaxWidth} />
       )}
     </div>
   )

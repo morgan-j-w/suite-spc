@@ -31,6 +31,7 @@ import { MultiSelect } from '@/components/multi-select'
 import { RatingInput } from '@/components/rating-input'
 import { cn } from '@/lib/utils'
 import { RenderedContentBlock } from '@/components/rendered-content-block'
+import { getCardSpacingClass, getCardStyleCss } from '@/lib/card-style'
 
 const STANDARD_PROFILE_FIELDS = ['email', 'firstName', 'lastName', 'phone', 'company', 'jobTitle']
 
@@ -681,7 +682,9 @@ export function SubscriptionCentreWidget({
     // Scoped to this subtree (not <html>) so the centre's theme colors only affect the
     // rendered form -- the rest of the app (builder chrome, page background) keeps its
     // own default appearance regardless of which theme the centre is set to.
-    <div data-color-theme={centre.themePresetId} className="space-y-6">
+    <>
+    {centre.cardStyle && <style dangerouslySetInnerHTML={{ __html: getCardStyleCss(centre.cardStyle) }} />}
+    <div data-color-theme={centre.themePresetId} data-card-canvas className={getCardSpacingClass(centre.cardStyle)}>
       {centre.sectionOrder.map((id) => {
         const section = centre.profileFieldSections.find((s) => s.id === id)
         if (section) {
@@ -721,5 +724,6 @@ export function SubscriptionCentreWidget({
         return null
       })}
     </div>
+    </>
   )
 }

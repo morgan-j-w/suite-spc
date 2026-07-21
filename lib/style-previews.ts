@@ -50,6 +50,25 @@ const palettes: Record<Exclude<ColorTheme, 'coastal'>, ThemePalette> = {
   },
 }
 
+const COASTAL_BRAND: { hex: string; label: string }[] = [
+  { hex: '#FFFAF5', label: 'Warm white' },
+  { hex: '#89DDE8', label: 'Arctic' },
+  { hex: '#FE976F', label: 'Coral' },
+  { hex: '#FF6936', label: 'Salmon' },
+  { hex: '#45BED3', label: 'Sky' },
+  { hex: '#00607B', label: 'Ocean' },
+  { hex: '#003C51', label: 'Midnight' },
+  { hex: '#10191A', label: 'Rich charcoal' },
+]
+
+const ROLE_ORDER: ColorRole[] = ['white', 'light1', 'light2', 'warm', 'grey', 'brand', 'charcoal', 'dark']
+
+export function getThemeBrandColors(theme: ColorTheme): { hex: string; label: string }[] {
+  if (theme === 'coastal') return COASTAL_BRAND
+  const palette = palettes[theme]
+  return ROLE_ORDER.map((role) => ({ hex: palette.colors[role], label: capitalize(palette.names[role]) }))
+}
+
 // Lifted directly from a real client theme reference -- 19 fixed styles, not a recolored
 // template. Unlike the other 5 mock themes, every value here (background, heading, button
 // colors, descriptions, order) is copied verbatim rather than generated from styleTemplates.

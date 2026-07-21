@@ -238,6 +238,9 @@ export interface CategoryOption {
   description: string
   // The real mail group/list this option represents, drawn from the centre's mail groups.
   mailGroupId?: string
+  // When a subscriber unchecks this option they are added to this suppress mailgroup
+  // so they won't be re-added by future bulk imports.
+  suppressMailGroupId?: string | null
 }
 
 // Category definition (a group of related preference options, e.g. "Newsletter Topics")

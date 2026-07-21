@@ -10,13 +10,37 @@ import {
 
 export interface EmailTemplate {
   subject: string
+  previewText: string
   bodyHtml: string
 }
 
+export type EmailBannerLayout = 'logo-centered' | 'logo-left' | 'heading-band'
+export type EmailFooterLayout = 'minimal' | 'links-copyright' | 'address-footer'
+
 export interface EmailConfig {
   // Shared banner/footer rendered in every outbound email (650px width).
+  bannerEnabled?: boolean
   bannerHtml: string
+  bannerHeading?: string     // editable heading for text-based banner layouts
+  bannerSubheading?: string  // editable subheading / tagline
+  footerEnabled?: boolean
   footerHtml: string
+  emailBodyBgColor?: string  // outer wrapper background shown around the 650px email body
+  // Email layout selection — drives the layout picker UI and "Populate from layout" generator.
+  bannerLayout?: EmailBannerLayout
+  bannerBgColor?: string
+  bannerTextColor?: string
+  bannerCustomCss?: string
+  bannerLogoMaxWidth?: number
+  bannerLogoMaxHeight?: number
+  bannerLogoPosition?: 'left' | 'center' | 'right'
+  footerLayout?: EmailFooterLayout
+  footerBgColor?: string
+  footerTextColor?: string
+  footerCustomCss?: string
+  footerLogoMaxWidth?: number
+  footerLogoMaxHeight?: number
+  footerLogoPosition?: 'left' | 'center' | 'right'
   doubleOptIn: EmailTemplate
   confirmation: EmailTemplate
   unsubscribed: EmailTemplate
@@ -27,21 +51,111 @@ export const defaultEmailConfig: EmailConfig = {
   footerHtml: '',
   doubleOptIn: {
     subject: 'Please confirm your email address',
+    previewText: 'Click to confirm your email address and complete your subscription.',
     bodyHtml: '<p>Thank you for subscribing! Please click the button below to confirm your email address and complete your registration.</p>',
   },
   confirmation: {
     subject: "You're now subscribed",
+    previewText: "You've successfully subscribed to our communications.",
     bodyHtml: "<p>You've successfully subscribed to our communications. We're glad to have you!</p><p>You can manage your preferences or unsubscribe at any time using the link in this email.</p>",
   },
   unsubscribed: {
     subject: "You've been unsubscribed",
+    previewText: "You've been successfully unsubscribed from our communications.",
     bodyHtml: "<p>You've been successfully unsubscribed from our communications. We're sorry to see you go.</p><p>If you change your mind, you can resubscribe at any time.</p>",
   },
 }
 
-export interface BannerFooter {
-  html: string
+// ─── Brand ───────────────────────────────────────────────────────────────────
+
+export type SocialPlatform = 'facebook' | 'x' | 'instagram' | 'linkedin' | 'youtube' | 'tiktok' | 'pinterest' | 'threads'
+
+export interface SocialLink {
+  id: string
+  platform: SocialPlatform
+  url: string
+}
+
+// Brand assets shared across all pages — logo, social links, contact info, back URL.
+// Separate from the Theme preset (which drives colours/fonts) so both can be composed.
+export interface Brand {
+  logoUrl?: string
+  backUrl?: string
+  address?: string
+  copyrightText?: string
+  socialLinks?: SocialLink[]
+}
+
+// ─── Banner / Footer configs ──────────────────────────────────────────────────
+
+export interface BannerLink {
+  id: string
+  label: string
+  url: string
+}
+
+// B1–B9 banner layout options. Each inherits font + colour from the active theme
+// via CSS variables; per-element colour fields override individual parts when set.
+export type BannerLayout =
+  | 'centred' | 'bar-cta' | 'brand-band' | 'split-image' | 'minimal'
+  | 'with-socials' | 'nav-strip' | 'feature-hero' | 'logo-only'
+  | 'editorial-split' | 'triple-row' | 'logo-band'
+
+export interface BannerConfig {
+  layout: BannerLayout
+  backgroundColor?: string    // section background override (CSS var or hex)
+  headingColor?: string       // heading text override
+  bodyColor?: string          // body / description text override
+  linkColor?: string          // links and back-URL colour override
+  iconColor?: string          // social icon colour override
+  accentColor?: string        // accent stripe / nav row / decorative border colour
+  buttonBgColor?: string      // CTA button background (layouts with buttons)
+  buttonTextColor?: string    // CTA button text colour
+  imageBackground?: boolean    // apply background image on top of any layout
+  imageUrl?: string           // split-image side image / imageBackground URL
+  imageOverlayColor?: string  // overlay colour when imageBackground is on (hex, default #000000)
+  imageOverlayOpacity?: number // overlay opacity 0–100 when imageBackground is on (default 45)
+  backgroundSize?: string     // CSS background-size (cover/contain/auto)
+  backgroundRepeat?: string   // CSS background-repeat
+  padding?: number                             // vertical section padding in px (undefined = layout default)
+  logoPosition?: 'left' | 'center' | 'right' // alignment within logo-only layout
+  logoSize?: 'sm' | 'md' | 'lg'              // legacy preset — overridden by logoMaxWidth/logoMaxHeight
+  logoMaxWidth?: number                        // px, max-width for logo image
+  logoMaxHeight?: number                       // px, max-height for logo image
   fullWidth: boolean
+  sticky?: boolean            // fix banner to top of viewport while scrolling
+  customHtml?: string
+  customCss?: string          // injected as <style> alongside the rendered layout
+}
+
+// F1–F9 footer layout options.
+export type FooterLayout =
+  | 'centred-stack' | 'multi-column' | 'dark-band' | 'minimal-line'
+  | 'split-cta' | 'unsubscribe-focus' | 'two-col' | 'social-focused' | 'stacked-card'
+  | 'inline-logo' | 'left-panel' | 'logo-cta'
+
+export interface FooterConfig {
+  layout: FooterLayout
+  backgroundColor?: string // section background override (CSS var or hex)
+  headingColor?: string    // column heading colour override
+  bodyColor?: string       // body text / address / copyright override
+  linkColor?: string       // link colour override
+  iconColor?: string       // social icon colour override
+  accentColor?: string     // accent stripe / decorative border colour
+  buttonBgColor?: string   // CTA button background (layouts with buttons)
+  buttonTextColor?: string // CTA button text colour
+  imageBackground?: boolean    // apply background image on top of any layout
+  imageUrl?: string
+  imageOverlayColor?: string
+  imageOverlayOpacity?: number
+  backgroundSize?: string
+  backgroundRepeat?: string
+  links?: BannerLink[]     // primary footer nav / legal links
+  quickLinks?: BannerLink[] // secondary column (multi-column layout)
+  padding?: number          // vertical section padding in px (undefined = layout default)
+  fullWidth: boolean
+  customHtml?: string
+  customCss?: string       // injected as <style> alongside the rendered layout
 }
 
 export type ContentBlockType = 'text' | 'image'
@@ -70,37 +184,46 @@ export interface StatusPageContent {
   message: string
 }
 
-// Grouped by the flow a subscriber is actually in, rather than as one flat list -- each
-// flow gets the status content relevant to it (Subscribe only ever shows one outcome,
-// while Unsubscribe/Resubscribe each have a prompt and a follow-up confirmation).
+// bannerHeading/bannerBlurb on each flow group override the banner text for that
+// entire flow (e.g. "Manage your preferences" on the preferences pages). When absent
+// the banner renders without a heading/blurb, or with the layout's default placeholder.
 export interface StatusPages {
   subscribe: {
+    bannerHeading?: string
+    bannerBlurb?: string
     intro: StatusPageContent
     success: StatusPageContent
     alreadySubscribed: StatusPageContent
   }
   managePreferences: {
+    bannerHeading?: string
+    bannerBlurb?: string
     saved: StatusPageContent
     notFound: StatusPageContent
   }
   unsubscribe: {
+    bannerHeading?: string
+    bannerBlurb?: string
     success: StatusPageContent
     error: StatusPageContent
   }
   resubscribe: {
+    bannerHeading?: string
+    bannerBlurb?: string
     prompt: StatusPageContent
     success: StatusPageContent
     error: StatusPageContent
   }
-  // The public, no-token entry points where someone who doesn't have their link handy can
-  // ask for it again by email -- distinct from unsubscribe/managePreferences above, which
-  // assume the subscriber already has their personalised link.
   unsubscribeRequest: {
+    bannerHeading?: string
+    bannerBlurb?: string
     intro: StatusPageContent
     sent: StatusPageContent
     alreadyUnsubscribed: StatusPageContent
   }
   manageRequest: {
+    bannerHeading?: string
+    bannerBlurb?: string
     intro: StatusPageContent
     sent: StatusPageContent
     alreadyUnsubscribed: StatusPageContent
@@ -121,6 +244,26 @@ export interface UnsubscribeFeedbackForm {
   type: UnsubscribeFeedbackType
   options: UnsubscribeFeedbackOption[]
   allowOther: boolean
+}
+
+export const CONTENT_WIDTHS = { narrow: 640, default: 896, wide: 1152 } as const
+export type FormWidth = keyof typeof CONTENT_WIDTHS
+export function getContentMaxWidth(fw?: FormWidth | string): number {
+  return CONTENT_WIDTHS[(fw ?? 'default') as FormWidth] ?? 896
+}
+
+export type CardShadow = 'on' | 'off'
+export type CardPadding = 'compact' | 'normal' | 'spacious'
+export type CardSpacing = 'compact' | 'normal' | 'spacious'
+
+export interface CardStyle {
+  borderEnabled?: boolean   // undefined = theme default; false = no border
+  borderWidth?: number      // px, 1–4
+  borderColor?: string      // hex or CSS var
+  borderRadius?: number     // px, 0–24
+  shadow?: CardShadow
+  padding?: CardPadding
+  spacing?: CardSpacing
 }
 
 export interface SubscriptionCentre {
@@ -144,6 +287,8 @@ export interface SubscriptionCentre {
   // submit button's colors are drawn from.
   submitButtonStyleIndex: number
   submitButtonAlignment: SubmitButtonAlignment
+  submitButtonBgColor?: string   // overrides the style preset's button background
+  submitButtonTextColor?: string // overrides the style preset's button text colour
   // Controls whether profile fields render stacked (label above input) or inline (label left,
   // input right). formLabelWidth is the label column's percentage width in inline mode.
   formLayout: 'stacked' | 'inline'
@@ -153,9 +298,17 @@ export interface SubscriptionCentre {
   singleCardStyleIndex: number
   // Freeform content blocks (text or image) that slot into sectionOrder between form blocks.
   contentBlocks: ContentBlock[]
+  // Brand assets (logo, socials, address etc.) used by banner/footer layouts.
+  brand: Brand
+  // Page background colour override applied behind the form (default is var(--background) from theme).
+  pageBackgroundColor?: string
+  // Content max-width for form cards and banner/footer content (when fullWidth is off).
+  formWidth?: FormWidth
+  // Global form card appearance overrides (corners, shadow, padding, spacing).
+  cardStyle?: CardStyle
   // Page-level banner and footer rendered above/below the form on all subscriber-facing pages.
-  banner: BannerFooter | null
-  footer: BannerFooter | null
+  banner: BannerConfig | null
+  footer: FooterConfig | null
   // Email template config — content/design for outbound transactional emails.
   emailConfig: EmailConfig
   createdAt: string
@@ -289,6 +442,7 @@ export function createSubscriptionCentre(name: string): SubscriptionCentre {
     formCardMode: 'separate',
     singleCardStyleIndex: 0,
     contentBlocks: [],
+    brand: {},
     banner: null,
     footer: null,
     emailConfig: { ...defaultEmailConfig },

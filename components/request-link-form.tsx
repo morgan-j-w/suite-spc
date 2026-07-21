@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2, Mail, MailCheck, AlertTriangle } from 'lucide-react'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { ensureSeedCentre } from '@/lib/subscription-centre-store'
+import { SubmitButton } from '@/components/submit-button'
 
 interface RequestLinkFormProps {
   type: 'unsubscribe' | 'manage'
@@ -72,22 +72,18 @@ export function RequestLinkForm({ type }: RequestLinkFormProps) {
   if (result?.found && result.isActive === false) {
     const alreadyContent = content.alreadyUnsubscribed
     return (
-      <div className="mx-auto max-w-md text-center">
-        <Card>
-          <CardHeader>
-            <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
-              <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
-            </div>
-            <CardTitle>{alreadyContent.heading}</CardTitle>
-            <CardDescription>{alreadyContent.message}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link href="/subscribe">Go to Subscribe</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
+            <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+          </div>
+          <CardTitle>{alreadyContent.heading}</CardTitle>
+          <CardDescription>{alreadyContent.message}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SubmitButton centre={centre} label="Go to Subscribe" type="button" onClick={() => { window.location.href = '/subscribe' }} />
+        </CardContent>
+      </Card>
     )
   }
 
@@ -95,68 +91,53 @@ export function RequestLinkForm({ type }: RequestLinkFormProps) {
     const sentContent = content.sent
     const linkPath = result.token ? (type === 'unsubscribe' ? `/preferences/${result.token}/unsubscribe` : `/preferences/${result.token}`) : null
     return (
-      <div className="mx-auto max-w-md text-center">
-        <Card>
-          <CardHeader>
-            <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
-              <MailCheck className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+      <Card>
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+            <MailCheck className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <CardTitle>{sentContent.heading}</CardTitle>
+          <CardDescription className="text-balance">{sentContent.message}</CardDescription>
+        </CardHeader>
+        {linkPath && (
+          <CardContent className="space-y-4">
+            <div className="rounded-lg bg-muted p-4 text-left">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Your Personalised Link</p>
+              <code className="block break-all text-sm text-foreground">{linkPath}</code>
             </div>
-            <CardTitle>{sentContent.heading}</CardTitle>
-            <CardDescription className="text-balance">{sentContent.message}</CardDescription>
-          </CardHeader>
-          {linkPath && (
-            <CardContent className="space-y-4">
-              <div className="rounded-lg bg-muted p-4 text-left">
-                <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Your Personalised Link</p>
-                <code className="block break-all text-sm text-foreground">{linkPath}</code>
-              </div>
-              <Button asChild>
-                <Link href={linkPath}>Open Link</Link>
-              </Button>
-            </CardContent>
-          )}
-        </Card>
-      </div>
+            <SubmitButton centre={centre} label="Open Link" type="button" onClick={() => { window.location.href = linkPath }} />
+          </CardContent>
+        )}
+      </Card>
     )
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <Card>
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-            <Mail className="h-8 w-8 text-muted-foreground" />
+    <Card>
+      <CardHeader className="text-center">
+        <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+          <Mail className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <CardTitle>{content.intro.heading}</CardTitle>
+        <CardDescription>{content.intro.message}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="request-link-email">Email</Label>
+            <Input
+              id="request-link-email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
           </div>
-          <CardTitle>{content.intro.heading}</CardTitle>
-          <CardDescription>{content.intro.message}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="request-link-email">Email</Label>
-              <Input
-                id="request-link-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                'Send Me The Link'
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <SubmitButton centre={centre} label="Send Me The Link" isSubmitting={isSubmitting} />
+        </form>
+      </CardContent>
+    </Card>
   )
 }

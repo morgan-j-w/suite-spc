@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function SubscribePage() {
   return (
-    <CentrePageShell>
+    <CentrePageShell flowKey="subscribe">
       <div className="px-4 py-12">
         <div className="mx-auto max-w-2xl">
           <SubscriptionForm />

@@ -1,10 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { AlignCenter, AlignLeft, AlignRight, StretchHorizontal } from 'lucide-react'
 import type { ColorTheme } from '@/lib/brand-config'
 import type { SubmitButtonAlignment } from '@/lib/subscription-centre'
 import { getStylePreviews } from '@/lib/style-previews'
 import { StylePicker } from '@/components/style-picker'
+import { ColorRow } from '@/components/colour-row'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -13,9 +15,13 @@ interface SubmitButtonPreviewProps {
   text: string
   styleIndex: number
   alignment: SubmitButtonAlignment
+  bgColorOverride?: string
+  textColorOverride?: string
   onTextChange: (text: string) => void
   onStyleIndexChange: (index: number) => void
   onAlignmentChange: (alignment: SubmitButtonAlignment) => void
+  onBgColorChange?: (v?: string) => void
+  onTextColorChange?: (v?: string) => void
   readOnly?: boolean
   onSubmit?: () => void
 }
@@ -43,15 +49,24 @@ export function SubmitButtonPreview({
   text,
   styleIndex,
   alignment,
+  bgColorOverride,
+  textColorOverride,
   onTextChange,
   onStyleIndexChange,
   onAlignmentChange,
+  onBgColorChange,
+  onTextColorChange,
   readOnly,
   onSubmit,
 }: SubmitButtonPreviewProps) {
+  const [hovered, setHovered] = useState(false)
   const stylePreviews = getStylePreviews(theme)
   const style = stylePreviews[styleIndex] ?? stylePreviews[0]
   const isFullWidth = alignment === 'full'
+
+  const finalBg = bgColorOverride ?? style.buttonBackground
+  const finalText = textColorOverride ?? style.buttonText
+  const hasOverride = !!(bgColorOverride || textColorOverride)
 
   return (
     <div className="space-y-2">
@@ -78,17 +93,20 @@ export function SubmitButtonPreview({
 
       <div className={ALIGNMENT_CONTAINER_CLASS[alignment]}>
         <div
+          onMouseEnter={() => { if (hasOverride) setHovered(true) }}
+          onMouseLeave={() => setHovered(false)}
           className={cn('inline-flex h-11 items-center justify-center rounded-md px-8', isFullWidth && 'w-full')}
           style={{
-            backgroundColor: style.buttonBackground,
+            backgroundColor: finalBg,
             ...(style.buttonBorder ? { borderColor: style.buttonBorder, borderWidth: 1 } : {}),
+            ...(hasOverride && hovered ? { filter: 'brightness(0.88)' } : {}),
           }}
         >
           {readOnly ? (
             <button
               type="button"
               className="text-base font-medium"
-              style={{ color: style.buttonText }}
+              style={{ color: finalText }}
               onClick={onSubmit}
             >
               {text || 'Submit'}
@@ -100,13 +118,28 @@ export function SubmitButtonPreview({
               placeholder="Submit"
               aria-label="Button text"
               className="min-w-0 bg-transparent text-center text-base font-medium outline-none placeholder:opacity-70"
-              style={{ color: style.buttonText, width: isFullWidth ? '100%' : `${Math.max((text || 'Submit').length, 4) + 2}ch` }}
+              style={{ color: finalText, width: isFullWidth ? '100%' : `${Math.max((text || 'Submit').length, 4) + 2}ch` }}
             />
           )}
         </div>
       </div>
 
-      {!readOnly && <p className="text-xs text-muted-foreground/60">Click the button to edit its text.</p>}
+      {!readOnly && (
+        <>
+          <p className="text-xs text-muted-foreground/60">Click the button to edit its text.</p>
+          {(onBgColorChange || onTextColorChange) && (
+            <div className="space-y-0.5 border-t border-border/50 pt-3">
+              <p className="mb-1 text-xs font-medium text-muted-foreground">Button colours</p>
+              {onBgColorChange && (
+                <ColorRow label="Background" value={bgColorOverride} onChange={onBgColorChange} themeId={theme} />
+              )}
+              {onTextColorChange && (
+                <ColorRow label="Text" value={textColorOverride} onChange={onTextColorChange} themeId={theme} />
+              )}
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

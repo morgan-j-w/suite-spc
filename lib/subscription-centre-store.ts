@@ -6,6 +6,8 @@ import {
   defaultSubmitButtonStyleIndex,
   defaultSubmitButtonText,
   defaultUnsubscribeFeedback,
+  type BannerConfig,
+  type FooterConfig,
   type StatusPageContent,
   type StatusPages,
   type SubscriptionCentre,
@@ -95,6 +97,118 @@ function migrateStatusPages(raw: any): StatusPages {
   }
 }
 
+// Old layout names → new BannerLayout slugs
+const BANNER_LAYOUT_MAP: Record<string, string> = {
+  centred: 'centred',
+  split: 'bar-cta',
+  'logo-body': 'centred',
+  minimal: 'minimal',
+  'footer-links': 'centred', // was a footer layout, just default to centred for banners
+  // new slugs pass through unchanged
+  'bar-cta': 'bar-cta',
+  'brand-band': 'brand-band',
+  'split-image': 'split-image',
+  'with-socials': 'with-socials',
+  'nav-strip': 'nav-strip',
+  'image-background': 'feature-hero', // migrated: layout removed, imageBackground toggle replaces it
+  'logo-only': 'logo-only',
+  'announcement-bar': 'centred',      // migrated: layout removed
+  'editorial-split': 'editorial-split',
+  'triple-row': 'triple-row',
+  'feature-hero': 'feature-hero',
+}
+const FOOTER_LAYOUT_MAP: Record<string, string> = {
+  centred: 'centred-stack',
+  split: 'split-cta',
+  'logo-body': 'centred-stack',
+  minimal: 'minimal-line',
+  'footer-links': 'minimal-line',
+  // new slugs pass through unchanged
+  'centred-stack': 'centred-stack',
+  'multi-column': 'multi-column',
+  'dark-band': 'dark-band',
+  'minimal-line': 'minimal-line',
+  'split-cta': 'split-cta',
+  'unsubscribe-focus': 'unsubscribe-focus',
+  'two-col': 'two-col',
+  'social-focused': 'social-focused',
+  'stacked-card': 'stacked-card',
+  'brand-statement': 'minimal-line',  // migrated: layout removed
+  'inline-logo': 'inline-logo',
+  'left-panel': 'left-panel',
+}
+
+function migrateBanner(raw: any): BannerConfig | null {
+  if (!raw) return null
+  const rawLayout = raw.layout
+  const layout = (BANNER_LAYOUT_MAP[rawLayout] ?? 'centred') as BannerConfig['layout']
+  if (rawLayout && BANNER_LAYOUT_MAP[rawLayout]) {
+    return {
+      layout,
+      // Accept both old field names (colorOverride was used in early builds, backgroundColor in later)
+      backgroundColor: raw.backgroundColor ?? raw.colorOverride,
+      headingColor: raw.headingColor,
+      bodyColor: raw.bodyColor,
+      linkColor: raw.linkColor,
+      iconColor: raw.iconColor,
+      accentColor: raw.accentColor,
+      buttonBgColor: raw.buttonBgColor,
+      buttonTextColor: raw.buttonTextColor,
+      padding: typeof raw.padding === 'string'
+        ? (raw.padding === 'compact' ? 20 : raw.padding === 'spacious' ? 70 : 40)
+        : raw.padding,
+      logoPosition: raw.logoPosition,
+      logoSize: raw.logoSize,
+      logoMaxWidth: raw.logoMaxWidth,
+      logoMaxHeight: raw.logoMaxHeight,
+      // When migrating from the old image-background layout, enable the imageBackground toggle
+      imageBackground: raw.imageBackground ?? (rawLayout === 'image-background' ? true : undefined),
+      imageUrl: raw.imageUrl,
+      imageOverlayColor: raw.imageOverlayColor,
+      imageOverlayOpacity: raw.imageOverlayOpacity,
+      backgroundSize: raw.backgroundSize,
+      backgroundRepeat: raw.backgroundRepeat,
+      fullWidth: raw.fullWidth ?? false,
+      customHtml: raw.customHtml,
+      customCss: raw.customCss,
+    }
+  }
+  return { layout: 'centred', fullWidth: raw.fullWidth ?? false, customHtml: raw.html || undefined }
+}
+
+function migrateFooter(raw: any): FooterConfig | null {
+  if (!raw) return null
+  const layout = (FOOTER_LAYOUT_MAP[raw.layout] ?? 'minimal-line') as FooterConfig['layout']
+  if (raw.layout && FOOTER_LAYOUT_MAP[raw.layout]) {
+    return {
+      layout,
+      backgroundColor: raw.backgroundColor ?? raw.colorOverride,
+      headingColor: raw.headingColor,
+      bodyColor: raw.bodyColor,
+      linkColor: raw.linkColor,
+      iconColor: raw.iconColor,
+      accentColor: raw.accentColor,
+      buttonBgColor: raw.buttonBgColor,
+      buttonTextColor: raw.buttonTextColor,
+      imageBackground: raw.imageBackground,
+      imageUrl: raw.imageUrl,
+      imageOverlayColor: raw.imageOverlayColor,
+      imageOverlayOpacity: raw.imageOverlayOpacity,
+      backgroundSize: raw.backgroundSize,
+      backgroundRepeat: raw.backgroundRepeat,
+      links: raw.links,
+      quickLinks: raw.quickLinks,
+      padding: typeof raw.padding === 'string'
+        ? (raw.padding === 'compact' ? 20 : raw.padding === 'spacious' ? 70 : 40)
+        : raw.padding,
+      fullWidth: raw.fullWidth ?? false,
+      customHtml: raw.customHtml,
+      customCss: raw.customCss,
+    }
+  }
+  return { layout: 'minimal-line', fullWidth: raw.fullWidth ?? false, customHtml: raw.html || undefined }
+}
+
 // Centres saved before Form Field sections existed have a flat `profileFields` array and no
 // `sectionOrder`. Lift those into the new shape so older localStorage data keeps working.
 function normalizeCentre(raw: any): SubscriptionCentre {
@@ -154,11 +268,32 @@ function normalizeCentre(raw: any): SubscriptionCentre {
     ...centre,
     sectionOrder: [...kept, ...missing],
     mailGroups,
+    brand: (() => {
+      const b = centre.brand ?? {}
+      // Lift logoUrl from old banner/footer if brand has none yet
+      if (!b.logoUrl) b.logoUrl = centre.banner?.logoUrl || centre.footer?.logoUrl || undefined
+      return b
+    })(),
+    pageBackgroundColor: centre.pageBackgroundColor,
+    formWidth: centre.formWidth,
+    cardStyle: (() => {
+      const cs = centre.cardStyle
+      if (!cs) return cs
+      return {
+        ...cs,
+        radius: cs.radius === 'default' ? undefined : cs.radius,
+        spacing: cs.spacing === 'tight' ? 'compact' : cs.spacing === 'loose' ? 'spacious' : cs.spacing,
+      }
+    })(),
+    banner: migrateBanner(centre.banner),
+    footer: migrateFooter(centre.footer),
     catchAllMailGroupId: centre.catchAllMailGroupId ?? null,
     statusPages: migrateStatusPages(centre.statusPages),
     submitButtonText: centre.submitButtonText ?? defaultSubmitButtonText,
     submitButtonStyleIndex: centre.submitButtonStyleIndex ?? defaultSubmitButtonStyleIndex,
     submitButtonAlignment: centre.submitButtonAlignment ?? defaultSubmitButtonAlignment,
+    submitButtonBgColor: centre.submitButtonBgColor,
+    submitButtonTextColor: centre.submitButtonTextColor,
     formLayout: (centre.formLayout === 'columns' ? 'inline' : centre.formLayout) ?? 'stacked',
     formLabelWidth: centre.formLabelWidth ?? 33,
     formCardMode: centre.formCardMode ?? 'separate',

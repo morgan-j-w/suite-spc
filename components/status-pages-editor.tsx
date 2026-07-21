@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { ChevronDown, ChevronRight, MailPlus, MailX, Plus, RotateCcw, SlidersHorizontal, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, MailPlus, MailX, PanelTop, Plus, RotateCcw, SlidersHorizontal, X } from 'lucide-react'
 import type { StatusPageContent, StatusPages, UnsubscribeFeedbackForm, UnsubscribeFeedbackType } from '@/lib/subscription-centre'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -141,13 +141,25 @@ export function StatusPagesEditor({
   }
 
   const getPage = (group: keyof StatusPages, key: string): StatusPageContent =>
-    (statusPages[group] as Record<string, StatusPageContent>)[key]
+    (statusPages[group] as unknown as Record<string, StatusPageContent>)[key]
 
   const updatePage = (group: keyof StatusPages, key: string, field: 'heading' | 'message', value: string) => {
     onStatusPagesChange({
       ...statusPages,
       [group]: { ...statusPages[group], [key]: { ...getPage(group, key), [field]: value } },
     })
+  }
+
+  const updateBannerText = (group: keyof StatusPages, field: 'bannerHeading' | 'bannerBlurb', value: string) => {
+    onStatusPagesChange({
+      ...statusPages,
+      [group]: { ...statusPages[group], [field]: value || undefined },
+    })
+  }
+
+  const getBannerText = (group: keyof StatusPages) => {
+    const g = statusPages[group] as unknown as Record<string, string | undefined>
+    return { heading: g.bannerHeading ?? '', blurb: g.bannerBlurb ?? '' }
   }
 
   const updateFeedbackOption = (key: string, label: string) => {
@@ -205,6 +217,39 @@ export function StatusPagesEditor({
             </button>
             {isOpen && (
               <div className="space-y-4 border-t bg-muted/20 p-4">
+                {/* Per-flow banner text */}
+                {(() => {
+                  const bt = getBannerText(group)
+                  return (
+                    <div className="overflow-hidden rounded-lg border border-blue-200/70 dark:border-blue-800/40">
+                      <div className="flex items-center gap-2 border-b border-blue-200/60 bg-blue-50 px-4 py-2.5 dark:border-blue-800/30 dark:bg-blue-950/40">
+                        <PanelTop className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-semibold text-blue-900 dark:text-blue-200">Page banner</span>
+                      </div>
+                      <div className="space-y-3 bg-blue-50/30 p-4 dark:bg-blue-950/20">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Heading</Label>
+                          <Input
+                            placeholder="e.g. Manage your preferences"
+                            value={bt.heading}
+                            onChange={(e) => updateBannerText(group, 'bannerHeading', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Blurb</Label>
+                          <Textarea
+                            placeholder="e.g. Choose which emails you'd like to receive from us."
+                            value={bt.blurb}
+                            onChange={(e) => updateBannerText(group, 'bannerBlurb', e.target.value)}
+                            rows={2}
+                            className="resize-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
+
                 {pages.map(({ key, title: pageTitle, description: pageDescription }, pageIndex) => {
                   const page = getPage(group, key)
                   const fieldId = `${group}-${key}`

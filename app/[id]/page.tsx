@@ -4,15 +4,17 @@ import { use, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { clearDraft, deleteCentre, getCentre, getDraft, saveCentre, saveDraft } from '@/lib/subscription-centre-store'
-import { type Category, type FieldVisibilityRule, type ProfileFieldSection, flattenProfileFields } from '@/lib/subscription-types'
+import { clearDraft, getCentre, getDraft, saveCentre, saveDraft } from '@/lib/subscription-centre-store'
+import { type Category, type ProfileFieldSection } from '@/lib/subscription-types'
 import { defaultEmailConfig, defaultMailGroups, type EmailConfig, type MailGroup, type StatusPages, type SubmitButtonAlignment, type SubscriptionCentre, type UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
-import { FormFieldsEditor } from '@/components/form-fields-editor'
-import { MailgroupsEditor } from '@/components/mailgroups-editor'
+import { BuildEditor } from '@/components/build-editor'
+import { type TemplateConfig, makeFull } from '@/components/template-picker-dialog'
+import { FormLivePreview } from '@/components/form-live-preview'
 import { PreviewEditor } from '@/components/preview-editor'
 import { StatusPagesEditor } from '@/components/status-pages-editor'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
@@ -25,22 +27,40 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, LayoutTemplate, Loader2, Mail, MailOpen, Palette, Trash2 } from 'lucide-react'
-import { FormLivePreview } from '@/components/form-live-preview'
+import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, Paintbrush, Share2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
+import { generateEmailBannerHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
+import { ExportEditor } from '@/components/export-editor'
 
 interface BuilderPageProps {
   params: Promise<{ id: string }>
 }
 
-type BuilderSection = 'fields' | 'mailgroups' | 'preview' | 'emails' | 'status'
+type BuilderSection = 'build' | 'design' | 'emails' | 'pages' | 'export'
+type DesignSection = 'brand' | 'theme' | 'banner' | 'footer' | 'form'
+type EmailSection = 'banner' | 'footer' | 'messages' | 'design'
 
-const SECTIONS: { id: BuilderSection; label: string; icon: typeof LayoutTemplate }[] = [
-  { id: 'fields', label: 'Form Fields', icon: LayoutTemplate },
-  { id: 'mailgroups', label: 'Mailgroups', icon: Mail },
-  { id: 'preview', label: 'Style', icon: Palette },
-  { id: 'emails', label: 'Emails', icon: MailOpen },
-  { id: 'status', label: 'Status Pages', icon: FileText },
+const SECTIONS: { id: BuilderSection; label: string; icon: typeof Layers }[] = [
+  { id: 'build', label: 'Build', icon: Layers },
+  { id: 'design', label: 'Design', icon: Paintbrush },
+  { id: 'emails', label: 'Emails', icon: Mail },
+  { id: 'pages', label: 'Pages', icon: FileText },
+  { id: 'export', label: 'Export', icon: Share2 },
+]
+
+const DESIGN_SUBSECTIONS: { id: DesignSection; label: string }[] = [
+  { id: 'theme', label: 'Style' },
+  { id: 'form', label: 'Form' },
+  { id: 'brand', label: 'Brand' },
+  { id: 'banner', label: 'Banner' },
+  { id: 'footer', label: 'Footer' },
+]
+
+const EMAIL_SUBSECTIONS: { id: EmailSection; label: string }[] = [
+  { id: 'design', label: 'Style' },
+  { id: 'banner', label: 'Banner' },
+  { id: 'footer', label: 'Footer' },
+  { id: 'messages', label: 'Messages' },
 ]
 
 export default function BuilderEditorPage({ params }: BuilderPageProps) {
@@ -48,11 +68,29 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const router = useRouter()
   const [centre, setCentre] = useState<SubscriptionCentre | null | undefined>(undefined)
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
-  const [activeSection, setActiveSection] = useState<BuilderSection>('fields')
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState<BuilderSection>('build')
+  const [designSection, setDesignSection] = useState<DesignSection>('brand')
+  const [emailSection, setEmailSection] = useState<EmailSection>('design')
+  const [showSuppressErrors, setShowSuppressErrors] = useState(false)
+  const [isPreview, setIsPreview] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
-  const showPreviewPanel = activeSection === 'fields' || activeSection === 'mailgroups'
+  const [demoToken, setDemoToken] = useState<string | null>(null)
+  const [demoTokenLoading, setDemoTokenLoading] = useState(false)
   const saveRef = useRef<(() => void) | null>(null)
+
+  const fetchDemoToken = async () => {
+    if (demoToken || demoTokenLoading) return
+    setDemoTokenLoading(true)
+    try {
+      const res = await fetch(`/api/demo-subscriber?centreId=${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setDemoToken(data.token)
+      }
+    } finally {
+      setDemoTokenLoading(false)
+    }
+  }
   useEffect(() => {
     const published = getCentre(id)
     const draft = getDraft(id)
@@ -98,11 +136,27 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setCentre((prev) => (prev ? { ...prev, contentBlocks } : prev))
   }
 
-  const handleBannerChange = (banner: import('@/lib/subscription-centre').BannerFooter | null) => {
+  const handleBrandChange = (brand: import('@/lib/subscription-centre').Brand) => {
+    setCentre((prev) => (prev ? { ...prev, brand } : prev))
+  }
+
+  const handlePageBackgroundColorChange = (pageBackgroundColor: string | undefined) => {
+    setCentre((prev) => (prev ? { ...prev, pageBackgroundColor } : prev))
+  }
+
+  const handleCardStyleChange = (cardStyle: import('@/lib/subscription-centre').CardStyle) => {
+    setCentre((prev) => (prev ? { ...prev, cardStyle } : prev))
+  }
+
+  const handleFormWidthChange = (formWidth: import('@/lib/subscription-centre').FormWidth) => {
+    setCentre((prev) => (prev ? { ...prev, formWidth } : prev))
+  }
+
+  const handleBannerChange = (banner: import('@/lib/subscription-centre').BannerConfig | null) => {
     setCentre((prev) => (prev ? { ...prev, banner } : prev))
   }
 
-  const handleFooterChange = (footer: import('@/lib/subscription-centre').BannerFooter | null) => {
+  const handleFooterChange = (footer: import('@/lib/subscription-centre').FooterConfig | null) => {
     setCentre((prev) => (prev ? { ...prev, footer } : prev))
   }
 
@@ -154,6 +208,14 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setCentre((prev) => (prev ? { ...prev, submitButtonAlignment } : prev))
   }
 
+  const handleSubmitButtonBgColorChange = (submitButtonBgColor: string | undefined) => {
+    setCentre((prev) => (prev ? { ...prev, submitButtonBgColor } : prev))
+  }
+
+  const handleSubmitButtonTextColorChange = (submitButtonTextColor: string | undefined) => {
+    setCentre((prev) => (prev ? { ...prev, submitButtonTextColor } : prev))
+  }
+
   const handleFormLayoutChange = (formLayout: 'stacked' | 'inline') => {
     setCentre((prev) => (prev ? { ...prev, formLayout } : prev))
   }
@@ -168,165 +230,6 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
   const handleSingleCardStyleIndexChange = (singleCardStyleIndex: number) => {
     setCentre((prev) => (prev ? { ...prev, singleCardStyleIndex } : prev))
-  }
-
-  const handlePopulateForm = () => {
-    const randStyle = () => Math.floor(Math.random() * 15)
-    const extraMailGroups: MailGroup[] = [
-      { id: 'demo-event-invites', name: 'Event Invites', folder: 'Events' },
-      { id: 'demo-webinars', name: 'Webinar Announcements', folder: 'Events' },
-      { id: 'demo-research', name: 'Research Digest', folder: 'Content' },
-    ]
-    const mergedMailGroups = [
-      ...centre.mailGroups,
-      ...extraMailGroups.filter((mg) => !centre.mailGroups.some((e) => e.id === mg.id)),
-    ]
-
-    // Pre-declare IDs for fields/categories that drive conditional rules
-    const detailsId = crypto.randomUUID()
-    const aboutId = crypto.randomUUID()
-    const commsId = crypto.randomUUID()
-    const newsletterCatId = crypto.randomUUID()
-    const productCatId = crypto.randomUUID()
-    const partnerCatId = crypto.randomUUID()
-    const radioHowDidYouHearId = crypto.randomUUID()
-    const checkboxDecisionMakerId = crypto.randomUUID()
-    const toggleOptInId = crypto.randomUUID()
-
-    const profileFieldSections: ProfileFieldSection[] = [
-      {
-        id: detailsId,
-        title: 'Your Details',
-        description: 'Help us personalise your experience.',
-        cardStyleIndex: randStyle(),
-        fields: [
-          { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
-          { id: crypto.randomUUID(), label: 'First name', type: 'text', required: false, placeholder: 'Jane' },
-          { id: crypto.randomUUID(), label: 'Last name', type: 'text', required: false, placeholder: 'Smith' },
-        ],
-      },
-      {
-        id: aboutId,
-        title: 'About You',
-        description: '',
-        cardStyleIndex: randStyle(),
-        fields: [
-          { id: crypto.randomUUID(), label: 'Tell us about yourself', type: 'heading', required: false },
-          { id: crypto.randomUUID(), label: 'Your answers help us tailor our content to what matters most to you.', type: 'paragraph', required: false },
-          { id: radioHowDidYouHearId, label: 'How did you hear about us?', type: 'radio', required: false, options: [
-            { value: 'social', label: 'Social media' },
-            { value: 'word-of-mouth', label: 'Word of mouth' },
-            { value: 'search', label: 'Search engine' },
-            { value: 'event', label: 'Event or conference' },
-          ]},
-          { id: crypto.randomUUID(), label: 'Which topics interest you?', type: 'checkboxGroup', required: false, options: [
-            { value: 'technology', label: 'Technology' },
-            { value: 'design', label: 'Design' },
-            { value: 'marketing', label: 'Marketing' },
-            { value: 'business', label: 'Business strategy' },
-            { value: 'research', label: 'Research & insights' },
-          ]},
-          { id: crypto.randomUUID(), label: 'Industries relevant to you', type: 'multiSelect', required: false, options: [
-            { value: 'fintech', label: 'Fintech' },
-            { value: 'healthtech', label: 'Healthtech' },
-            { value: 'saas', label: 'SaaS' },
-            { value: 'ecommerce', label: 'E-commerce' },
-            { value: 'media', label: 'Media & publishing' },
-          ]},
-          { id: checkboxDecisionMakerId, label: 'I work in a decision-making role', type: 'checkbox', required: false, options: [
-            { value: 'yes', label: 'Yes' },
-          ]},
-          // Only shown when decision-maker checkbox is ticked
-          { id: crypto.randomUUID(), label: 'Team size', type: 'number', required: false, placeholder: '25', helpText: 'Approximate number of people in your organisation.',
-            visibleWhen: [{ fieldId: checkboxDecisionMakerId, operator: 'hasValue' } as FieldVisibilityRule],
-          },
-        ],
-      },
-      {
-        id: commsId,
-        title: 'Communication Preferences',
-        description: 'Tell us how often and in what format you would like to hear from us.',
-        cardStyleIndex: randStyle(),
-        // Only unlocked once the user has answered how they heard about us
-        visibleWhen: [{ fieldId: radioHowDidYouHearId, operator: 'hasValue' } as FieldVisibilityRule],
-        fields: [
-          { id: crypto.randomUUID(), label: 'Preferred language', type: 'select', required: false, options: [
-            { value: 'en', label: 'English' },
-            { value: 'fr', label: 'French' },
-            { value: 'de', label: 'German' },
-            { value: 'es', label: 'Spanish' },
-            { value: 'pt', label: 'Portuguese' },
-          ]},
-          { id: toggleOptInId, label: 'Opt-in preferences', type: 'toggle', required: false, options: [
-            { value: 'newsletter', label: 'Weekly newsletter' },
-            { value: 'product-news', label: 'Product news & updates' },
-            { value: 'events', label: 'Events & webinars' },
-          ]},
-          { id: crypto.randomUUID(), label: 'Contact frequency', type: 'range', required: false, min: 1, max: 10, step: 1, helpText: '1 = monthly  ·  10 = daily' },
-          { id: crypto.randomUUID(), label: 'Rate your experience with us', type: 'rating', required: false, ratingMax: 5 },
-          { id: crypto.randomUUID(), label: 'Date of birth', type: 'date', required: false },
-          // Only shown when the user opts in to events
-          { id: crypto.randomUUID(), label: 'Phone', type: 'phone', required: false, placeholder: '+1 555 000 0000',
-            visibleWhen: [{ fieldId: toggleOptInId, operator: 'equals', value: 'events' } as FieldVisibilityRule],
-          },
-          { id: crypto.randomUUID(), label: 'Additional comments', type: 'textarea', required: false, placeholder: "Anything else you'd like us to know?" },
-        ],
-      },
-    ]
-
-    const categories: Category[] = [
-      {
-        id: newsletterCatId,
-        title: 'Newsletter & Content',
-        description: "Choose the types of content you'd like to receive.",
-        type: 'checkbox',
-        required: false,
-        cardStyleIndex: randStyle(),
-        options: [
-          { key: 'general-news', label: 'General News', description: 'Industry news and updates', mailGroupId: 'general-news' },
-          { key: 'weekly-digest', label: 'Weekly Digest', description: 'A curated round-up every Friday', mailGroupId: 'weekly-digest' },
-          { key: 'research', label: 'Research Digest', description: 'In-depth reports and insights', mailGroupId: 'demo-research' },
-        ],
-      },
-      {
-        id: productCatId,
-        title: 'Product Updates',
-        description: "Stay up to date with what we're building.",
-        type: 'checkbox',
-        required: false,
-        cardStyleIndex: randStyle(),
-        options: [
-          { key: 'product-announcements', label: 'Product Announcements', description: 'New features and releases', mailGroupId: 'product-announcements' },
-          { key: 'beta-program', label: 'Beta Program', description: 'Early access to new features', mailGroupId: 'beta-program' },
-        ],
-      },
-      {
-        id: partnerCatId,
-        title: 'Partner Communications',
-        description: 'Select the types of partner communications you are happy to receive.',
-        type: 'radio',
-        required: false,
-        cardStyleIndex: randStyle(),
-        // Only shown when the user has subscribed to at least one newsletter
-        visibleWhen: [{ fieldId: newsletterCatId, operator: 'hasValue' } as FieldVisibilityRule],
-        options: [
-          { key: 'partner-offers', label: 'Partner Offers', description: 'Exclusive deals from our partners', mailGroupId: 'partner-offers' },
-          { key: 'affiliate-program', label: 'Affiliate Program', description: 'Earn rewards through our affiliate program', mailGroupId: 'affiliate-program' },
-        ],
-      },
-    ]
-
-    setCentre((prev) =>
-      prev
-        ? {
-            ...prev,
-            mailGroups: mergedMailGroups,
-            profileFieldSections,
-            categories,
-            sectionOrder: [detailsId, newsletterCatId, aboutId, productCatId, commsId, partnerCatId],
-          }
-        : prev
-    )
   }
 
   const handleClearForm = () => {
@@ -350,30 +253,93 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     )
   }
 
+  const handleDemoForm = () => {
+    const template = makeFull()
+    setCentre((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        profileFieldSections: template.profileFieldSections,
+        categories: template.categories,
+        sectionOrder: template.sectionOrder,
+        mailGroups: template.mailGroupsToAdd,
+        brand: {
+          logoUrl: 'https://placehold.co/160x48/3b82f6/ffffff?text=Your+Brand&font=inter',
+          backUrl: 'https://example.com',
+          address: '123 Example Street\nLondon, UK, W1A 1AA',
+          copyrightText: `© ${new Date().getFullYear()} Acme Corp. All rights reserved.`,
+          socialLinks: [
+            { id: crypto.randomUUID(), platform: 'facebook' as const, url: '#' },
+            { id: crypto.randomUUID(), platform: 'instagram' as const, url: '#' },
+            { id: crypto.randomUUID(), platform: 'linkedin' as const, url: '#' },
+          ],
+        },
+        banner: { layout: 'brand-band' as const, fullWidth: false },
+        footer: {
+          layout: 'centred-stack' as const,
+          fullWidth: false,
+          links: [
+            { id: crypto.randomUUID(), label: 'Privacy Policy', url: '#' },
+            { id: crypto.randomUUID(), label: 'Terms of Service', url: '#' },
+            { id: crypto.randomUUID(), label: 'Contact Us', url: '#' },
+          ],
+        },
+      }
+    })
+    setActiveSection('build')
+  }
+
+  const handleApplyTemplate = (config: TemplateConfig) => {
+    setCentre((prev) => {
+      if (!prev) return prev
+      const merged = [
+        ...prev.mailGroups,
+        ...config.mailGroupsToAdd.filter((mg) => !prev.mailGroups.some((e) => e.id === mg.id)),
+      ]
+      return {
+        ...prev,
+        profileFieldSections: config.profileFieldSections,
+        categories: config.categories,
+        sectionOrder: config.sectionOrder,
+        mailGroups: merged,
+      }
+    })
+    setActiveSection('build')
+  }
+
   const isDirty = savedSnapshot !== null && JSON.stringify(centre) !== savedSnapshot
 
   const hasCatchAllMailGroup = Boolean(centre.catchAllMailGroupId)
-  const canSave = hasCatchAllMailGroup
+  const optionsMissingSuppress = centre.categories.flatMap((c) =>
+    c.options.filter((o) => o.mailGroupId && o.suppressMailGroupId === undefined)
+  )
+  const hasMissingSuppress = optionsMissingSuppress.length > 0
 
-  const handleSave = () => {
-    if (!canSave) {
-      toast.error('Choose a parent mailgroup in Mailgroups before saving.')
+  // Clear suppress errors once all issues are resolved by the user
+  if (showSuppressErrors && !hasMissingSuppress) setShowSuppressErrors(false)
+
+  const handlePublish = () => {
+    if (!hasCatchAllMailGroup) {
+      toast.error('Choose a parent mailgroup in the Build tab before publishing.')
+      setActiveSection('build')
       return
     }
+    if (hasMissingSuppress) {
+      setShowSuppressErrors(true)
+      setActiveSection('build')
+      const n = optionsMissingSuppress.length
+      toast.error(`${n} mailgroup option${n === 1 ? '' : 's'} need a suppress group — highlighted in the Build tab.`)
+      return
+    }
+    setShowSuppressErrors(false)
     saveCentre(centre)
     clearDraft(centre.id)
     setSavedSnapshot(JSON.stringify(centre))
-    toast.success('Saved')
+    toast.success('Published')
   }
-  // Keep the ⌘S handler pointing at the latest save function each render
-  saveRef.current = isDirty ? handleSave : null
+  // Keep the ⌘S handler pointing at the latest publish function each render
+  saveRef.current = isDirty ? handlePublish : null
 
-  const handleDelete = () => {
-    deleteCentre(centre.id)
-    clearDraft(centre.id)
-    setIsDeleteDialogOpen(false)
-    router.push('/')
-  }
 
   // A JSON spec of everything shown on the Preview tab -- fields, mailgroup categories,
   // theme, and submit button -- for a dev team to implement the form elsewhere. Deliberately
@@ -429,61 +395,31 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 className="h-9 w-full bg-white text-base font-semibold md:max-w-md md:flex-1"
               />
               <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handlePopulateForm}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-violet-500 px-3 text-xs font-medium text-white transition-colors hover:bg-violet-600"
-              >
+              <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-2 border-purple-300 text-purple-600 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 dark:border-purple-700 dark:text-purple-400 dark:hover:border-purple-600 dark:hover:bg-purple-950/40 dark:hover:text-purple-300" onClick={handleDemoForm}>
                 <FlaskConical className="h-3.5 w-3.5" />
                 Demo form
-              </button>
-              <button
-                type="button"
-                onClick={handleClearForm}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-violet-100 px-3 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-200"
-              >
+              </Button>
+              <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-2 border-purple-300 text-purple-600 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 dark:border-purple-700 dark:text-purple-400 dark:hover:border-purple-600 dark:hover:bg-purple-950/40 dark:hover:text-purple-300" onClick={handleClearForm}>
                 <Eraser className="h-3.5 w-3.5" />
                 Clear form
-              </button>
-              <div className="h-5 w-px bg-border" />
-              <Button variant="outline" size="sm" className="gap-2" onClick={handleExportSpec}>
+              </Button>
+              <div className="hidden sm:block h-5 w-px bg-border" />
+              <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-2 border-purple-300 text-purple-600 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 dark:border-purple-700 dark:text-purple-400 dark:hover:border-purple-600 dark:hover:bg-purple-950/40 dark:hover:text-purple-300" onClick={handleExportSpec}>
                 <Download className="h-4 w-4" />
                 Export for Dev
               </Button>
-              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <Button variant="outline" size="sm" className="gap-2 text-destructive hover:text-destructive" onClick={() => setIsDeleteDialogOpen(true)}>
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Delete this subscription centre?</DialogTitle>
-                    <DialogDescription>
-                      This permanently deletes &quot;{centre.name}&quot; and cannot be undone.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button variant="destructive" onClick={handleDelete}>
-                      Delete
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <Tooltip>
+<Tooltip>
                 <TooltipTrigger asChild>
                   <span tabIndex={isDirty ? -1 : 0}>
-                    <Button size="sm" onClick={handleSave} disabled={!isDirty} className="bg-[#43b3ae] hover:bg-[#3a9e99] focus-visible:ring-[#43b3ae] text-white">
-                      Save
+                    <Button size="sm" onClick={handlePublish} disabled={!isDirty} className="bg-[#43b3ae] hover:bg-[#3a9e99] focus-visible:ring-[#43b3ae] text-white">
+                      Publish
                     </Button>
                   </span>
                 </TooltipTrigger>
-                {!isDirty && <TooltipContent>No unsaved changes</TooltipContent>}
+                {!isDirty && <TooltipContent>Already published</TooltipContent>}
               </Tooltip>
 
-              <Popover>
+              <Popover onOpenChange={(open) => { if (open) fetchDemoToken() }}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-2">
                     <Globe className="h-4 w-4" />
@@ -493,23 +429,89 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 <PopoverContent align="end" className="w-80 p-0">
                   <div className="border-b px-4 py-3">
                     <p className="text-sm font-medium">Live URLs</p>
-                    <p className="text-xs text-muted-foreground">Open or copy links to the published pages.</p>
-                    {isDirty && (
-                      <p className="mt-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">You have unsaved changes — save first to update the live site.</p>
+                    {isDirty ? (
+                      <p className="mt-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">Unpublished changes — publish to update the live site.</p>
+                    ) : (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Last published {new Date(centre.updatedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}.
+                      </p>
                     )}
                   </div>
                   <div className="divide-y">
-                    {[
-                      { label: 'Subscribe form', path: '/subscribe' },
-                      { label: 'Manage preferences request', path: '/manage-preferences' },
-                      { label: 'Unsubscribe request', path: '/unsubscribe' },
-                    ].map(({ label, path }) => {
+                    {/* Pages section */}
+                    <div className="px-4 pt-3 pb-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Pages</p>
+                    </div>
+                    {(() => {
+                      const staticLinks = [
+                        { label: 'Subscribe form', path: '/subscribe' },
+                        { label: 'Manage preferences request', path: '/manage-preferences' },
+                        { label: 'Unsubscribe request', path: '/unsubscribe' },
+                      ]
+                      const personalLinks = demoToken
+                        ? [
+                            { label: 'Preferences page (preview user)', path: `/preferences/${demoToken}` },
+                            { label: 'Unsubscribe page (preview user)', path: `/preferences/${demoToken}/unsubscribe` },
+                          ]
+                        : []
+                      return [...staticLinks, ...personalLinks].map(({ label, path }) => {
+                        const copied = copiedUrl === path
+                        return (
+                          <div key={path} className="flex items-center justify-between gap-2 px-4 py-2.5">
+                            <div className="min-w-0">
+                              <p className="text-xs font-medium">{label}</p>
+                              <p className="truncate font-mono text-xs text-muted-foreground">{path}</p>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-1">
+                              <button
+                                type="button"
+                                title="Copy URL"
+                                onClick={() => {
+                                  const full = `${window.location.origin}${path}`
+                                  navigator.clipboard.writeText(full)
+                                  setCopiedUrl(path)
+                                  setTimeout(() => setCopiedUrl(null), 2000)
+                                }}
+                                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                              >
+                                {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                              </button>
+                              <a
+                                href={path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Open in new tab"
+                                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            </div>
+                          </div>
+                        )
+                      })
+                    })()}
+                    {demoTokenLoading && (
+                      <div className="flex items-center gap-2 px-4 py-2.5 text-xs text-muted-foreground">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Loading personalised links…
+                      </div>
+                    )}
+                    {/* Emails section */}
+                    <div className="px-4 pt-3 pb-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Email previews</p>
+                    </div>
+                    {([
+                      { label: 'Double opt-in', template: 'doubleOptIn' },
+                      { label: 'Confirmation', template: 'confirmation' },
+                      { label: 'Unsubscribed', template: 'unsubscribed' },
+                    ] as const).map(({ label, template }) => {
+                      const path = `/emails/preview?centreId=${id}&template=${template}`
                       const copied = copiedUrl === path
                       return (
-                        <div key={path} className="flex items-center justify-between gap-2 px-4 py-3">
+                        <div key={template} className="flex items-center justify-between gap-2 px-4 py-2.5">
                           <div className="min-w-0">
                             <p className="text-xs font-medium">{label}</p>
-                            <p className="truncate font-mono text-xs text-muted-foreground">{path}</p>
+                            <p className="truncate font-mono text-[10px] text-muted-foreground">/emails/preview?…&template={template}</p>
                           </div>
                           <div className="flex shrink-0 items-center gap-1">
                             <button
@@ -552,67 +554,124 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
           <div className="shrink-0 md:w-44">
             <nav className="flex flex-col gap-1 md:fixed md:top-[85px] md:w-44 md:left-[max(1rem,calc(50%-40rem))]">
               {SECTIONS.map((section) => (
-                <button
-                  key={section.id}
-                  type="button"
-                  onClick={() => setActiveSection(section.id)}
-                  className={cn(
-                    'flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors',
-                    activeSection === section.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                <div key={section.id}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSection(section.id)}
+                    className={cn(
+                      'flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors',
+                      activeSection === section.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    )}
+                  >
+                    <section.icon className="h-4 w-4 shrink-0" />
+                    {section.label}
+                  </button>
+
+                  {/* Design sub-navigation — only shown when Design is the active section */}
+                  {section.id === 'design' && activeSection === 'design' && (
+                    <div className="mt-1 ml-3 flex flex-col gap-0.5 border-l border-border pl-3">
+                      {DESIGN_SUBSECTIONS.map((sub) => (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          onClick={() => { setDesignSection(sub.id); setIsPreview(false) }}
+                          className={cn(
+                            'rounded-md px-2.5 py-1.5 text-left text-sm font-medium transition-colors',
+                            designSection === sub.id
+                              ? 'bg-muted text-foreground'
+                              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                          )}
+                        >
+                          {sub.label}
+                        </button>
+                      ))}
+                    </div>
                   )}
-                >
-                  <section.icon className="h-4 w-4 shrink-0" />
-                  {section.label}
-                </button>
+
+                  {/* Emails sub-navigation — only shown when Emails is the active section */}
+                  {section.id === 'emails' && activeSection === 'emails' && (
+                    <div className="mt-1 ml-3 flex flex-col gap-0.5 border-l border-border pl-3">
+                      {EMAIL_SUBSECTIONS.map((sub) => (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          onClick={() => setEmailSection(sub.id)}
+                          className={cn(
+                            'rounded-md px-2.5 py-1.5 text-left text-sm font-medium transition-colors',
+                            emailSection === sub.id
+                              ? 'bg-muted text-foreground'
+                              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                          )}
+                        >
+                          {sub.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
           </div>
 
           <div className="min-w-0 flex-1">
-            {activeSection === 'fields' && (
-              <FormFieldsEditor
-                profileFieldSections={centre.profileFieldSections}
-                onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
-                categories={centre.categories}
-                sectionOrder={centre.sectionOrder}
-                onSectionOrderChange={handleSectionOrderChange}
-                contentBlocks={centre.contentBlocks ?? []}
-                onContentBlocksChange={handleContentBlocksChange}
-              />
+            {activeSection === 'build' && (
+              <div className="flex gap-6">
+                <div className="min-w-0 flex-1">
+                  <BuildEditor
+                    profileFieldSections={centre.profileFieldSections}
+                    onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
+                    categories={centre.categories}
+                    onCategoriesChange={handleCategoriesChange}
+                    contentBlocks={centre.contentBlocks ?? []}
+                    onContentBlocksChange={handleContentBlocksChange}
+                    sectionOrder={centre.sectionOrder}
+                    onSectionOrderChange={handleSectionOrderChange}
+                    mailGroups={centre.mailGroups}
+                    onAddMailGroup={handleAddMailGroup}
+                    catchAllMailGroupId={centre.catchAllMailGroupId}
+                    onCatchAllMailGroupIdChange={handleCatchAllMailGroupIdChange}
+                    suppressErrors={showSuppressErrors}
+                  />
+                </div>
+                <div className="hidden w-80 shrink-0 xl:block">
+                  <div className="sticky top-[85px] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 100px)' }}>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Live preview</p>
+                    <FormLivePreview centre={centre} />
+                  </div>
+                </div>
+              </div>
             )}
 
-            {activeSection === 'mailgroups' && (
-              <MailgroupsEditor
-                mailGroups={centre.mailGroups}
-                onAddMailGroup={handleAddMailGroup}
-                catchAllMailGroupId={centre.catchAllMailGroupId}
-                onCatchAllMailGroupIdChange={handleCatchAllMailGroupIdChange}
-                categories={centre.categories}
-                onCategoriesChange={handleCategoriesChange}
-                profileFields={flattenProfileFields(centre.profileFieldSections)}
-                sectionOrder={centre.sectionOrder}
-                onSectionOrderChange={handleSectionOrderChange}
-              />
-            )}
-
-            {activeSection === 'preview' && (
+            {activeSection === 'design' && (
               <PreviewEditor
                 centre={centre}
+                designSection={designSection}
+                onDesignSectionChange={setDesignSection}
+                isFinalPreview={isPreview}
+                onIsFinalPreviewChange={setIsPreview}
+                pageBackgroundColor={centre.pageBackgroundColor}
+                onPageBackgroundColorChange={handlePageBackgroundColorChange}
+                onCardStyleChange={handleCardStyleChange}
                 onThemeChange={handleThemeChange}
                 onSectionOrderChange={handleSectionOrderChange}
                 onProfileFieldSectionsChange={handleProfileFieldSectionsChange}
                 onCategoriesChange={handleCategoriesChange}
                 onContentBlocksChange={handleContentBlocksChange}
+                onBrandChange={handleBrandChange}
                 onBannerChange={handleBannerChange}
                 onFooterChange={handleFooterChange}
                 submitButtonText={centre.submitButtonText}
                 submitButtonStyleIndex={centre.submitButtonStyleIndex}
                 submitButtonAlignment={centre.submitButtonAlignment}
+                submitButtonBgColor={centre.submitButtonBgColor}
+                submitButtonTextColor={centre.submitButtonTextColor}
                 onSubmitButtonTextChange={handleSubmitButtonTextChange}
                 onSubmitButtonStyleIndexChange={handleSubmitButtonStyleIndexChange}
                 onSubmitButtonAlignmentChange={handleSubmitButtonAlignmentChange}
+                onSubmitButtonBgColorChange={handleSubmitButtonBgColorChange}
+                onSubmitButtonTextColorChange={handleSubmitButtonTextColorChange}
                 formLayout={centre.formLayout}
                 formLabelWidth={centre.formLabelWidth}
                 formCardMode={centre.formCardMode}
@@ -621,17 +680,64 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 onFormLabelWidthChange={handleFormLabelWidthChange}
                 onFormCardModeChange={handleFormCardModeChange}
                 onSingleCardStyleIndexChange={handleSingleCardStyleIndexChange}
+                onFormWidthChange={handleFormWidthChange}
+                onNavigateToPagesTab={() => setActiveSection('pages')}
               />
             )}
 
-            {activeSection === 'emails' && (
-              <EmailsEditor
-                emailConfig={centre.emailConfig ?? defaultEmailConfig}
-                onEmailConfigChange={handleEmailConfigChange}
-              />
-            )}
+            {activeSection === 'emails' && (() => {
+              const emailCfg = centre.emailConfig ?? defaultEmailConfig
+              return (
+                <div className="space-y-6">
+                  <Card className="gap-0 py-0">
+                    <CardContent className="px-6 py-6">
+                      <EmailsEditor
+                        section={emailSection}
+                        emailConfig={emailCfg}
+                        onEmailConfigChange={handleEmailConfigChange}
+                        brand={centre.brand}
+                        themeId={centre.themePresetId}
+                        onThemeChange={handleThemeChange}
+                      />
+                    </CardContent>
+                  </Card>
 
-            {activeSection === 'status' && (
+                  {emailSection === 'banner' && emailCfg.bannerEnabled && emailCfg.bannerLayout && (
+                    <div className="overflow-hidden rounded-lg border p-4" style={{ backgroundColor: emailCfg.emailBodyBgColor ?? '#f4f4f4' }}>
+                      <div
+                        className="mx-auto overflow-x-auto bg-white shadow-sm"
+                        style={{ width: 650, maxWidth: '100%' }}
+                        dangerouslySetInnerHTML={{
+                          __html: generateEmailBannerHtml(
+                            emailCfg.bannerLayout,
+                            centre.brand ?? {},
+                            { bgColor: emailCfg.bannerBgColor, textColor: emailCfg.bannerTextColor, heading: emailCfg.bannerHeading, subheading: emailCfg.bannerSubheading, logoMaxWidth: emailCfg.bannerLogoMaxWidth, logoMaxHeight: emailCfg.bannerLogoMaxHeight, logoPosition: emailCfg.bannerLogoPosition }
+                          ),
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {emailSection === 'footer' && emailCfg.footerEnabled && emailCfg.footerLayout && (
+                    <div className="overflow-hidden rounded-lg border p-4" style={{ backgroundColor: emailCfg.emailBodyBgColor ?? '#f4f4f4' }}>
+                      <div
+                        className="mx-auto overflow-x-auto bg-white shadow-sm"
+                        style={{ width: 650, maxWidth: '100%' }}
+                        dangerouslySetInnerHTML={{
+                          __html: generateEmailFooterHtml(
+                            emailCfg.footerLayout,
+                            centre.brand ?? {},
+                            { bgColor: emailCfg.footerBgColor, textColor: emailCfg.footerTextColor, logoMaxWidth: emailCfg.footerLogoMaxWidth, logoMaxHeight: emailCfg.footerLogoMaxHeight, logoPosition: emailCfg.footerLogoPosition }
+                          ),
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
+            {activeSection === 'pages' && (
               <StatusPagesEditor
                 statusPages={centre.statusPages}
                 onStatusPagesChange={handleStatusPagesChange}
@@ -639,16 +745,11 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 onUnsubscribeFeedbackChange={handleUnsubscribeFeedbackChange}
               />
             )}
-          </div>
 
-          {showPreviewPanel && (
-            <div className="hidden lg:block lg:w-[380px] shrink-0">
-              <div className="sticky top-[85px] max-h-[calc(100vh-100px)] overflow-y-auto rounded-lg border bg-muted/30 p-4">
-                <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Live preview</p>
-                <FormLivePreview centre={centre} />
-              </div>
-            </div>
-          )}
+            {activeSection === 'export' && (
+              <ExportEditor centre={centre} />
+            )}
+          </div>
         </div>
       </div>
     </div>

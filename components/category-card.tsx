@@ -57,9 +57,10 @@ export interface CategoryCardProps {
   expandedOptionKey: string | null
   justAddedOptionKey: string | null
   onToggleOptionExpand: (optionKey: string) => void
-  onToggleMailGroup: (group: MailGroup, checked: boolean) => void
+  onToggleMailGroup: (group: MailGroup, checked: boolean, suppressMailGroupId?: string | null) => void
   onUpdateOption: (optionKey: string, patch: Partial<CategoryOption>) => void
   onRemoveOption: (optionKey: string) => void
+  suppressErrors?: boolean
 }
 
 export function CategoryCard({
@@ -80,7 +81,9 @@ export function CategoryCard({
   onToggleMailGroup,
   onUpdateOption,
   onRemoveOption,
+  suppressErrors = false,
 }: CategoryCardProps) {
+  const hasSuppressError = suppressErrors && category.options.some((o) => o.mailGroupId && o.suppressMailGroupId === undefined)
   const cardRef = useRef<HTMLDivElement | null>(null)
 
   const optionSensors = useSensors(
@@ -117,6 +120,7 @@ export function CategoryCard({
       className={cn(
         'relative overflow-hidden transition-shadow duration-700 hover:shadow-md gap-0 py-0',
         category.visibleWhen?.length && 'border-l-4 border-l-amber-400',
+        hasSuppressError && !category.visibleWhen?.length && 'border-l-4 border-l-orange-400',
         isJustAdded && 'ring-2 ring-primary ring-offset-2'
       )}
     >
@@ -189,6 +193,11 @@ export function CategoryCard({
                 {category.options.length} {category.options.length === 1 ? 'mailgroup' : 'mailgroups'}
               </Badge>
               {category.visibleWhen?.length ? <ConditionalBadge /> : null}
+              {hasSuppressError && (
+                <Badge variant="outline" className="border-orange-300 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-300">
+                  Missing suppress groups
+                </Badge>
+              )}
             </div>
             {category.options.length > 1 && (
               <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground" onClick={handleSortAlphabetically}>
@@ -213,6 +222,7 @@ export function CategoryCard({
                     onAddMailGroup={onAddMailGroup}
                     isExpanded={expandedOptionKey === option.key}
                     isJustAdded={justAddedOptionKey === option.key}
+                    suppressError={suppressErrors && !!option.mailGroupId && option.suppressMailGroupId === undefined}
                     onToggleExpand={() => onToggleOptionExpand(option.key)}
                     onUpdateOption={(patch) => onUpdateOption(option.key, patch)}
                     onRemove={() => onRemoveOption(option.key)}
@@ -235,6 +245,7 @@ interface MailgroupOptionRowProps {
   onAddMailGroup: (group: MailGroup) => void
   isExpanded: boolean
   isJustAdded: boolean
+  suppressError?: boolean
   onToggleExpand: () => void
   onUpdateOption: (patch: Partial<CategoryOption>) => void
   onRemove: () => void
@@ -246,6 +257,7 @@ function MailgroupOptionRow({
   onAddMailGroup,
   isExpanded,
   isJustAdded,
+  suppressError = false,
   onToggleExpand,
   onUpdateOption,
   onRemove,
@@ -279,6 +291,7 @@ function MailgroupOptionRow({
       style={style}
       className={cn(
         'rounded-md border bg-muted/50 p-3 transition-shadow duration-700',
+        suppressError && 'border-orange-300 dark:border-orange-800',
         isDragging && 'z-50 shadow-lg ring-2 ring-primary/20',
         isJustAdded && 'ring-2 ring-primary ring-offset-2'
       )}
@@ -306,6 +319,11 @@ function MailgroupOptionRow({
               <Badge variant="outline" className="flex max-w-[10rem] items-center gap-1 truncate" title={linkedGroup.folder}>
                 <FolderOpen className="h-3 w-3 shrink-0" />
                 <span className="truncate">{linkedGroup.folder}</span>
+              </Badge>
+            )}
+            {suppressError && !isExpanded && (
+              <Badge variant="outline" className="border-orange-300 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-300">
+                No suppress group
               </Badge>
             )}
           </div>
@@ -498,6 +516,21 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
   const [newFolderChoice, setNewFolderChoice] = useState(folders[0] ?? NEW_FOLDER)
   const [newFolderName, setNewFolderName] = useState('')
   const [newGroupName, setNewGroupName] = useState('')
+  // Suppress group for editing an already-linked option
+  const currentSuppressGroup = mailGroups.find((g) => g.id === option.suppressMailGroupId)
+  const [suppressEditMode, setSuppressEditMode] = useState<'existing' | 'new'>('existing')
+  const [suppressExistingFolder, setSuppressExistingFolder] = useState(currentSuppressGroup?.folder ?? folders[0] ?? '')
+  const [suppressNewFolderChoice, setSuppressNewFolderChoice] = useState(folders[0] ?? NEW_FOLDER)
+  const [suppressNewFolderName, setSuppressNewFolderName] = useState('')
+  const [suppressNewGroupName, setSuppressNewGroupName] = useState('')
+
+  // Suppress group when creating a brand-new mailgroup option
+  const [newMailgroupSuppressMode, setNewMailgroupSuppressMode] = useState<'existing' | 'new'>('existing')
+  const [newMailgroupSuppressExistingFolder, setNewMailgroupSuppressExistingFolder] = useState(folders[0] ?? '')
+  const [newMailgroupSuppressExistingId, setNewMailgroupSuppressExistingId] = useState('')
+  const [newMailgroupSuppressNewFolderChoice, setNewMailgroupSuppressNewFolderChoice] = useState(folders[0] ?? NEW_FOLDER)
+  const [newMailgroupSuppressNewFolderName, setNewMailgroupSuppressNewFolderName] = useState('')
+  const [newMailgroupSuppressNewGroupName, setNewMailgroupSuppressNewGroupName] = useState('')
 
   const handleSelectMailGroup = (mailGroupId: string) => {
     const group = mailGroups.find((g) => g.id === mailGroupId)
@@ -506,20 +539,53 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
   }
 
   const resolvedNewFolder = newFolderChoice === NEW_FOLDER ? newFolderName.trim() : newFolderChoice
-  const canCreate = resolvedNewFolder.length > 0 && newGroupName.trim().length > 0
+
+  const isNewMailgroupSuppressValid = () => {
+    if (newMailgroupSuppressMode === 'existing') return !!newMailgroupSuppressExistingId
+    const folder = newMailgroupSuppressNewFolderChoice === NEW_FOLDER ? newMailgroupSuppressNewFolderName.trim() : newMailgroupSuppressNewFolderChoice
+    return !!(folder && newMailgroupSuppressNewGroupName.trim())
+  }
+  const canCreate = resolvedNewFolder.length > 0 && newGroupName.trim().length > 0 && isNewMailgroupSuppressValid()
 
   const handleCreateMailGroup = () => {
     if (!canCreate) return
     const group: MailGroup = { id: uuidv4(), name: newGroupName.trim(), folder: resolvedNewFolder }
+    let suppressId: string
+    if (newMailgroupSuppressMode === 'existing') {
+      suppressId = newMailgroupSuppressExistingId
+    } else {
+      const folder = newMailgroupSuppressNewFolderChoice === NEW_FOLDER ? newMailgroupSuppressNewFolderName.trim() : newMailgroupSuppressNewFolderChoice
+      const suppressGroup: MailGroup = { id: uuidv4(), name: newMailgroupSuppressNewGroupName.trim(), folder }
+      onAddMailGroup(suppressGroup)
+      suppressId = suppressGroup.id
+    }
     onAddMailGroup(group)
-    onUpdateOption({ mailGroupId: group.id, label: group.name })
+    onUpdateOption({ mailGroupId: group.id, label: group.name, suppressMailGroupId: suppressId })
     setSelectedFolder(group.folder)
     setNewGroupName('')
     setNewFolderName('')
+    setNewMailgroupSuppressMode('existing')
+    setNewMailgroupSuppressExistingId('')
+    setNewMailgroupSuppressNewFolderName('')
+    setNewMailgroupSuppressNewGroupName('')
     setMode('existing')
-    // Collapsing immediately surfaces the row's summary view (name + folder badge),
-    // which is the clearest confirmation that the mailgroup was created and linked.
     onCollapse()
+  }
+
+  const canCreateSuppress = (() => {
+    const folder = suppressNewFolderChoice === NEW_FOLDER ? suppressNewFolderName.trim() : suppressNewFolderChoice
+    return !!(folder && suppressNewGroupName.trim())
+  })()
+
+  const handleCreateSuppressMailGroup = () => {
+    const folder = suppressNewFolderChoice === NEW_FOLDER ? suppressNewFolderName.trim() : suppressNewFolderChoice
+    if (!folder || !suppressNewGroupName.trim()) return
+    const newGroup: MailGroup = { id: uuidv4(), name: suppressNewGroupName.trim(), folder }
+    onAddMailGroup(newGroup)
+    onUpdateOption({ suppressMailGroupId: newGroup.id })
+    setSuppressEditMode('existing')
+    setSuppressNewFolderName('')
+    setSuppressNewGroupName('')
   }
 
   const descriptionField = (
@@ -569,7 +635,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
       {mode === 'existing' ? (
         <>
           <div className="space-y-2">
-            <Label htmlFor={`option-folder-${option.key}`}>Folder *</Label>
+            <Label htmlFor={`option-folder-${option.key}`}>Folder <span className="text-destructive">*</span></Label>
             <Select
               value={selectedFolder || NO_FOLDER}
               onValueChange={(value) => {
@@ -596,7 +662,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`option-mailgroup-${option.key}`}>Mailgroup *</Label>
+            <Label htmlFor={`option-mailgroup-${option.key}`}>Mailgroup <span className="text-destructive">*</span></Label>
             <Select value={option.mailGroupId || ''} onValueChange={handleSelectMailGroup} disabled={!selectedFolder}>
               <SelectTrigger id={`option-mailgroup-${option.key}`} className="w-full">
                 <SelectValue placeholder={selectedFolder ? 'Select a mailgroup' : 'Choose a folder first'} />
@@ -610,12 +676,84 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
               </SelectContent>
             </Select>
           </div>
+
           {descriptionField}
+
+          {option.mailGroupId && (
+            <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 space-y-2.5 dark:border-orange-900/50 dark:bg-orange-950/20">
+              <p className="text-sm font-medium text-orange-800 dark:text-orange-400">
+                Suppress group <span className="text-destructive">*</span>
+              </p>
+              <div className="flex gap-1 rounded-md bg-muted p-1">
+                <button type="button" onClick={() => setSuppressEditMode('existing')}
+                  className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+                    suppressEditMode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  Use Existing
+                </button>
+                <button type="button" onClick={() => setSuppressEditMode('new')}
+                  className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+                    suppressEditMode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Create New
+                </button>
+              </div>
+              {suppressEditMode === 'existing' && (
+                <div className="space-y-2">
+                  <Select value={suppressExistingFolder} onValueChange={(f) => { setSuppressExistingFolder(f); onUpdateOption({ suppressMailGroupId: undefined }) }}>
+                    <SelectTrigger className="w-full bg-background"><SelectValue placeholder="Select a folder" /></SelectTrigger>
+                    <SelectContent>
+                      {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={option.suppressMailGroupId ?? ''}
+                    onValueChange={(v) => onUpdateOption({ suppressMailGroupId: v })}
+                    disabled={!suppressExistingFolder}
+                  >
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue placeholder={suppressExistingFolder ? 'Select mailgroup' : 'Choose a folder first'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mailGroups.filter((g) => g.folder === suppressExistingFolder && g.id !== option.mailGroupId).map((g) => (
+                        <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {suppressEditMode === 'new' && (
+                <div className="space-y-2">
+                  <div className="space-y-2">
+                    <Label>Folder</Label>
+                    <Select value={suppressNewFolderChoice} onValueChange={setSuppressNewFolderChoice}>
+                      <SelectTrigger className="w-full bg-background"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                        <SelectItem value={NEW_FOLDER}>+ New folder</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {suppressNewFolderChoice === NEW_FOLDER && (
+                      <Input className="bg-background" placeholder="e.g., Partnerships" value={suppressNewFolderName} onChange={(e) => setSuppressNewFolderName(e.target.value)} />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mailgroup name</Label>
+                    <Input className="w-full bg-background" placeholder="e.g., Unsubscribe All" value={suppressNewGroupName} onChange={(e) => setSuppressNewGroupName(e.target.value)} />
+                  </div>
+                  <Button type="button" size="sm" className="gap-2" disabled={!canCreateSuppress} onClick={handleCreateSuppressMailGroup}>
+                    <Plus className="h-4 w-4" />
+                    Create suppress group
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <>
           <div className="space-y-2">
-            <Label htmlFor={`option-new-folder-${option.key}`}>Folder *</Label>
+            <Label htmlFor={`option-new-folder-${option.key}`}>Folder <span className="text-destructive">*</span></Label>
             <Select value={newFolderChoice} onValueChange={setNewFolderChoice}>
               <SelectTrigger id={`option-new-folder-${option.key}`} className="w-full">
                 <SelectValue />
@@ -640,7 +778,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`option-new-mailgroup-name-${option.key}`}>Mailgroup Name *</Label>
+            <Label htmlFor={`option-new-mailgroup-name-${option.key}`}>Mailgroup Name <span className="text-destructive">*</span></Label>
             <Input
               id={`option-new-mailgroup-name-${option.key}`}
               className="w-full"
@@ -652,9 +790,74 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
 
           {descriptionField}
 
+          <div className="rounded-lg border border-orange-200 bg-orange-50/50 p-3 space-y-2.5 dark:border-orange-900/50 dark:bg-orange-950/20">
+            <p className="text-xs font-semibold text-orange-800 dark:text-orange-400">
+              Suppress group <span className="text-destructive">*</span>
+            </p>
+            <div className="flex gap-1 rounded-md bg-muted p-1">
+              <button type="button" onClick={() => setNewMailgroupSuppressMode('existing')}
+                className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+                  newMailgroupSuppressMode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                <FolderOpen className="h-3.5 w-3.5" />
+                Use Existing
+              </button>
+              <button type="button" onClick={() => setNewMailgroupSuppressMode('new')}
+                className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
+                  newMailgroupSuppressMode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                <Sparkles className="h-3.5 w-3.5" />
+                Create New
+              </button>
+            </div>
+            {newMailgroupSuppressMode === 'existing' && (
+              <div className="space-y-2">
+                <Select value={newMailgroupSuppressExistingFolder} onValueChange={(f) => { setNewMailgroupSuppressExistingFolder(f); setNewMailgroupSuppressExistingId('') }}>
+                  <SelectTrigger className="w-full bg-background"><SelectValue placeholder="Select a folder" /></SelectTrigger>
+                  <SelectContent>
+                    {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={newMailgroupSuppressExistingId}
+                  onValueChange={setNewMailgroupSuppressExistingId}
+                  disabled={!newMailgroupSuppressExistingFolder}
+                >
+                  <SelectTrigger className="w-full bg-background">
+                    <SelectValue placeholder={newMailgroupSuppressExistingFolder ? 'Select mailgroup' : 'Choose a folder first'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mailGroups.filter((g) => g.folder === newMailgroupSuppressExistingFolder).map((g) => (
+                      <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {newMailgroupSuppressMode === 'new' && (
+              <div className="space-y-2">
+                <div className="space-y-2">
+                  <Label>Folder</Label>
+                  <Select value={newMailgroupSuppressNewFolderChoice} onValueChange={setNewMailgroupSuppressNewFolderChoice}>
+                    <SelectTrigger className="w-full bg-background"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                      <SelectItem value={NEW_FOLDER}>+ New folder</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {newMailgroupSuppressNewFolderChoice === NEW_FOLDER && (
+                    <Input className="bg-background" placeholder="e.g., Partnerships" value={newMailgroupSuppressNewFolderName} onChange={(e) => setNewMailgroupSuppressNewFolderName(e.target.value)} />
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>Mailgroup name</Label>
+                  <Input className="w-full bg-background" placeholder="e.g., Unsubscribe All" value={newMailgroupSuppressNewGroupName} onChange={(e) => setNewMailgroupSuppressNewGroupName(e.target.value)} />
+                </div>
+              </div>
+            )}
+          </div>
+
           <Button type="button" size="sm" className="gap-2" disabled={!canCreate} onClick={handleCreateMailGroup}>
             <Plus className="h-4 w-4" />
-            Create Mailgroup
+            {newMailgroupSuppressMode === 'new' ? 'Create Mailgroup and Suppress' : 'Create Mailgroup'}
           </Button>
         </>
       )}

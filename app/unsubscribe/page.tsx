@@ -8,9 +8,11 @@ export const metadata = {
 
 export default function UnsubscribeRequestPage() {
   return (
-    <CentrePageShell>
+    <CentrePageShell flowKey="unsubscribeRequest">
       <div className="px-4 py-12">
-        <RequestLinkForm type="unsubscribe" />
+        <div className="mx-auto max-w-2xl">
+          <RequestLinkForm type="unsubscribe" />
+        </div>
       </div>
     </CentrePageShell>
   )
