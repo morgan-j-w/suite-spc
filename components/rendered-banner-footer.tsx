@@ -168,23 +168,32 @@ function BannerBrandBand({ config, brand, heading, blurb, maxWidth = 896 }: Bann
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const accent = config.accentColor ?? 'var(--primary)'
   return (
-    <div style={{ background: bg, borderBottom: '1px solid var(--border)' }}>
-      <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: 0, minHeight: 80 }}>
-        {/* Left accent stripe + logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingRight: '2rem', borderRight: '1px solid var(--border)', marginRight: '2rem', alignSelf: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
-          <div style={{ width: 4, alignSelf: 'stretch', background: accent, borderRadius: 2, flexShrink: 0 }} />
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, display: 'block' }} />
-            : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg, whiteSpace: 'nowrap' }}>Brand</span>
-          }
-        </div>
-        {/* Right — heading + blurb */}
-        <div style={{ flex: '1 1 0', padding: '1.5rem 1.5rem 1.5rem 0' }}>
-          {heading && <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: fg, margin: '0 0 0.375rem', lineHeight: 1.3 }}>{heading}</h1>}
-          {blurb && <p style={{ color: body, margin: 0, fontSize: '0.9rem' }}>{blurb}</p>}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 600px) {
+          .spc-brand-band-inner { flex-direction: column !important; align-items: stretch !important; min-height: 0 !important; }
+          .spc-brand-band-left { border-right: none !important; border-bottom: 1px solid var(--border) !important; margin-right: 0 !important; padding-right: 0 !important; }
+          .spc-brand-band-right { flex: none !important; padding-right: 0 !important; padding-left: 0 !important; }
+        }
+      `}} />
+      <div style={{ background: bg, borderBottom: '1px solid var(--border)' }}>
+        <div className="spc-brand-band-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: 0, minHeight: 80 }}>
+          {/* Left accent stripe + logo */}
+          <div className="spc-brand-band-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingRight: '2rem', borderRight: '1px solid var(--border)', marginRight: '2rem', alignSelf: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+            <div style={{ width: 4, alignSelf: 'stretch', background: accent, borderRadius: 2, flexShrink: 0 }} />
+            {brand.logoUrl
+              ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, display: 'block' }} />
+              : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg, whiteSpace: 'nowrap' }}>Brand</span>
+            }
+          </div>
+          {/* Right — heading + blurb */}
+          <div className="spc-brand-band-right" style={{ flex: '1 1 0', padding: '1.5rem 1.5rem 1.5rem 0' }}>
+            {heading && <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: fg, margin: '0 0 0.375rem', lineHeight: 1.3 }}>{heading}</h1>}
+            {blurb && <p style={{ color: body, margin: 0, fontSize: '0.9rem' }}>{blurb}</p>}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

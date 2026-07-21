@@ -466,54 +466,58 @@ export function PreviewEditor({
 
           {/* Banner */}
           {designSection === 'banner' && (
-            <>
-              <div className="rounded-lg border border-border/60 bg-muted/40 px-4 py-3 flex items-start gap-2.5">
-                <span className="text-xs text-muted-foreground leading-relaxed">
-                  Banner heading and description are set per page.{' '}
-                  <button
-                    type="button"
-                    onClick={() => onNavigateToPagesTab?.()}
-                    className="underline underline-offset-2 hover:text-foreground transition-colors"
-                  >
-                    Go to Pages tab
-                  </button>
-                </span>
-              </div>
-              <BannerEditor
-                banner={centre.banner}
-                onBannerChange={onBannerChange}
-                themeId={centre.themePresetId}
-                brand={centre.brand}
-                preview={centre.banner && (
-                  <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
-                    <RenderedBanner
-                      config={centre.banner}
-                      brand={centre.brand}
-                      heading={centre.statusPages.subscribe.bannerHeading}
-                      blurb={centre.statusPages.subscribe.bannerBlurb}
-                      contentMaxWidth={getContentMaxWidth(centre.formWidth)}
-                    />
-                  </div>
-                )}
-              />
-            </>
+            <Card className="gap-0 py-0">
+              <CardContent className="p-4 space-y-4">
+                <div className="rounded-lg border border-border/60 bg-muted/40 px-4 py-3 flex items-start gap-2.5">
+                  <span className="text-xs text-muted-foreground leading-relaxed">
+                    Banner heading and description are set per page.{' '}
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToPagesTab?.()}
+                      className="underline underline-offset-2 hover:text-foreground transition-colors"
+                    >
+                      Go to Pages tab
+                    </button>
+                  </span>
+                </div>
+                <BannerEditor
+                  banner={centre.banner}
+                  onBannerChange={onBannerChange}
+                  themeId={centre.themePresetId}
+                  brand={centre.brand}
+                  preview={centre.banner && (
+                    <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
+                      <RenderedBanner
+                        config={centre.banner}
+                        brand={centre.brand}
+                        heading={centre.statusPages.subscribe.bannerHeading}
+                        blurb={centre.statusPages.subscribe.bannerBlurb}
+                        contentMaxWidth={getContentMaxWidth(centre.formWidth)}
+                      />
+                    </div>
+                  )}
+                />
+              </CardContent>
+            </Card>
           )}
 
           {/* Footer */}
           {designSection === 'footer' && (
-            <>
-              <FooterEditor
-                footer={centre.footer}
-                onFooterChange={onFooterChange}
-                themeId={centre.themePresetId}
-                brand={centre.brand}
-                preview={centre.footer && (
-                  <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
-                    <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
-                  </div>
-                )}
-              />
-            </>
+            <Card className="gap-0 py-0">
+              <CardContent className="p-4">
+                <FooterEditor
+                  footer={centre.footer}
+                  onFooterChange={onFooterChange}
+                  themeId={centre.themePresetId}
+                  brand={centre.brand}
+                  preview={centre.footer && (
+                    <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
+                      <RenderedFooter config={centre.footer} brand={centre.brand} contentMaxWidth={getContentMaxWidth(centre.formWidth)} />
+                    </div>
+                  )}
+                />
+              </CardContent>
+            </Card>
           )}
 
           {/* Form */}
