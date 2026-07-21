@@ -40,6 +40,7 @@ export interface EmailConfig {
   bannerLogoMaxWidth?: number
   bannerLogoMaxHeight?: number
   bannerLogoPosition?: 'left' | 'center' | 'right'
+  bannerPadding?: number | 'compact' | 'spacious' // vertical section padding — px, a preset, or undefined for layout default
   footerLayout?: EmailFooterLayout
   footerBgColor?: string
   footerTextColor?: string
@@ -48,6 +49,7 @@ export interface EmailConfig {
   footerLogoMaxWidth?: number
   footerLogoMaxHeight?: number
   footerLogoPosition?: 'left' | 'center' | 'right'
+  footerPadding?: number | 'compact' | 'spacious' // vertical section padding — px, a preset, or undefined for layout default
   doubleOptIn: EmailTemplate
   confirmation: EmailTemplate
   unsubscribed: EmailTemplate
@@ -124,7 +126,7 @@ export interface BannerConfig {
   imageOverlayOpacity?: number // overlay opacity 0–100 when imageBackground is on (default 45)
   backgroundSize?: string     // CSS background-size (cover/contain/auto)
   backgroundRepeat?: string   // CSS background-repeat
-  padding?: number                             // vertical section padding in px (undefined = layout default)
+  padding?: number | 'compact' | 'spacious'    // vertical section padding — px, a preset, or undefined for layout default
   logoPosition?: 'left' | 'center' | 'right' // alignment within logo-only layout
   logoSize?: 'sm' | 'md' | 'lg'              // legacy preset — overridden by logoMaxWidth/logoMaxHeight
   logoMaxWidth?: number                        // px, max-width for logo image
@@ -161,7 +163,7 @@ export interface FooterConfig {
   backgroundRepeat?: string
   links?: BannerLink[]     // primary footer nav / legal links
   quickLinks?: BannerLink[] // secondary column (multi-column layout)
-  padding?: number          // vertical section padding in px (undefined = layout default)
+  padding?: number | 'compact' | 'spacious' // vertical section padding — px, a preset, or undefined for layout default
   fullWidth: boolean
   footerImageUrl?: string     // edge-to-edge image band above the footer; set = enabled
   footerImageHeight?: number  // px, default 240
@@ -264,8 +266,8 @@ export function getContentMaxWidth(fw?: FormWidth | string): number {
 }
 
 export type CardShadow = 'on' | 'off'
-export type CardPadding = 'compact' | 'normal' | 'spacious'
-export type CardSpacing = 'compact' | 'normal' | 'spacious'
+export type CardPadding = 'compact' | 'normal' | 'spacious' | number
+export type CardSpacing = 'compact' | 'normal' | 'spacious' | number
 
 export interface CardStyle {
   borderEnabled?: boolean   // undefined = theme default; false = no border

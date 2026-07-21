@@ -9,6 +9,18 @@ export interface EmailLayoutColorOptions {
   logoMaxWidth?: number
   logoMaxHeight?: number
   logoPosition?: 'left' | 'center' | 'right'
+  padding?: number | 'compact' | 'spacious'
+}
+
+// Scales every hardcoded vertical padding value in a layout by the ratio between the
+// user's chosen padding and that layout's own "normal" baseline, preserving each layout's
+// asymmetric top/bottom shape (e.g. logo-centered's 26px-top/22px-bottom) rather than
+// flattening every row to one identical number.
+function paddingScale(padding: number | 'compact' | 'spacious' | undefined, normalBase: number): number {
+  if (typeof padding === 'number') return padding / normalBase
+  if (padding === 'compact') return 0.6
+  if (padding === 'spacious') return 1.6
+  return 1
 }
 
 function esc(s?: string): string {
@@ -45,10 +57,11 @@ export function generateEmailBannerHtml(
   switch (layout) {
     case 'logo-centered': {
       const align = opts.logoPosition ?? 'center'
+      const scale = paddingScale(opts.padding, 26)
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td align="${align}" style="padding:26px 40px 22px;">`,
+        `    <td align="${align}" style="padding:${Math.round(26 * scale)}px 40px ${Math.round(22 * scale)}px;">`,
         `      ${logoOrName(brand.logoUrl, fg, logoH, logoW)}`,
         `    </td>`,
         `  </tr>`,
@@ -59,10 +72,11 @@ export function generateEmailBannerHtml(
 
     case 'logo-left': {
       const align = opts.logoPosition ?? 'left'
+      const pad = Math.round(16 * paddingScale(opts.padding, 16))
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td style="padding:16px 40px;">`,
+        `    <td style="padding:${pad}px 40px;">`,
         `      <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>`,
         `        <td align="${align}">${logoOrName(brand.logoUrl, fg, logoH, logoW)}</td>`,
         brand.backUrl
@@ -79,16 +93,17 @@ export function generateEmailBannerHtml(
     case 'heading-band':
     default: {
       const align = opts.logoPosition ?? 'center'
+      const scale = paddingScale(opts.padding, 26)
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td align="${align}" style="padding:26px 40px 16px;">`,
+        `    <td align="${align}" style="padding:${Math.round(26 * scale)}px 40px ${Math.round(16 * scale)}px;">`,
         `      ${logoOrName(brand.logoUrl, fg, logoH, logoW)}`,
         `    </td>`,
         `  </tr>`,
         `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
         `  <tr>`,
-        `    <td align="center" style="padding:20px 40px 28px;">`,
+        `    <td align="center" style="padding:${Math.round(20 * scale)}px 40px ${Math.round(28 * scale)}px;">`,
         `      <p style="margin:0;font-size:22px;font-weight:700;color:${escAttr(fg)};font-family:Arial,sans-serif;">${esc(heading)}</p>`,
         subheading ? `      <p style="margin:8px 0 0;font-size:14px;color:${escAttr(fg)};opacity:0.65;font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
         `    </td>`,
@@ -213,45 +228,51 @@ export function generateEmailFooterHtml(
 
   switch (layout) {
     case 'minimal':
-    default:
+    default: {
+      const pad = Math.round(18 * paddingScale(opts.padding, 18))
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr><td style="border-top:1px solid ${escAttr(fg)};opacity:0.15;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>`,
         `  <tr>`,
-        `    <td style="padding:18px 40px;text-align:center;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
+        `    <td style="padding:${pad}px 40px;text-align:center;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
         `      ${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a>`,
         `    </td>`,
         `  </tr>`,
         `</table>`,
       ].join('\n')
+    }
 
-    case 'links-copyright':
+    case 'links-copyright': {
+      const scale = paddingScale(opts.padding, 22)
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         logo
-          ? `  <tr><td align="${logoAlign}" style="padding:22px 40px 16px;"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td></tr>`
+          ? `  <tr><td align="${logoAlign}" style="padding:${Math.round(22 * scale)}px 40px ${Math.round(16 * scale)}px;"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td></tr>`
           : '',
         `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
         `  <tr>`,
-        `    <td style="padding:16px 40px 22px;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
+        `    <td style="padding:${Math.round(16 * scale)}px 40px ${Math.round(22 * scale)}px;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
         `      <p style="margin:0 0 4px;">${copyright}</p>`,
         `      <p style="margin:0;"><a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a> &middot; <a href="${PREFS_URL}" style="color:${escAttr(link)};text-decoration:underline;">Manage preferences</a></p>`,
         `    </td>`,
         `  </tr>`,
         `</table>`,
       ].join('\n')
+    }
 
-    case 'address-footer':
+    case 'address-footer': {
+      const pad = Math.round(18 * paddingScale(opts.padding, 18))
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
         `  <tr>`,
-        `    <td style="padding:18px 40px;font-size:11px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.7;">`,
+        `    <td style="padding:${pad}px 40px;font-size:11px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.7;">`,
         addressHtml ? `      <p style="margin:0 0 6px;">${addressHtml}</p>` : '',
         `      <p style="margin:0;">${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a></p>`,
         `    </td>`,
         `  </tr>`,
         `</table>`,
       ].join('\n')
+    }
   }
 }

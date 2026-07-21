@@ -17,6 +17,7 @@ import { ColorRow } from '@/components/colour-row'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
+import { SizeControl } from '@/components/ui/size-control'
 import { UnitInput } from '@/components/ui/unit-input'
 import { cn } from '@/lib/utils'
 
@@ -525,7 +526,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               <Switch checked={!!cfg.sticky} onCheckedChange={(v) => patch({ sticky: v || undefined })} />
             </div>
             <SettingRow label="Section padding">
-              <UnitInput min={0} max={200} placeholder="auto" value={cfg.padding} onChange={(v) => patch({ padding: v })} />
+              <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>
@@ -768,7 +769,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
             </div>
             <SettingRow label="Section padding">
-              <UnitInput min={0} max={200} placeholder="auto" value={cfg.padding} onChange={(v) => patch({ padding: v })} />
+              <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Background image</span>

@@ -117,6 +117,7 @@ function EmailPreviewContent() {
         logoMaxWidth:  cfg.bannerLogoMaxWidth,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition:  cfg.bannerLogoPosition,
+        padding:       cfg.bannerPadding,
       })
 
   const footerHtml = cfg.footerHtml
@@ -127,6 +128,7 @@ function EmailPreviewContent() {
         logoMaxWidth:  cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition:  cfg.footerLogoPosition,
+        padding:       cfg.footerPadding,
       })
 
   const wrapperBg = cfg.emailBodyBgColor ?? '#f4f4f4'

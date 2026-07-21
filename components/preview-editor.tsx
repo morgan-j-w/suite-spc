@@ -41,6 +41,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Segmented } from '@/components/ui/segmented'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SizeControl } from '@/components/ui/size-control'
 import { Textarea } from '@/components/ui/textarea'
 import { UnitInput } from '@/components/ui/unit-input'
 import { cn } from '@/lib/utils'
@@ -261,7 +262,6 @@ export function PreviewEditor({
             const cs = centre.cardStyle ?? {}
             const patchCs = (u: Partial<CardStyle>) => onCardStyleChange({ ...cs, ...u })
             const onOff = [{ value: 'on', label: 'On' }, { value: 'off', label: 'Off' }] as const
-            const density = [{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'spacious', label: 'Spacious' }] as const
             return (
               <Card className="gap-0 py-0">
                 <CardHeader className="px-6 pt-4 pb-2">
@@ -302,10 +302,10 @@ export function PreviewEditor({
                       <Segmented options={onOff} value={(cs.shadow ?? 'on') as 'on' | 'off'} onChange={(v) => patchCs({ shadow: v as CardStyle['shadow'] })} />
                     </SettingRow>
                     <SettingRow label="Card padding">
-                      <Segmented options={density} value={(cs.padding ?? 'normal') as NonNullable<CardStyle['padding']>} onChange={(v) => patchCs({ padding: v as CardStyle['padding'] })} />
+                      <SizeControl value={cs.padding} onChange={(v) => patchCs({ padding: v })} defaultCustomValue={24} max={80} />
                     </SettingRow>
                     <SettingRow label="Card spacing">
-                      <Segmented options={density} value={(cs.spacing ?? 'normal') as NonNullable<CardStyle['spacing']>} onChange={(v) => patchCs({ spacing: v as CardStyle['spacing'] })} />
+                      <SizeControl value={cs.spacing} onChange={(v) => patchCs({ spacing: v })} defaultCustomValue={24} max={80} />
                     </SettingRow>
                   </SettingGroup>
                 </CardContent>

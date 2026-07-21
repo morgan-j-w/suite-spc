@@ -11,6 +11,7 @@ import { getThemeBrandColors } from '@/lib/style-previews'
 import { RichTextEditor } from '@/components/rich-text-editor'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
+import { SizeControl, type SizeValue } from '@/components/ui/size-control'
 import { UnitInput } from '@/components/ui/unit-input'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -173,6 +174,8 @@ interface EmailLayoutSectionProps {
   htmlValue: string
   cssValue: string
   themeId?: ColorTheme
+  padding?: number | 'compact' | 'spacious'
+  onPaddingChange: (v: SizeValue) => void
   // Text content (banner only, for text-based layouts)
   heading?: string
   subheading?: string
@@ -205,6 +208,8 @@ function EmailLayoutSection({
   htmlValue,
   cssValue,
   themeId,
+  padding,
+  onPaddingChange,
   heading,
   subheading,
   onHeadingChange,
@@ -245,6 +250,13 @@ function EmailLayoutSection({
             </EmailThumb>
           ))}
         </div>
+      </SettingGroup>
+
+      {/* Options */}
+      <SettingGroup title="Options" collapsible>
+        <SettingRow label="Section padding">
+          <SizeControl value={padding} onChange={onPaddingChange} defaultCustomValue={24} max={100} />
+        </SettingRow>
       </SettingGroup>
 
       {/* Text — heading/subheading. Only Heading band (the 3rd banner layout) renders
@@ -465,6 +477,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
         logoMaxWidth:  emailConfig.bannerLogoMaxWidth,
         logoMaxHeight: emailConfig.bannerLogoMaxHeight,
         logoPosition:  emailConfig.bannerLogoPosition,
+        padding:       emailConfig.bannerPadding,
       })
   const previewFooterHtml = emailConfig.footerHtml
     || generateEmailFooterHtml(emailConfig.footerLayout ?? 'minimal', brand ?? {}, {
@@ -474,6 +487,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
         logoMaxWidth:  emailConfig.footerLogoMaxWidth,
         logoMaxHeight: emailConfig.footerLogoMaxHeight,
         logoPosition:  emailConfig.footerLogoPosition,
+        padding:       emailConfig.footerPadding,
       })
 
   return (
@@ -602,6 +616,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxWidth: cfg.bannerLogoMaxWidth,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition: cfg.bannerLogoPosition,
+        padding: cfg.bannerPadding,
       }),
     })
   }
@@ -616,6 +631,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxWidth: cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
+        padding: cfg.footerPadding,
       }),
     })
   }
@@ -638,6 +654,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxWidth: cfg.bannerLogoMaxWidth,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition: cfg.bannerLogoPosition,
+        padding: cfg.bannerPadding,
       })
     : undefined
 
@@ -649,6 +666,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         logoMaxWidth: cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
+        padding: cfg.footerPadding,
       })
     : undefined
 
@@ -685,6 +703,8 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               linkColor={cfg.bannerLinkColor}
               htmlValue={cfg.bannerHtml}
               themeId={themeId ?? defaultTheme}
+              padding={cfg.bannerPadding}
+              onPaddingChange={(v) => patch({ bannerPadding: v === 'normal' ? undefined : v })}
               heading={cfg.bannerHeading}
               subheading={cfg.bannerSubheading}
               onHeadingChange={(bannerHeading) => patch({ bannerHeading })}
@@ -732,6 +752,8 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               linkColor={cfg.footerLinkColor}
               htmlValue={cfg.footerHtml}
               themeId={themeId ?? defaultTheme}
+              padding={cfg.footerPadding}
+              onPaddingChange={(v) => patch({ footerPadding: v === 'normal' ? undefined : v })}
               logoMaxWidth={cfg.footerLogoMaxWidth}
               logoMaxHeight={cfg.footerLogoMaxHeight}
               logoPosition={cfg.footerLogoPosition}
