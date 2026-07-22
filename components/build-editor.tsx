@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -341,6 +341,14 @@ interface CatchAllMailGroupSectionProps {
 function CatchAllMailGroupSection({ mailGroups, onAddMailGroup, catchAllMailGroupId, onCatchAllMailGroupIdChange }: CatchAllMailGroupSectionProps) {
   const currentGroup = mailGroups.find((g) => g.id === catchAllMailGroupId)
   const [isEditing, setIsEditing] = useState(!currentGroup)
+
+  // catchAllMailGroupId can change from outside this component's own onSelect — e.g.
+  // "Load demo form" seeds one directly via setCentre. isEditing is local state, so it
+  // doesn't re-derive on its own; without this it stays stuck showing the edit form
+  // even once a valid group resolves.
+  useEffect(() => {
+    if (currentGroup) setIsEditing(false)
+  }, [catchAllMailGroupId])
 
   if (!isEditing && currentGroup) {
     return (
