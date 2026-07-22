@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { LayoutTemplate } from 'lucide-react'
+import { CalendarDays, LayoutGrid, LayoutTemplate, Mail, ShoppingBag, type LucideIcon } from 'lucide-react'
 import { type Category, type ProfileFieldSection, type FieldVisibilityRule } from '@/lib/subscription-types'
 import { defaultMailGroups, type MailGroup } from '@/lib/subscription-centre'
 import {
@@ -23,25 +23,6 @@ export interface TemplateConfig {
 }
 
 // ── Template definitions ───────────────────────────────────────────────────────
-
-function makeBlank(): TemplateConfig {
-  const sectionId = uuidv4()
-  return {
-    profileFieldSections: [
-      {
-        id: sectionId,
-        title: '',
-        description: '',
-        fields: [
-          { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
-        ],
-      },
-    ],
-    categories: [],
-    sectionOrder: [sectionId],
-    mailGroupsToAdd: defaultMailGroups.map((g) => ({ ...g })),
-  }
-}
 
 export function makeNewsletter(): TemplateConfig {
   const detailsId = uuidv4()
@@ -119,6 +100,49 @@ function makeEvents(): TemplateConfig {
       { id: eventsMailGroupId, name: 'In-person Events', folder: 'Events' },
       { id: webinarsMailGroupId, name: 'Webinars', folder: 'Events' },
       { id: workshopsMailGroupId, name: 'Workshops', folder: 'Events' },
+    ],
+  }
+}
+
+function makeEcommerce(): TemplateConfig {
+  const detailsId = uuidv4()
+  const catId = uuidv4()
+  const ordersMailGroupId = uuidv4()
+  const promosMailGroupId = uuidv4()
+  const restockMailGroupId = uuidv4()
+  return {
+    profileFieldSections: [
+      {
+        id: detailsId,
+        title: 'Your Details',
+        description: '',
+        fields: [
+          { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
+          { id: uuidv4(), label: 'First name', type: 'text', required: false, placeholder: 'Jane' },
+          { id: uuidv4(), label: 'Last name', type: 'text', required: false, placeholder: 'Smith' },
+        ],
+      },
+    ],
+    categories: [
+      {
+        id: catId,
+        title: 'Shopping updates',
+        description: "Choose what you'd like us to keep you posted on.",
+        type: 'checkbox',
+        required: false,
+        options: [
+          { key: uuidv4(), label: 'Order & Shipping Updates', description: 'Tracking info and delivery notifications', mailGroupId: ordersMailGroupId },
+          { key: uuidv4(), label: 'Promotions & Sales', description: 'Discounts, deals and seasonal offers', mailGroupId: promosMailGroupId },
+          { key: uuidv4(), label: 'Back in Stock Alerts', description: 'Get notified when saved items are available again', mailGroupId: restockMailGroupId },
+        ],
+      },
+    ],
+    sectionOrder: [detailsId, catId],
+    mailGroupsToAdd: [
+      ...defaultMailGroups.map((g) => ({ ...g })),
+      { id: ordersMailGroupId, name: 'Order & Shipping Updates', folder: 'Shopping' },
+      { id: promosMailGroupId, name: 'Promotions & Sales', folder: 'Shopping' },
+      { id: restockMailGroupId, name: 'Back in Stock Alerts', folder: 'Shopping' },
     ],
   }
 }
@@ -249,71 +273,6 @@ export function makeFull(): TemplateConfig {
   }
 }
 
-// ── Visual sketches (abstract representations of each template) ────────────────
-
-function BlankSketch() {
-  return (
-    <div className="flex flex-col gap-1.5 py-1">
-      <div className="h-px w-full rounded bg-current opacity-10" />
-      <div className="h-2 w-8 rounded-sm bg-current opacity-40" />
-      <div className="h-1.5 w-full rounded-sm bg-current opacity-10" />
-    </div>
-  )
-}
-
-function NewsletterSketch() {
-  return (
-    <div className="flex gap-3 py-1">
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <div className="h-1.5 w-14 rounded-sm bg-current opacity-40" />
-        <div className="h-1 w-10 rounded-sm bg-current opacity-20" />
-        <div className="h-1 w-12 rounded-sm bg-current opacity-20" />
-        <div className="h-1 w-8 rounded-sm bg-current opacity-20" />
-      </div>
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <div className="h-1.5 w-16 rounded-sm bg-current opacity-40" />
-        <div className="flex gap-1 items-center"><div className="h-1.5 w-1.5 rounded-sm border border-current opacity-30" /><div className="h-1 w-10 rounded-sm bg-current opacity-20" /></div>
-        <div className="flex gap-1 items-center"><div className="h-1.5 w-1.5 rounded-sm border border-current opacity-30" /><div className="h-1 w-8 rounded-sm bg-current opacity-20" /></div>
-        <div className="flex gap-1 items-center"><div className="h-1.5 w-1.5 rounded-sm border border-current opacity-30" /><div className="h-1 w-12 rounded-sm bg-current opacity-20" /></div>
-      </div>
-    </div>
-  )
-}
-
-function EventsSketch() {
-  return (
-    <div className="flex gap-3 py-1">
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <div className="h-1.5 w-14 rounded-sm bg-current opacity-40" />
-        <div className="h-1 w-10 rounded-sm bg-current opacity-20" />
-        <div className="h-1 w-12 rounded-sm bg-current opacity-20" />
-        <div className="h-1 w-8 rounded-sm bg-current opacity-20" />
-        <div className="h-1 w-10 rounded-sm bg-current opacity-20" />
-      </div>
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <div className="h-1.5 w-12 rounded-sm bg-current opacity-40" />
-        <div className="flex gap-1 items-center"><div className="h-1.5 w-1.5 rounded-sm border border-current opacity-30" /><div className="h-1 w-14 rounded-sm bg-current opacity-20" /></div>
-        <div className="flex gap-1 items-center"><div className="h-1.5 w-1.5 rounded-sm border border-current opacity-30" /><div className="h-1 w-8 rounded-sm bg-current opacity-20" /></div>
-        <div className="flex gap-1 items-center"><div className="h-1.5 w-1.5 rounded-sm border border-current opacity-30" /><div className="h-1 w-10 rounded-sm bg-current opacity-20" /></div>
-      </div>
-    </div>
-  )
-}
-
-function FullSketch() {
-  return (
-    <div className="grid grid-cols-3 gap-1.5 py-1">
-      {[14, 18, 16, 20, 12, 18].map((w, i) => (
-        <div key={i} className="space-y-1">
-          <div className="h-1.5 rounded-sm bg-current opacity-40" style={{ width: `${w * 3}px`, maxWidth: '100%' }} />
-          <div className="h-1 w-full rounded-sm bg-current opacity-15" />
-          <div className="h-1 w-3/4 rounded-sm bg-current opacity-15" />
-        </div>
-      ))}
-    </div>
-  )
-}
-
 // ── Template card data ─────────────────────────────────────────────────────────
 
 const TEMPLATES: {
@@ -322,26 +281,15 @@ const TEMPLATES: {
   description: string
   includes: string[]
   make: () => TemplateConfig
-  sketch: React.ReactNode
-  accent: string
+  icon: LucideIcon
 }[] = [
-  {
-    id: 'blank',
-    name: 'Blank',
-    description: 'Start with a clean slate — just an email field.',
-    includes: ['Email field'],
-    make: makeBlank,
-    sketch: <BlankSketch />,
-    accent: 'border-muted-foreground/20 hover:border-muted-foreground/40',
-  },
   {
     id: 'newsletter',
     name: 'Newsletter signup',
     description: 'A simple subscribe form with name fields and topic preferences.',
     includes: ['Email, first & last name', 'Newsletter topics category'],
     make: makeNewsletter,
-    sketch: <NewsletterSketch />,
-    accent: 'border-blue-200 hover:border-blue-400 dark:border-blue-900 dark:hover:border-blue-600',
+    icon: Mail,
   },
   {
     id: 'events',
@@ -349,8 +297,15 @@ const TEMPLATES: {
     description: 'Collect contact details and let subscribers choose which event types interest them.',
     includes: ['Email, name, company, job title', 'Event types category'],
     make: makeEvents,
-    sketch: <EventsSketch />,
-    accent: 'border-violet-200 hover:border-violet-400 dark:border-violet-900 dark:hover:border-violet-600',
+    icon: CalendarDays,
+  },
+  {
+    id: 'ecommerce',
+    name: 'E-commerce updates',
+    description: 'Keep shoppers posted on their orders, promotions, and restocks.',
+    includes: ['Email, first & last name', 'Shopping updates category'],
+    make: makeEcommerce,
+    icon: ShoppingBag,
   },
   {
     id: 'full',
@@ -358,8 +313,7 @@ const TEMPLATES: {
     description: 'A rich, multi-section form with profiling questions, conditional logic, and multiple mailgroup categories.',
     includes: ['3 profile sections', '3 mailgroup categories', 'Conditional visibility rules'],
     make: makeFull,
-    sketch: <FullSketch />,
-    accent: 'border-emerald-200 hover:border-emerald-400 dark:border-emerald-900 dark:hover:border-emerald-600',
+    icon: LayoutGrid,
   },
 ]
 
@@ -398,37 +352,35 @@ export function TemplatePickerDialog({ open, onOpenChange, onApply }: TemplatePi
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="flex flex-col gap-2 pt-1">
           {TEMPLATES.map((template) => (
             <button
               key={template.id}
               type="button"
               onClick={() => setSelected(template.id)}
               className={cn(
-                'group flex flex-col gap-2 rounded-xl border-2 p-4 text-left transition-all',
+                'flex w-full items-center gap-4 rounded-xl border-2 p-3 text-left transition-all',
                 selected === template.id
                   ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                  : template.accent
+                  : 'border-border hover:border-muted-foreground/40'
               )}
             >
-              {/* Mini sketch */}
-              <div className="pointer-events-none w-full overflow-hidden rounded-md border bg-muted/40 px-3 py-2 text-foreground">
-                {template.sketch}
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border bg-muted/40 text-foreground">
+                <template.icon className="h-5 w-5" />
               </div>
 
-              <div className="space-y-1">
+              <div className="min-w-0 flex-1 space-y-1">
                 <p className="text-sm font-semibold">{template.name}</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
+                <ul className="flex flex-wrap gap-x-3 gap-y-0.5 pt-0.5">
+                  {template.includes.map((item) => (
+                    <li key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="h-1 w-1 rounded-full bg-muted-foreground/50 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              <ul className="space-y-0.5">
-                {template.includes.map((item) => (
-                  <li key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className="h-1 w-1 rounded-full bg-muted-foreground/50 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </button>
           ))}
         </div>
