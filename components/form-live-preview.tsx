@@ -23,6 +23,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { RenderedContentBlock } from '@/components/rendered-content-block'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 import { getCardSpacingClass, getCardStyleCss } from '@/lib/card-style'
+import { cn } from '@/lib/utils'
 
 const EMPTY_PROFILE: SubscriberProfile = {
   email: '',
@@ -202,6 +203,15 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
   // Click-to-edit wrapper for the banner/footer regions: hover shows a teal outline and
   // an "Edit" chip; clicking jumps to that region's editor. preventDefault stops banner
   // links from navigating away when the click was meant for editing.
+  //
+  // Both call sites (live-preview-panel.tsx) wrap this component in a `rounded-xl`
+  // card. Banner sits flush against that card's top edge and footer flush against its
+  // bottom — the ring's inset box-shadow only follows border-radius set on its own
+  // element, not an ancestor's, so without matching rounding here its square corners
+  // get hard-clipped against the card's curve instead of following it.
+  const edgeRounding = (region: PreviewEditRegion) =>
+    region === 'banner' ? 'rounded-t-xl' : region === 'footer' ? 'rounded-b-xl' : ''
+
   const editRegion = (region: PreviewEditRegion, label: string, node: React.ReactNode) =>
     onEditRegion ? (
       <div
@@ -210,7 +220,7 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
         role="button"
         aria-label={`Edit ${label}`}
       >
-        <div className="pointer-events-none absolute inset-0 z-20 hidden ring-2 ring-inset ring-primary/60 group-hover/edit:block" />
+        <div className={cn('pointer-events-none absolute inset-0 z-20 hidden ring-2 ring-inset ring-primary/60 group-hover/edit:block', edgeRounding(region))} />
         <div className="pointer-events-none absolute right-2 top-2 z-20 hidden group-hover/edit:block">
           <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground shadow-sm">Edit {label}</span>
         </div>
