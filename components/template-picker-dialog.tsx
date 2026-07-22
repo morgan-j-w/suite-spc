@@ -27,6 +27,7 @@ export interface TemplateConfig {
 export function makeNewsletter(): TemplateConfig {
   const detailsId = uuidv4()
   const catId = uuidv4()
+  const suppressId = uuidv4()
   return {
     profileFieldSections: [
       {
@@ -48,14 +49,17 @@ export function makeNewsletter(): TemplateConfig {
         type: 'checkbox',
         required: false,
         options: [
-          { key: uuidv4(), label: 'General News', description: 'Industry news and updates', mailGroupId: 'general-news' },
-          { key: uuidv4(), label: 'Weekly Digest', description: 'A curated round-up every Friday', mailGroupId: 'weekly-digest' },
-          { key: uuidv4(), label: 'Product Announcements', description: 'New features and releases', mailGroupId: 'product-announcements' },
+          { key: uuidv4(), label: 'General News', description: 'Industry news and updates', mailGroupId: 'general-news', suppressMailGroupId: suppressId },
+          { key: uuidv4(), label: 'Weekly Digest', description: 'A curated round-up every Friday', mailGroupId: 'weekly-digest', suppressMailGroupId: suppressId },
+          { key: uuidv4(), label: 'Product Announcements', description: 'New features and releases', mailGroupId: 'product-announcements', suppressMailGroupId: suppressId },
         ],
       },
     ],
     sectionOrder: [detailsId, catId],
-    mailGroupsToAdd: defaultMailGroups.map((g) => ({ ...g })),
+    mailGroupsToAdd: [
+      ...defaultMailGroups.map((g) => ({ ...g })),
+      { id: suppressId, name: 'SUPPRESS - Newsletter topics', folder: 'Suppress' },
+    ],
   }
 }
 
@@ -65,6 +69,7 @@ function makeEvents(): TemplateConfig {
   const eventsMailGroupId = uuidv4()
   const webinarsMailGroupId = uuidv4()
   const workshopsMailGroupId = uuidv4()
+  const suppressId = uuidv4()
   return {
     profileFieldSections: [
       {
@@ -88,9 +93,9 @@ function makeEvents(): TemplateConfig {
         type: 'checkbox',
         required: false,
         options: [
-          { key: uuidv4(), label: 'In-person events', description: 'Conferences, meetups and networking', mailGroupId: eventsMailGroupId },
-          { key: uuidv4(), label: 'Webinars', description: 'Live and on-demand online sessions', mailGroupId: webinarsMailGroupId },
-          { key: uuidv4(), label: 'Workshops', description: 'Hands-on training and deep dives', mailGroupId: workshopsMailGroupId },
+          { key: uuidv4(), label: 'In-person events', description: 'Conferences, meetups and networking', mailGroupId: eventsMailGroupId, suppressMailGroupId: suppressId },
+          { key: uuidv4(), label: 'Webinars', description: 'Live and on-demand online sessions', mailGroupId: webinarsMailGroupId, suppressMailGroupId: suppressId },
+          { key: uuidv4(), label: 'Workshops', description: 'Hands-on training and deep dives', mailGroupId: workshopsMailGroupId, suppressMailGroupId: suppressId },
         ],
       },
     ],
@@ -100,6 +105,7 @@ function makeEvents(): TemplateConfig {
       { id: eventsMailGroupId, name: 'In-person Events', folder: 'Events' },
       { id: webinarsMailGroupId, name: 'Webinars', folder: 'Events' },
       { id: workshopsMailGroupId, name: 'Workshops', folder: 'Events' },
+      { id: suppressId, name: 'SUPPRESS - Event types', folder: 'Suppress' },
     ],
   }
 }
@@ -110,6 +116,7 @@ function makeEcommerce(): TemplateConfig {
   const ordersMailGroupId = uuidv4()
   const promosMailGroupId = uuidv4()
   const restockMailGroupId = uuidv4()
+  const suppressId = uuidv4()
   return {
     profileFieldSections: [
       {
@@ -131,9 +138,9 @@ function makeEcommerce(): TemplateConfig {
         type: 'checkbox',
         required: false,
         options: [
-          { key: uuidv4(), label: 'Order & Shipping Updates', description: 'Tracking info and delivery notifications', mailGroupId: ordersMailGroupId },
-          { key: uuidv4(), label: 'Promotions & Sales', description: 'Discounts, deals and seasonal offers', mailGroupId: promosMailGroupId },
-          { key: uuidv4(), label: 'Back in Stock Alerts', description: 'Get notified when saved items are available again', mailGroupId: restockMailGroupId },
+          { key: uuidv4(), label: 'Order & Shipping Updates', description: 'Tracking info and delivery notifications', mailGroupId: ordersMailGroupId, suppressMailGroupId: suppressId },
+          { key: uuidv4(), label: 'Promotions & Sales', description: 'Discounts, deals and seasonal offers', mailGroupId: promosMailGroupId, suppressMailGroupId: suppressId },
+          { key: uuidv4(), label: 'Back in Stock Alerts', description: 'Get notified when saved items are available again', mailGroupId: restockMailGroupId, suppressMailGroupId: suppressId },
         ],
       },
     ],
@@ -143,6 +150,7 @@ function makeEcommerce(): TemplateConfig {
       { id: ordersMailGroupId, name: 'Order & Shipping Updates', folder: 'Shopping' },
       { id: promosMailGroupId, name: 'Promotions & Sales', folder: 'Shopping' },
       { id: restockMailGroupId, name: 'Back in Stock Alerts', folder: 'Shopping' },
+      { id: suppressId, name: 'SUPPRESS - Shopping updates', folder: 'Suppress' },
     ],
   }
 }
