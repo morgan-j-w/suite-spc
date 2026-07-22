@@ -11,7 +11,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -44,7 +43,7 @@ function makeBlank(): TemplateConfig {
   }
 }
 
-function makeNewsletter(): TemplateConfig {
+export function makeNewsletter(): TemplateConfig {
   const detailsId = uuidv4()
   const catId = uuidv4()
   return {
@@ -367,25 +366,27 @@ const TEMPLATES: {
 // ── Dialog ────────────────────────────────────────────────────────────────────
 
 interface TemplatePickerDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   onApply: (config: TemplateConfig) => void
-  children: React.ReactNode
 }
 
-export function TemplatePickerDialog({ onApply, children }: TemplatePickerDialogProps) {
-  const [open, setOpen] = useState(false)
+// Controlled (no built-in trigger) so it can be opened from a DropdownMenuItem — a
+// DialogTrigger nested inside a dropdown item is unreliable, since selecting the item
+// closes the menu (and its focus scope) before the dialog would get a chance to open.
+export function TemplatePickerDialog({ open, onOpenChange, onApply }: TemplatePickerDialogProps) {
   const [selected, setSelected] = useState<string | null>(null)
 
   const handleApply = () => {
     const template = TEMPLATES.find((t) => t.id === selected)
     if (!template) return
     onApply(template.make())
-    setOpen(false)
+    onOpenChange(false)
     setSelected(null)
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setSelected(null) }}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) setSelected(null) }}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -433,7 +434,7 @@ export function TemplatePickerDialog({ onApply, children }: TemplatePickerDialog
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button disabled={!selected} onClick={handleApply}>
             Use this template
           </Button>

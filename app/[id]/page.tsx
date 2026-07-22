@@ -9,7 +9,7 @@ import { type Category, type ProfileFieldSection } from '@/lib/subscription-type
 import { defaultEmailConfig, defaultMailGroups, type EmailConfig, type MailGroup, type StatusPages, type SubmitButtonAlignment, type SubscriptionCentre, type UnsubscribeFeedbackForm } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { BuildEditor } from '@/components/build-editor'
-import { type TemplateConfig, makeFull } from '@/components/template-picker-dialog'
+import { type TemplateConfig, makeFull, makeNewsletter, TemplatePickerDialog } from '@/components/template-picker-dialog'
 import { LivePreviewPanel } from '@/components/live-preview-panel'
 import { PreviewEditor } from '@/components/preview-editor'
 import { StatusPagesEditor } from '@/components/status-pages-editor'
@@ -27,7 +27,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, Loader2, Mail, MoreHorizontal, Paintbrush, Redo2, Share2, Undo2 } from 'lucide-react'
+import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Redo2, Share2, Undo2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
 import { ExportEditor } from '@/components/export-editor'
 
@@ -72,6 +72,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [emailSection, setEmailSection] = useState<EmailSection>('design')
   const [showSuppressErrors, setShowSuppressErrors] = useState(false)
   const [justPublished, setJustPublished] = useState(false)
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
   const [demoToken, setDemoToken] = useState<string | null>(null)
   const [demoTokenLoading, setDemoTokenLoading] = useState(false)
@@ -338,6 +339,26 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setActiveSection('build')
   }
 
+  // Same shape as handleDemoForm but with the minimal Newsletter template — one form
+  // fields section, one mailgroup category — and a catch-all group so it publishes
+  // out of the box without touching brand/banner/footer.
+  const handleSimpleDemoForm = () => {
+    const template = makeNewsletter()
+    const catchAllMailGroupId = crypto.randomUUID()
+    setCentre((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        profileFieldSections: template.profileFieldSections,
+        categories: template.categories,
+        sectionOrder: template.sectionOrder,
+        mailGroups: [...template.mailGroupsToAdd, { id: catchAllMailGroupId, name: 'All Subscribers', folder: 'General' }],
+        catchAllMailGroupId,
+      }
+    })
+    setActiveSection('build')
+  }
+
   const handleApplyTemplate = (config: TemplateConfig) => {
     setCentre((prev) => {
       if (!prev) return prev
@@ -463,14 +484,23 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem onClick={handleDemoForm}>
                     <FlaskConical className="h-3.5 w-3.5" />
                     Load demo form
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSimpleDemoForm}>
+                    <Beaker className="h-3.5 w-3.5" />
+                    Load simple demo form
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleClearForm}>
                     <Eraser className="h-3.5 w-3.5" />
                     Clear form
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setTemplateDialogOpen(true)}>
+                    <LayoutTemplate className="h-3.5 w-3.5" />
+                    Form library
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleExportSpec}>
@@ -479,6 +509,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <TemplatePickerDialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen} onApply={handleApplyTemplate} />
               {isDirty ? (
                 <>
                   <span className="hidden items-center gap-1.5 text-xs font-medium text-amber-600 lg:flex dark:text-amber-400">
