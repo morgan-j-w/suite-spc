@@ -298,6 +298,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
             categories: [],
             sectionOrder: [defaultSectionId],
             mailGroups: defaultMailGroups.map((g) => ({ ...g })),
+            catchAllMailGroupId: null,
           }
         : prev
     )
@@ -390,7 +391,10 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
   const isDirty = savedSnapshot !== null && JSON.stringify(centre) !== savedSnapshot
 
-  const hasCatchAllMailGroup = Boolean(centre.catchAllMailGroupId)
+  // Checking the id alone isn't enough — it can go stale (e.g. Clear Form resets
+  // mailGroups but a leftover id would still pass a truthiness check) and silently
+  // let Publish through with no actual parent mailgroup selected.
+  const hasCatchAllMailGroup = centre.mailGroups.some((g) => g.id === centre.catchAllMailGroupId)
   const optionsMissingSuppress = centre.categories.flatMap((c) =>
     c.options.filter((o) => o.mailGroupId && o.suppressMailGroupId === undefined)
   )
