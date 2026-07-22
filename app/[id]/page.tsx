@@ -11,6 +11,7 @@ import type { ColorTheme } from '@/lib/brand-config'
 import { BuildEditor } from '@/components/build-editor'
 import { type TemplateConfig, makeFull, makeNewsletter, TemplatePickerDialog } from '@/components/template-picker-dialog'
 import { LivePreviewPanel } from '@/components/live-preview-panel'
+import { MobilePreviewDialog } from '@/components/mobile-preview-dialog'
 import { PreviewEditor } from '@/components/preview-editor'
 import { StatusPagesEditor } from '@/components/status-pages-editor'
 import { Button } from '@/components/ui/button'
@@ -27,7 +28,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Redo2, Share2, Undo2 } from 'lucide-react'
+import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, Eye, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Redo2, Share2, Undo2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
 import { ExportEditor } from '@/components/export-editor'
 
@@ -73,6 +74,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const [showSuppressErrors, setShowSuppressErrors] = useState(false)
   const [justPublished, setJustPublished] = useState(false)
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false)
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
   const [demoToken, setDemoToken] = useState<string | null>(null)
   const [demoTokenLoading, setDemoTokenLoading] = useState(false)
@@ -359,6 +361,15 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setActiveSection('build')
   }
 
+  // Shared by the sidebar live preview (xl+) and the header Preview dialog (below xl) —
+  // clicking the banner/footer in either jumps to its editor; the dialog additionally
+  // needs closing since it's a modal sitting on top of that editor.
+  const handleEditRegion = (region: 'banner' | 'footer') => {
+    setActiveSection('design')
+    setDesignSection(region)
+    setPreviewDialogOpen(false)
+  }
+
   const handleApplyTemplate = (config: TemplateConfig) => {
     setCentre((prev) => {
       if (!prev) return prev
@@ -510,6 +521,20 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
               <TemplatePickerDialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen} onApply={handleApplyTemplate} />
+              {(activeSection === 'build' || activeSection === 'design') && (
+                <>
+                  <Button variant="outline" size="sm" className="gap-2 xl:hidden" onClick={() => setPreviewDialogOpen(true)}>
+                    <Eye className="h-4 w-4" />
+                    Preview
+                  </Button>
+                  <MobilePreviewDialog
+                    open={previewDialogOpen}
+                    onOpenChange={setPreviewDialogOpen}
+                    centre={centre}
+                    onEditRegion={handleEditRegion}
+                  />
+                </>
+              )}
               {isDirty ? (
                 <>
                   <span className="hidden items-center gap-1.5 text-xs font-medium text-amber-600 lg:flex dark:text-amber-400">
@@ -877,10 +902,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
           <aside className="hidden w-[360px] shrink-0 overflow-y-auto border-l bg-background p-4 xl:block">
             <LivePreviewPanel
               centre={centre}
-              onEditRegion={(region) => {
-                setActiveSection('design')
-                setDesignSection(region)
-              }}
+              onEditRegion={handleEditRegion}
             />
           </aside>
         )}
