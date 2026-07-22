@@ -359,7 +359,7 @@ export function TemplatePickerDialog({ open, onOpenChange, onApply }: TemplatePi
               type="button"
               onClick={() => setSelected(template.id)}
               className={cn(
-                'flex w-full items-center gap-4 rounded-xl border-2 p-3 text-left transition-all',
+                'flex w-full items-start gap-4 rounded-xl border-2 p-3 text-left transition-all',
                 selected === template.id
                   ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
                   : 'border-border hover:border-muted-foreground/40'
