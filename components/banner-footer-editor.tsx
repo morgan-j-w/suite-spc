@@ -636,7 +636,8 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             </SettingGroup>
           )}
 
-          <SettingGroup title="Advanced" icon={Code2} collapsible>
+          <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
+            <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
           {/* Custom HTML */}
           <div>
             <button
@@ -862,7 +863,8 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             </SettingGroup>
           )}
 
-          <SettingGroup title="Advanced" icon={Code2} collapsible>
+          <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
+            <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
           {/* Custom HTML */}
           <div>
             <button

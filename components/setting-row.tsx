@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { ChevronRight, Lock, type LucideIcon } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -38,21 +39,42 @@ interface SettingGroupProps {
   // wall of closed rows, and everything below it starts collapsed.
   collapsible?: boolean
   defaultOpen?: boolean
+  // Marks a group as internal-only (e.g. raw HTML/CSS overrides). This is presentation
+  // ONLY -- it labels and visually separates the group, it does not gate access. Actually
+  // restricting it needs a real role check, which this tool has no concept of yet.
+  staffOnly?: boolean
 }
 
 // Each settings group is its own card — matching the Build tab's convention (Parent
 // Mailgroup, Your Details, each mailgroup category) of one titled card per block, rather
 // than several groups sharing one big card separated by dividers.
-export function SettingGroup({ title, icon: Icon, action, children, className, collapsible, defaultOpen = false }: SettingGroupProps) {
+export function SettingGroup({ title, icon: Icon, action, children, className, collapsible, defaultOpen = false, staffOnly = false }: SettingGroupProps) {
   const [open, setOpen] = useState(!collapsible || defaultOpen)
   const iconCircle = Icon && (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
-      <Icon className="h-4 w-4 text-primary" />
+    <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', staffOnly ? 'bg-amber-100 dark:bg-amber-950' : 'bg-primary/10')}>
+      <Icon className={cn('h-4 w-4', staffOnly ? 'text-amber-600 dark:text-amber-400' : 'text-primary')} />
     </div>
+  )
+  const staffBadge = staffOnly && (
+    <Badge
+      variant="outline"
+      className="shrink-0 gap-1 border-amber-300 bg-amber-50 font-normal text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
+    >
+      <Lock className="h-3 w-3" />
+      Staff only
+    </Badge>
   )
   return (
     // overflow-hidden so the header's hover fill is clipped to the card's rounded corners
-    <Card className={cn('gap-0 overflow-hidden py-0', className)}>
+    <Card
+      className={cn(
+        'gap-0 overflow-hidden py-0',
+        // Dashed amber edge so an internal-only card is obviously not part of the normal
+        // client-facing set, even before reading the badge.
+        staffOnly && 'border-dashed border-amber-300 bg-amber-50/30 dark:border-amber-800 dark:bg-amber-950/10',
+        className
+      )}
+    >
       <div className="flex items-stretch">
         {collapsible ? (
           // The whole header row is the hit target (chevron, title and icon alike), so the
@@ -66,12 +88,16 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
             className="flex min-w-0 flex-1 items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-muted/40"
           >
             <ChevronRight className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')} />
-            <p className="min-w-0 flex-1 truncate text-base font-semibold">{title}</p>
+            <p className="min-w-0 truncate text-base font-semibold">{title}</p>
+            {staffBadge}
+            <span className="flex-1" />
             {iconCircle}
           </button>
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-3 px-6 py-4">
-            <p className="min-w-0 flex-1 truncate text-base font-semibold">{title}</p>
+            <p className="min-w-0 truncate text-base font-semibold">{title}</p>
+            {staffBadge}
+            <span className="flex-1" />
             {iconCircle}
           </div>
         )}
