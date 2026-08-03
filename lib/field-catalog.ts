@@ -17,9 +17,12 @@ export const fieldCatalog: CustomProfileField[] = [
   { id: 'lib-work-phone', label: 'Work Phone', type: 'phone', required: false, placeholder: '+61 2 XXXX XXXX' },
   { id: 'lib-additional-comments', label: 'Additional Comments', type: 'textarea', required: false, placeholder: "Anything else you'd like us to know?" },
 
-  { id: 'lib-employee-count', label: 'Number of Employees', type: 'number', required: false, min: 0 },
-  { id: 'lib-annual-revenue', label: 'Annual Revenue', type: 'number', required: false, min: 0 },
-  { id: 'lib-team-size', label: 'Team Size', type: 'number', required: false, min: 1, max: 10000 },
+  // No min/max/step here on purpose -- the real system stores these as plain numbers with
+  // no configurable limits, so any bounds would be invented. Slider bounds and star counts
+  // are set per-placement in the builder instead (see buildFieldFromCatalog).
+  { id: 'lib-employee-count', label: 'Number of Employees', type: 'number', required: false },
+  { id: 'lib-annual-revenue', label: 'Annual Revenue', type: 'number', required: false },
+  { id: 'lib-team-size', label: 'Team Size', type: 'number', required: false },
 
   {
     id: 'lib-industry',
@@ -106,9 +109,16 @@ export function getCatalogField(id: string): CustomProfileField | undefined {
   return fieldCatalog.find((f) => f.id === id)
 }
 
+// A range slider is unusable without bounds, but the real system doesn't store any -- it
+// just saves whatever number comes back. So the builder gets a workable starting range it
+// can then tune per placement, rather than the catalog pretending to know one.
+const DEFAULT_SLIDER_MIN = 0
+const DEFAULT_SLIDER_MAX = 100
+const DEFAULT_RATING_MAX = 5
+
 // The one place a real, placeable field gets built from a catalog entry — used by the Add
 // Field flow and by the demo templates alike, so both construct catalog-sourced fields the
-// same way (fresh instance id, catalog's options/min/max/step, the caller's chosen widget).
+// same way (fresh instance id, the catalog's label/options, the caller's chosen widget).
 // `overrides` covers the things that are genuinely per-placement, matching what the Add Field
 // flow leaves editable afterwards: display text/help/placeholder, whether this instance is
 // required, a conditional visibility rule, and (demo templates only) a fixed instance id so a
@@ -127,6 +137,7 @@ export function buildFieldFromCatalog(
 ): CustomProfileField {
   const catalogField = getCatalogField(catalogFieldId)
   if (!catalogField) throw new Error(`Unknown catalog field id: ${catalogFieldId}`)
+  const isSlider = widgetType === 'range'
   return {
     id: overrides?.id ?? uuidv4(),
     label: overrides?.label ?? catalogField.label,
@@ -135,10 +146,9 @@ export function buildFieldFromCatalog(
     placeholder: overrides?.placeholder ?? catalogField.placeholder,
     helpText: overrides?.helpText ?? catalogField.helpText,
     options: catalogField.options?.map((o) => ({ ...o })),
-    min: catalogField.min,
-    max: catalogField.max,
-    step: catalogField.step,
-    ratingMax: widgetType === 'rating' ? (catalogField.ratingMax ?? 5) : undefined,
+    min: isSlider ? DEFAULT_SLIDER_MIN : undefined,
+    max: isSlider ? DEFAULT_SLIDER_MAX : undefined,
+    ratingMax: widgetType === 'rating' ? DEFAULT_RATING_MAX : undefined,
     visibleWhen: overrides?.visibleWhen,
   }
 }

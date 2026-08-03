@@ -69,11 +69,10 @@ import { ConditionalBadge, ConditionalVisibilityNote } from '@/components/condit
 const TEXT_LIKE_TYPES: ProfileFieldType[] = ['text', 'email', 'phone', 'number', 'textarea']
 const NUMERIC_RANGE_TYPES: ProfileFieldType[] = ['number', 'range']
 
-// Shown wherever the edit form displays something the builder can look at but not change,
-// because it belongs to the underlying custom field. Kept as one short, matter-of-fact line
-// rather than per-control warnings -- it's a fact about where the value came from, not a
-// telling-off for trying to edit it.
-const FROM_FIELD_HINT = 'Set on the custom field'
+// Marks the controls that only affect how this form asks the question -- the answer still
+// saves as a plain number either way -- so it's clear they aren't changing the custom field
+// itself the way the (locked) options list would.
+const PRESENTATION_HINT = 'Affects how this question looks, not what gets saved'
 
 // One-line plain-text snippet for the collapsed card preview -- paragraph content is now
 // rich HTML, so showing it raw would print literal tags instead of readable text.
@@ -480,26 +479,51 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
         </div>
       )}
 
-      {NUMERIC_RANGE_TYPES.includes(type) && (field.min !== undefined || field.max !== undefined || field.step !== undefined) && (
+      {/* Slider bounds and star counts are how this form collects the answer, not part of
+          the stored value (the backend just saves a number), so they stay editable here --
+          unlike options, which are the field's real allowed values. */}
+      {NUMERIC_RANGE_TYPES.includes(type) && (
         <div className="space-y-2">
           <Label>Range</Label>
-          <p className="text-xs text-muted-foreground">{FROM_FIELD_HINT}</p>
-          <div className="flex flex-wrap gap-1.5">
-            <Badge variant="outline" className="font-normal">
-              {field.min ?? 0}–{field.max ?? '∞'}
-            </Badge>
-            {field.step ? <Badge variant="outline" className="font-normal">Steps of {field.step}</Badge> : null}
+          <p className="text-xs text-muted-foreground">{PRESENTATION_HINT}</p>
+          <div className="grid grid-cols-3 gap-2">
+            <Input
+              aria-label="Minimum"
+              type="number"
+              placeholder="Min"
+              value={field.min ?? ''}
+              onChange={(e) => onUpdateField({ min: e.target.value === '' ? undefined : Number(e.target.value) })}
+            />
+            <Input
+              aria-label="Maximum"
+              type="number"
+              placeholder="Max"
+              value={field.max ?? ''}
+              onChange={(e) => onUpdateField({ max: e.target.value === '' ? undefined : Number(e.target.value) })}
+            />
+            <Input
+              aria-label="Step"
+              type="number"
+              placeholder="Step"
+              value={field.step ?? ''}
+              onChange={(e) => onUpdateField({ step: e.target.value === '' ? undefined : Number(e.target.value) })}
+            />
           </div>
         </div>
       )}
 
       {type === 'rating' && (
         <div className="space-y-2">
-          <Label>Number of stars</Label>
-          <p className="text-xs text-muted-foreground">{FROM_FIELD_HINT}</p>
-          <div className="flex flex-wrap gap-1.5">
-            <Badge variant="outline" className="font-normal">{field.ratingMax ?? 5} stars</Badge>
-          </div>
+          <Label htmlFor={`field-rating-max-${field.id}`}>Number of stars</Label>
+          <p className="text-xs text-muted-foreground">{PRESENTATION_HINT}</p>
+          <Input
+            id={`field-rating-max-${field.id}`}
+            type="number"
+            min={2}
+            max={10}
+            value={field.ratingMax ?? 5}
+            onChange={(e) => onUpdateField({ ratingMax: Number(e.target.value) || 5 })}
+          />
         </div>
       )}
 
