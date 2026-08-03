@@ -40,12 +40,13 @@ type BuilderSection = 'build' | 'design' | 'emails' | 'pages' | 'export'
 type DesignSection = 'brand' | 'theme' | 'banner' | 'footer' | 'form'
 type EmailSection = 'banner' | 'footer' | 'messages' | 'design'
 
+// Export tab is hidden, not removed — 'export' stays a valid BuilderSection and its
+// panel below still renders if this list ever adds it back.
 const SECTIONS: { id: BuilderSection; label: string; icon: typeof Layers }[] = [
   { id: 'build', label: 'Build', icon: Layers },
   { id: 'design', label: 'Design', icon: Paintbrush },
   { id: 'emails', label: 'Emails', icon: Mail },
   { id: 'pages', label: 'Pages', icon: FileText },
-  { id: 'export', label: 'Export', icon: Share2 },
 ]
 
 const DESIGN_SUBSECTIONS: { id: DesignSection; label: string }[] = [
