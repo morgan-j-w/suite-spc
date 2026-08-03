@@ -35,7 +35,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MultiSelect } from '@/components/multi-select'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { FolderOpen, Plus, X, GripVertical, Pencil, Settings, Check, Trash2, ArrowDownAZ, Sparkles } from 'lucide-react'
+import { FolderOpen, Plus, X, GripVertical, Pencil, Settings, Check, Trash2, ArrowDownAZ, Sparkles, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -147,6 +147,9 @@ export function CategoryCard({
             />
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <Tag className="h-4 w-4 text-primary" />
+            </div>
             <div className="flex gap-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleExpand}>
                 {isExpanded ? <Check className="h-4 w-4" /> : <Settings className="h-4 w-4" />}

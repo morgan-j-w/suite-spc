@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { Subscriber } from '@/lib/subscriber-store'
-import { SubscriberProfile, CategoryAnswers, flattenProfileFields, isCategoryAnswered, isCategoryVisible, isProfileFieldAnswered, isProfileFieldVisible } from '@/lib/subscription-types'
+import { SubscriberProfile, CategoryAnswers, flattenProfileFields, isCategoryAnswered, isCategoryVisible, isProfileFieldAnswered, isProfileFieldVisible, parseStoredProfile, serializeProfileForStorage } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { ensureSeedCentre, getCentre } from '@/lib/subscription-centre-store'
 import { SubscriptionCentreWidget } from '@/components/subscription-centre-widget'
@@ -25,7 +25,12 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setCentre(getCentre(subscriber.centreId) || ensureSeedCentre())
+    const loaded = getCentre(subscriber.centreId) || ensureSeedCentre()
+    setCentre(loaded)
+    // Multi-pick answers are stored comma-separated; the widgets need them back as arrays
+    // or previously-saved selections wouldn't show as ticked. Needs the centre's fields to
+    // know which ids are multi-pick, hence doing it here rather than in useState.
+    setProfile((prev) => parseStoredProfile(prev, flattenProfileFields(loaded.profileFieldSections)))
   }, [subscriber.centreId])
 
   if (!centre) {
@@ -53,7 +58,10 @@ export function ManagePreferencesForm({ subscriber: initialSubscriber }: ManageP
       const response = await fetch(`/api/preferences/${subscriber.token}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, preferences: answers }),
+        body: JSON.stringify({
+          profile: serializeProfileForStorage(profile, flattenProfileFields(centre.profileFieldSections)),
+          preferences: answers,
+        }),
       })
 
       const data = await response.json()

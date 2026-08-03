@@ -206,11 +206,18 @@ export function BuildEditor({
 
       {/* Parent mailgroup — lives outside sectionOrder */}
       <Card className="gap-0 py-0">
-        <CardHeader className="px-6 pb-3 pt-4">
-          <CardTitle className="text-base">Parent Mailgroup</CardTitle>
-          <CardDescription>
-            Every subscriber is automatically added to this mailgroup. It&apos;s never shown as a question on the form.
-          </CardDescription>
+        {/* `flex` overrides CardHeader's default grid, which would otherwise drop the icon
+            onto its own row underneath the description instead of top-right beside it. */}
+        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 px-6 pb-3 pt-4">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base">Parent Mailgroup</CardTitle>
+            <CardDescription>
+              Every subscriber is automatically added to this mailgroup. It&apos;s never shown as a question on the form.
+            </CardDescription>
+          </div>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <Tag className="h-4 w-4 text-primary" />
+          </div>
         </CardHeader>
         <CardContent className="px-6 pb-6 pt-3">
           <CatchAllMailGroupSection

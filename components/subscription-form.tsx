@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { SubscriberProfile, CategoryAnswers, buildDefaultAnswers, flattenProfileFields, isCategoryAnswered, isCategoryVisible, isProfileFieldAnswered, isProfileFieldVisible } from '@/lib/subscription-types'
+import { SubscriberProfile, CategoryAnswers, buildDefaultAnswers, flattenProfileFields, isCategoryAnswered, isCategoryVisible, isProfileFieldAnswered, isProfileFieldVisible, serializeProfileForStorage } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { ensureSeedCentre } from '@/lib/subscription-centre-store'
 import { SubscriptionCentreWidget } from '@/components/subscription-centre-widget'
@@ -61,7 +61,12 @@ export function SubscriptionForm() {
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ centreId: centre.id, profile, preferences: answers }),
+        body: JSON.stringify({
+          centreId: centre.id,
+          // Multi-pick answers flatten to comma-separated labels on the way out
+          profile: serializeProfileForStorage(profile, flattenProfileFields(centre.profileFieldSections)),
+          preferences: answers,
+        }),
       })
 
       const data = await response.json()

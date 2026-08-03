@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronUp, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, SlidersHorizontal, Trash2, Wallpaper } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, SlidersHorizontal, Trash2, Wallpaper } from 'lucide-react'
 import type { BannerConfig, BannerLayout, Brand, FooterConfig, FooterLayout, BannerLink } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { Input } from '@/components/ui/input'
@@ -35,7 +35,7 @@ function Thumb({ children, label, selected, onClick }: { children: React.ReactNo
       )}
     >
       <div className="h-14 w-full overflow-hidden rounded">{children}</div>
-      <span className="text-xs font-medium leading-tight text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium leading-tight text-muted-foreground">{label}</span>
     </button>
   )
 }
@@ -363,7 +363,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
 function LinksEditor({ links, onChange, label }: { links: BannerLink[]; onChange: (l: BannerLink[]) => void; label: string }) {
   return (
     <div className="space-y-2">
-      <Label className="text-xs">{label}</Label>
+      <Label className="text-sm">{label}</Label>
       {links.map((link) => (
         <div key={link.id} className="flex items-center gap-2">
           <Input
@@ -477,8 +477,6 @@ interface BannerEditorProps {
 }
 
 export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, textEditor }: BannerEditorProps & { preview?: ReactNode; textEditor?: ReactNode }) {
-  const [showHtml, setShowHtml] = useState(false)
-  const [showCss, setShowCss] = useState(false)
   const enabled = !!banner
   const cfg = banner ?? { layout: 'centred' as BannerLayout, fullWidth: false }
   const patch = (u: Partial<BannerConfig>) => onBannerChange({ ...cfg, ...u })
@@ -521,18 +519,18 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {/* Options */}
           <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Edge to edge</span>
+              <span className="text-sm text-muted-foreground">Edge to edge</span>
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Sticky (fixed to top)</span>
+              <span className="text-sm text-muted-foreground">Sticky (fixed to top)</span>
               <Switch checked={!!cfg.sticky} onCheckedChange={(v) => patch({ sticky: v || undefined })} />
             </div>
             <SettingRow label="Section padding">
               <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Background image</span>
+              <span className="text-sm text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
           </SettingGroup>
@@ -589,7 +587,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Banner image — full-width band below the banner; uploading an image enables it */}
           <SettingGroup title="Banner image" icon={GalleryHorizontalEnd} collapsible>
-            <p className="text-xs text-muted-foreground">Optional edge-to-edge image shown below the banner, above the page content. Upload an image to enable it.</p>
+            <p className="text-sm text-muted-foreground">Optional edge-to-edge image shown below the banner, above the page content. Upload an image to enable it.</p>
             <ImageUploadField
               label="Image"
               value={cfg.bannerImageUrl}
@@ -617,7 +615,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
                 <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
                   onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
                   className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-xs text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+                <span className="w-8 text-right text-sm text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
               </SettingRow>
               <SettingRow label="Image fit">
                 <Segmented
@@ -638,78 +636,61 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
             <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
-          {/* Custom HTML */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowHtml((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Code2 className="h-3.5 w-3.5" />
-              Custom HTML
-              {cfg.customHtml && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-500" />}
-              {showHtml ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            </button>
-            {showHtml && (
-              <div className="mt-2 space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  Overrides the layout above when set. Leave empty to restore the default layout.
-                </p>
-                {brand && !cfg.customHtml && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      patch({ customHtml: populateBannerHtml(cfg, brand) })
-                    }}
-                    className="flex items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Populate from current layout
-                  </button>
-                )}
-                {cfg.customHtml && (
-                  <button
-                    type="button"
-                    onClick={() => patch({ customHtml: undefined })}
-                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Reset to layout
-                  </button>
-                )}
-                <Textarea
-                  className="font-mono text-xs"
-                  rows={8}
-                  placeholder="<div>Your custom HTML here…</div>"
-                  value={cfg.customHtml ?? ''}
-                  onChange={(e) => patch({ customHtml: e.target.value || undefined })}
-                />
-              </div>
-            )}
-          </div>
 
-          {/* Custom CSS */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowCss((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Code2 className="h-3.5 w-3.5" />
-              Custom CSS
-              {cfg.customCss && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-500" />}
-              {showCss ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            </button>
-            {showCss && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Code2 className="h-3.5 w-3.5" />
+                Custom HTML
+                {cfg.customHtml && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Overrides the layout above when set. Leave empty to restore the default layout.
+              </p>
+              {brand && !cfg.customHtml && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    patch({ customHtml: populateBannerHtml(cfg, brand) })
+                  }}
+                  className="flex items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 py-1.5 text-sm text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Populate from current layout
+                </button>
+              )}
+              {cfg.customHtml && (
+                <button
+                  type="button"
+                  onClick={() => patch({ customHtml: undefined })}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Reset to layout
+                </button>
+              )}
               <Textarea
-                className="mt-2 font-mono text-xs"
+                className="font-mono text-sm"
+                rows={8}
+                placeholder="<div>Your custom HTML here…</div>"
+                value={cfg.customHtml ?? ''}
+                onChange={(e) => patch({ customHtml: e.target.value || undefined })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Code2 className="h-3.5 w-3.5" />
+                Custom CSS
+                {cfg.customCss && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+              </Label>
+              <Textarea
+                className="font-mono text-sm"
                 rows={5}
                 placeholder=".my-class { color: red; }"
                 value={cfg.customCss ?? ''}
                 onChange={(e) => patch({ customCss: e.target.value || undefined })}
               />
-            )}
-          </div>
+            </div>
           </SettingGroup>
         </div>
       )}
@@ -727,8 +708,6 @@ interface FooterEditorProps {
 }
 
 export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }: FooterEditorProps & { preview?: ReactNode }) {
-  const [showHtml, setShowHtml] = useState(false)
-  const [showCss, setShowCss] = useState(false)
   const enabled = !!footer
   const cfg = footer ?? { layout: 'minimal-line' as FooterLayout, fullWidth: false }
   const patch = (u: Partial<FooterConfig>) => onFooterChange({ ...cfg, ...u })
@@ -771,14 +750,14 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           {/* Options */}
           <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Edge to edge</span>
+              <span className="text-sm text-muted-foreground">Edge to edge</span>
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
             </div>
             <SettingRow label="Section padding">
               <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Background image</span>
+              <span className="text-sm text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
           </SettingGroup>
@@ -816,7 +795,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
 
           {/* Footer image — full-width band above the footer; uploading an image enables it */}
           <SettingGroup title="Footer image" icon={GalleryHorizontalEnd} collapsible>
-            <p className="text-xs text-muted-foreground">Optional edge-to-edge image shown above the footer, below the page content. Upload an image to enable it.</p>
+            <p className="text-sm text-muted-foreground">Optional edge-to-edge image shown above the footer, below the page content. Upload an image to enable it.</p>
             <ImageUploadField
               label="Image"
               value={cfg.footerImageUrl}
@@ -844,7 +823,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
                   onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
                   className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-xs text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+                <span className="w-8 text-right text-sm text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
               </SettingRow>
               <SettingRow label="Image fit">
                 <Segmented
@@ -865,78 +844,61 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
 
           <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
             <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
-          {/* Custom HTML */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowHtml((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Code2 className="h-3.5 w-3.5" />
-              Custom HTML
-              {cfg.customHtml && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-500" />}
-              {showHtml ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            </button>
-            {showHtml && (
-              <div className="mt-2 space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  Overrides the layout above when set. Leave empty to restore the default layout.
-                </p>
-                {brand && !cfg.customHtml && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      patch({ customHtml: populateFooterHtml(cfg, brand) })
-                    }}
-                    className="flex items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Populate from current layout
-                  </button>
-                )}
-                {cfg.customHtml && (
-                  <button
-                    type="button"
-                    onClick={() => patch({ customHtml: undefined })}
-                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Reset to layout
-                  </button>
-                )}
-                <Textarea
-                  className="font-mono text-xs"
-                  rows={8}
-                  placeholder="<div>Your custom HTML here…</div>"
-                  value={cfg.customHtml ?? ''}
-                  onChange={(e) => patch({ customHtml: e.target.value || undefined })}
-                />
-              </div>
-            )}
-          </div>
 
-          {/* Custom CSS */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowCss((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Code2 className="h-3.5 w-3.5" />
-              Custom CSS
-              {cfg.customCss && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-500" />}
-              {showCss ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            </button>
-            {showCss && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Code2 className="h-3.5 w-3.5" />
+                Custom HTML
+                {cfg.customHtml && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Overrides the layout above when set. Leave empty to restore the default layout.
+              </p>
+              {brand && !cfg.customHtml && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    patch({ customHtml: populateFooterHtml(cfg, brand) })
+                  }}
+                  className="flex items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 py-1.5 text-sm text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Populate from current layout
+                </button>
+              )}
+              {cfg.customHtml && (
+                <button
+                  type="button"
+                  onClick={() => patch({ customHtml: undefined })}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Reset to layout
+                </button>
+              )}
               <Textarea
-                className="mt-2 font-mono text-xs"
+                className="font-mono text-sm"
+                rows={8}
+                placeholder="<div>Your custom HTML here…</div>"
+                value={cfg.customHtml ?? ''}
+                onChange={(e) => patch({ customHtml: e.target.value || undefined })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Code2 className="h-3.5 w-3.5" />
+                Custom CSS
+                {cfg.customCss && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+              </Label>
+              <Textarea
+                className="font-mono text-sm"
                 rows={5}
                 placeholder=".my-class { color: red; }"
                 value={cfg.customCss ?? ''}
                 onChange={(e) => patch({ customCss: e.target.value || undefined })}
               />
-            )}
-          </div>
+            </div>
           </SettingGroup>
         </div>
       )}

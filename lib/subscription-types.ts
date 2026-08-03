@@ -245,6 +245,54 @@ export function flattenProfileFields(sections: ProfileFieldSection[]): CustomPro
   return sections.flatMap((section) => section.fields)
 }
 
+// ── Multi-pick answer storage ────────────────────────────────────────────────
+//
+// Checkbox group / Multi select / Toggle collect several options at once, but the real
+// system has no array column to put them in -- they land in the same plain Text field a
+// single-line answer would. So the array of option *values* the widget works with gets
+// joined into a comma-separated list of option *labels* on the way out (labels, not
+// values, so an export reads as "Technology, Marketing" rather than internal slugs), and
+// split back into an array on the way in. Widgets keep using arrays throughout; only the
+// stored payload is flat.
+
+const MULTI_PICK_SEPARATOR = ', '
+
+export function serializeProfileForStorage(
+  profile: SubscriberProfile,
+  fields: CustomProfileField[]
+): SubscriberProfile {
+  const customFields = { ...profile.customFields }
+  for (const field of fields) {
+    if (!isMultiPickFieldType(field.type)) continue
+    const value = customFields[field.id]
+    if (!Array.isArray(value)) continue
+    customFields[field.id] = value
+      .map((v) => field.options?.find((o) => o.value === v)?.label ?? v)
+      .join(MULTI_PICK_SEPARATOR)
+  }
+  return { ...profile, customFields }
+}
+
+export function parseStoredProfile(
+  profile: SubscriberProfile,
+  fields: CustomProfileField[]
+): SubscriberProfile {
+  const customFields = { ...profile.customFields }
+  for (const field of fields) {
+    if (!isMultiPickFieldType(field.type)) continue
+    const value = customFields[field.id]
+    // Already an array (unsaved edits, or data written before this change) -- leave as is.
+    if (typeof value !== 'string') continue
+    customFields[field.id] = value
+      ? value.split(',').map((part) => {
+          const label = part.trim()
+          return field.options?.find((o) => o.label === label)?.value ?? label
+        })
+      : []
+  }
+  return { ...profile, customFields }
+}
+
 // Used by any code that adds fields in bulk (e.g. future import flows) to strip out
 // any incoming field whose id already exists somewhere on the form, preventing duplicate
 // id collisions that would break data binding and accessibility label associations.

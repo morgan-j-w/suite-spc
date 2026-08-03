@@ -45,7 +45,7 @@ function EmailThumb({
       )}
     >
       <div className="h-14 w-full overflow-hidden rounded bg-muted/30">{children}</div>
-      <span className="text-xs font-medium leading-tight text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium leading-tight text-muted-foreground">{label}</span>
     </button>
   )
 }
@@ -222,7 +222,7 @@ function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle:
         type="button"
         onClick={() => onToggle(false)}
         className={cn(
-          'flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors',
+          'flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium transition-colors',
           !sourceMode ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
         )}
       >
@@ -232,7 +232,7 @@ function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle:
         type="button"
         onClick={() => onToggle(true)}
         className={cn(
-          'flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors',
+          'flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium transition-colors',
           sourceMode ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
         )}
       >
@@ -322,8 +322,6 @@ function EmailLayoutSection({
   onPopulate,
   preview,
 }: EmailLayoutSectionProps) {
-  const [showCustomHtml, setShowCustomHtml] = useState(false)
-  const [showCustomCss, setShowCustomCss] = useState(false)
 
   return (
     <div className="space-y-6">
@@ -360,7 +358,7 @@ function EmailLayoutSection({
         <SettingGroup title="Text" icon={Type} collapsible>
           <div className="space-y-2">
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Heading</Label>
+              <Label className="text-sm text-muted-foreground">Heading</Label>
               <Input
                 value={heading ?? ''}
                 onChange={(e) => onHeadingChange(e.target.value)}
@@ -369,7 +367,7 @@ function EmailLayoutSection({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Subheading</Label>
+              <Label className="text-sm text-muted-foreground">Subheading</Label>
               <Input
                 value={subheading ?? ''}
                 onChange={(e) => onSubheadingChange?.(e.target.value)}
@@ -444,77 +442,60 @@ function EmailLayoutSection({
       )}
 
       <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
-            <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
-      {/* Custom HTML */}
-      <div>
-        <button
-          type="button"
-          onClick={() => setShowCustomHtml((v) => !v)}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Code2 className="h-3.5 w-3.5" />
-          Custom HTML
-          {htmlValue && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-500" />}
-          {showCustomHtml ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-        </button>
-        {showCustomHtml && (
-          <div className="mt-2 space-y-2">
-            <p className="text-xs text-muted-foreground">Overrides the generated HTML for this {section}. Leave empty to use the layout generator.</p>
-            {selectedLayout && !htmlValue && (
-              <button
-                type="button"
-                onClick={onPopulate}
-                className="flex items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
-              >
-                <RefreshCw className="h-3 w-3" />
-                Populate from current layout
-              </button>
-            )}
-            {htmlValue && (
-              <button
-                type="button"
-                onClick={() => onHtmlChange('')}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <RefreshCw className="h-3 w-3" />
-                Reset to layout
-              </button>
-            )}
-            <Textarea
-              value={htmlValue}
-              onChange={(e) => onHtmlChange(e.target.value)}
-              spellCheck={false}
-              placeholder={`<table width="650">…</table>`}
-              className="font-mono text-xs"
-              rows={8}
-            />
-          </div>
-        )}
-      </div>
+        <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
 
-      {/* Custom CSS */}
-      <div>
-        <button
-          type="button"
-          onClick={() => setShowCustomCss((v) => !v)}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Code2 className="h-3.5 w-3.5" />
-          Custom CSS
-          {cssValue && <span className="ml-1 h-1.5 w-1.5 rounded-full bg-amber-500" />}
-          {showCustomCss ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-        </button>
-        {showCustomCss && (
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <Code2 className="h-3.5 w-3.5" />
+            Custom HTML
+            {htmlValue && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+          </Label>
+          <p className="text-sm text-muted-foreground">Overrides the generated HTML for this {section}. Leave empty to use the layout generator.</p>
+          {selectedLayout && !htmlValue && (
+            <button
+              type="button"
+              onClick={onPopulate}
+              className="flex items-center gap-1.5 rounded-md border border-dashed border-border px-2.5 py-1.5 text-sm text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-colors"
+            >
+              <RefreshCw className="h-3 w-3" />
+              Populate from current layout
+            </button>
+          )}
+          {htmlValue && (
+            <button
+              type="button"
+              onClick={() => onHtmlChange('')}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <RefreshCw className="h-3 w-3" />
+              Reset to layout
+            </button>
+          )}
+          <Textarea
+            value={htmlValue}
+            onChange={(e) => onHtmlChange(e.target.value)}
+            spellCheck={false}
+            placeholder={`<table width="650">…</table>`}
+            className="font-mono text-sm"
+            rows={8}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <Code2 className="h-3.5 w-3.5" />
+            Custom CSS
+            {cssValue && <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
+          </Label>
           <Textarea
             value={cssValue}
             onChange={(e) => onCssChange(e.target.value)}
             spellCheck={false}
             placeholder=".my-class { color: red; }"
-            className="mt-2 font-mono text-xs"
+            className="font-mono text-sm"
             rows={5}
           />
-        )}
-      </div>
+        </div>
       </SettingGroup>
     </div>
   )
@@ -610,7 +591,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
           {open ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">{meta.title}</p>
-            <p className="text-xs text-muted-foreground">{meta.description}</p>
+            <p className="text-sm text-muted-foreground">{meta.description}</p>
           </div>
           <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', meta.iconBg)}>
             <MetaIcon className={cn('h-4 w-4', meta.iconColor)} />
@@ -621,7 +602,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
       {open && (
         <CardContent className="space-y-4 px-6 pb-6 pt-0">
           <div className="space-y-1.5">
-            <Label className="text-xs">Subject line</Label>
+            <Label className="text-sm">Subject line</Label>
             <Input
               value={template.subject}
               onChange={(e) => onChange({ subject: e.target.value })}
@@ -632,7 +613,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Body</Label>
+              <Label className="text-sm">Body</Label>
               <SourceToggle sourceMode={sourceMode} onToggle={setSourceMode} />
             </div>
             {sourceMode ? (
@@ -641,7 +622,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
                 onChange={(e) => onChange({ bodyHtml: e.target.value })}
                 spellCheck={false}
                 placeholder="<p>Email body HTML…</p>"
-                className="h-48 w-full rounded-md border bg-background px-3 py-2 font-mono text-xs focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-ring/50"
+                className="h-48 w-full rounded-md border bg-background px-3 py-2 font-mono text-sm focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-ring/50"
               />
             ) : (
               <RichTextEditor
@@ -964,7 +945,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             </div>
           </SettingGroup>
           <SettingGroup title="Container" icon={Square} collapsible>
-            <p className="text-xs text-muted-foreground">The middle card between the banner and footer.</p>
+            <p className="text-sm text-muted-foreground">The middle card between the banner and footer.</p>
             <SettingRow label="Padding">
               <SizeControl
                 value={cfg.emailContainerPadding}

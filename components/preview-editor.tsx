@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Columns2, GalleryVertical, PanelTop, RectangleHorizontal, Rows2, Sparkles, SquareStack, Type } from 'lucide-react'
+import { Columns2, GalleryVertical, LayoutTemplate, PanelTop, RectangleHorizontal, Rows2, Sparkles, SquareStack, Type } from 'lucide-react'
 
 type DesignSection = 'brand' | 'theme' | 'banner' | 'footer' | 'form'
 import {
@@ -283,7 +283,7 @@ export function PreviewEditor({
                 </div>
 
                 <SettingGroup title="Theme" icon={Sparkles} collapsible defaultOpen>
-                  <p className="text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
+                  <p className="text-sm text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
                   <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
                 </SettingGroup>
 
@@ -353,10 +353,10 @@ export function PreviewEditor({
                   )}
                   textEditor={
                     <SettingGroup title="Text" icon={Type} collapsible>
-                      <p className="text-xs text-muted-foreground">Each page has its own banner heading and description — pick a page, then edit its text. The preview above follows.</p>
+                      <p className="text-sm text-muted-foreground">Each page has its own banner heading and description — pick a page, then edit its text. The preview above follows.</p>
                       <SettingRow label="Page">
                         <Select value={bannerTextFlow} onValueChange={(v) => setBannerTextFlow(v as keyof StatusPages)}>
-                          <SelectTrigger className="h-7 w-full text-xs">
+                          <SelectTrigger className="h-9 w-full text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -371,7 +371,7 @@ export function PreviewEditor({
                           value={flowContent.bannerHeading ?? ''}
                           onChange={(e) => patchBannerText({ bannerHeading: e.target.value || undefined })}
                           placeholder="e.g. Stay in the loop"
-                          className="h-7 flex-1 text-xs"
+                          className="h-9 flex-1 text-sm"
                         />
                       </SettingRow>
                       <SettingRow label="Description">
@@ -380,7 +380,7 @@ export function PreviewEditor({
                           onChange={(e) => patchBannerText({ bannerBlurb: e.target.value || undefined })}
                           placeholder="e.g. Choose the communications that matter to you."
                           rows={2}
-                          className="flex-1 resize-none text-xs"
+                          className="flex-1 resize-none text-sm"
                         />
                       </SettingRow>
                     </SettingGroup>
@@ -399,7 +399,7 @@ export function PreviewEditor({
                   preview={centre.footer && (
                     <div data-color-theme={centre.themePresetId} className="overflow-hidden rounded-lg border">
                       {isFooterContentEmpty(centre.footer, centre.brand) ? (
-                        <p className="px-4 py-5 text-center text-xs text-muted-foreground">
+                        <p className="px-4 py-5 text-center text-sm text-muted-foreground">
                           Add footer links below — or a logo or copyright text under Brand — to see your footer here.
                         </p>
                       ) : (
@@ -413,47 +413,38 @@ export function PreviewEditor({
           {/* Form */}
           {designSection === 'form' && (
             <>
-              {/* Layout card */}
-              <Card className="gap-0 py-0">
-                <CardHeader className="px-6 pt-4 pb-2">
-                  <CardTitle className="text-base">Layout</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5 px-6 pt-2 pb-6">
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Card presentation</p>
-                    <Segmented
-                      size="sm"
-                      options={[
-                        { value: 'separate', label: 'Separate cards', icon: GalleryVertical },
-                        { value: 'single', label: 'Single card', icon: RectangleHorizontal },
-                      ]}
-                      value={formCardMode}
-                      onChange={onFormCardModeChange}
-                    />
-                  </div>
+              <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
+                <SettingRow label="Card presentation">
+                  <Segmented
+                    options={[
+                      { value: 'separate', label: 'Separate cards', icon: GalleryVertical },
+                      { value: 'single', label: 'Single card', icon: RectangleHorizontal },
+                    ]}
+                    value={formCardMode}
+                    onChange={onFormCardModeChange}
+                  />
+                </SettingRow>
 
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Field arrangement</p>
+                <SettingRow label="Field arrangement">
+                  <Segmented
+                    options={[
+                      { value: 'stacked', label: 'Stacked', icon: Rows2 },
+                      { value: 'inline', label: 'Side by side', icon: Columns2 },
+                    ]}
+                    value={formLayout}
+                    onChange={onFormLayoutChange}
+                  />
+                </SettingRow>
+                {formLayout === 'inline' && (
+                  <SettingRow label="Label width">
                     <Segmented
-                      size="sm"
-                      options={[
-                        { value: 'stacked', label: 'Stacked', icon: Rows2 },
-                        { value: 'inline', label: 'Side by side', icon: Columns2 },
-                      ]}
-                      value={formLayout}
-                      onChange={onFormLayoutChange}
+                      options={[{ value: '25', label: '25%' }, { value: '33', label: '33%' }, { value: '50', label: '50%' }]}
+                      value={String(formLabelWidth) as '25' | '33' | '50'}
+                      onChange={(v) => onFormLabelWidthChange(Number(v))}
                     />
-                    {formLayout === 'inline' && (
-                      <Segmented
-                        size="sm"
-                        options={[{ value: '25', label: '25%' }, { value: '33', label: '33%' }, { value: '50', label: '50%' }]}
-                        value={String(formLabelWidth) as '25' | '33' | '50'}
-                        onChange={(v) => onFormLabelWidthChange(Number(v))}
-                      />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </SettingRow>
+                )}
+              </SettingGroup>
 
               {/* Form blocks — draggable, with style pickers */}
               {cardStyleCss && <style dangerouslySetInnerHTML={{ __html: cardStyleCss }} />}

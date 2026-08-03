@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
-import { Check, Settings, Trash2 } from 'lucide-react'
+import { Check, Settings, TextCursorInput, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -137,6 +137,9 @@ export function FormFieldsSectionCard({
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <TextCursorInput className="h-4 w-4 text-primary" />
+            </div>
             <div className="flex gap-1">
               {!isFirst && visibilitySources.length > 0 && (
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleExpand}>
