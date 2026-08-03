@@ -51,25 +51,31 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
     </div>
   )
   return (
-    <Card className={cn('gap-0 py-0', className)}>
-      <div className="flex items-center justify-between gap-3 px-6 py-4">
+    // overflow-hidden so the header's hover fill is clipped to the card's rounded corners
+    <Card className={cn('gap-0 overflow-hidden py-0', className)}>
+      <div className="flex items-stretch">
         {collapsible ? (
+          // The whole header row is the hit target (chevron, title and icon alike), so the
+          // hover fill covers the full card the way the Status Pages cards do -- not just
+          // the text. Keeps `action` outside the button, since nesting an interactive
+          // element inside a button would be invalid.
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="-m-1 flex min-w-0 flex-1 items-center gap-3 rounded p-1 text-left transition-colors hover:bg-muted/60"
+            className="flex min-w-0 flex-1 items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-muted/40"
           >
             <ChevronRight className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')} />
-            <p className="truncate text-base font-semibold">{title}</p>
+            <p className="min-w-0 flex-1 truncate text-base font-semibold">{title}</p>
+            {iconCircle}
           </button>
         ) : (
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <p className="truncate text-base font-semibold">{title}</p>
+          <div className="flex min-w-0 flex-1 items-center gap-3 px-6 py-4">
+            <p className="min-w-0 flex-1 truncate text-base font-semibold">{title}</p>
+            {iconCircle}
           </div>
         )}
-        {action}
-        {iconCircle}
+        {action && <div className="flex items-center pr-6">{action}</div>}
       </div>
       {/* 0fr→1fr grid transition animates to the content's natural height; children stay
           mounted so open/close also preserves any in-progress input state */}
