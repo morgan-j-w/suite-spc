@@ -200,7 +200,7 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
   const cardSpacingClass = getCardSpacingClass(centre.cardStyle)
   const cardStyleCss = getCardStyleCss(centre.cardStyle)
 
-  // Click-to-edit wrapper for the banner/footer regions: hover shows a teal outline and
+  // Click-to-edit wrapper for the banner/footer regions: hover shows a brand-coloured outline and
   // an "Edit" chip; clicking jumps to that region's editor. preventDefault stops banner
   // links from navigating away when the click was meant for editing.
   //
