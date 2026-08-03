@@ -74,7 +74,7 @@ export function ImageUploadField({ value, onChange, label, hint, previewClassNam
           {uploading ? 'Uploading…' : 'Upload'}
         </Button>
       </div>
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
       {value && (
         <div className="relative inline-flex">
           <img src={value} alt="" className={cn('rounded border border-border object-contain', previewClassName ?? 'max-h-16')} />

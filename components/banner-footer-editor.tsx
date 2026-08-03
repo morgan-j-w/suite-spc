@@ -35,7 +35,7 @@ function Thumb({ children, label, selected, onClick }: { children: React.ReactNo
       )}
     >
       <div className="h-14 w-full overflow-hidden rounded">{children}</div>
-      <span className="text-[10px] font-medium leading-tight text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium leading-tight text-muted-foreground">{label}</span>
     </button>
   )
 }
@@ -506,7 +506,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {preview}
 
           {/* Layout */}
-          <SettingGroup title="Layout" icon={LayoutTemplate} collapsible>
+          <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(B) as [BannerLayout, typeof B[BannerLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -757,7 +757,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           {preview}
 
           {/* Layout */}
-          <SettingGroup title="Layout" icon={LayoutTemplate} collapsible>
+          <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(F) as [FooterLayout, typeof F[FooterLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>

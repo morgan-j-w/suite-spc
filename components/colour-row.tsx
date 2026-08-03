@@ -58,13 +58,13 @@ export function ColorRow({
 
   return (
     <div className="flex items-center gap-3">
-      {label && <span className="w-28 flex-shrink-0 text-xs text-muted-foreground">{label}</span>}
+      {label && <span className="w-32 flex-shrink-0 text-sm text-muted-foreground">{label}</span>}
 
       <Popover>
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-background px-2 text-left shadow-xs transition-colors hover:border-muted-foreground/40"
+            className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-background px-2 text-left shadow-xs transition-colors hover:border-muted-foreground/40"
           >
             <span data-color-theme={!isCustom ? themeId : undefined} className="flex-shrink-0">
               {value ? (
@@ -76,7 +76,7 @@ export function ColorRow({
                 <span className="block h-4 w-4 rounded-sm border border-dashed border-muted-foreground/40" />
               )}
             </span>
-            <span className={cn('truncate font-mono text-xs', value ? 'text-foreground' : 'text-muted-foreground/50')}>
+            <span className={cn('truncate font-mono text-sm', value ? 'text-foreground' : 'text-muted-foreground/50')}>
               {displayLabel}
             </span>
           </button>

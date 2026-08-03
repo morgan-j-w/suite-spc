@@ -36,7 +36,7 @@ export function Segmented<T extends string>({ options, value, onChange, size = '
             className={cn(
               'flex flex-1 items-center justify-center gap-1.5 rounded font-medium transition-colors',
               'disabled:pointer-events-none disabled:opacity-50',
-              size === 'xs' ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm',
+              size === 'xs' ? 'px-2 py-1.5 text-sm' : 'px-3 py-1.5 text-sm',
               value === opt.value
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'

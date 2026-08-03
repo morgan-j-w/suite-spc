@@ -282,7 +282,7 @@ export function PreviewEditor({
                   <p className="text-sm text-muted-foreground">Theme, page background, and form card appearance.</p>
                 </div>
 
-                <SettingGroup title="Theme" icon={Sparkles} collapsible>
+                <SettingGroup title="Theme" icon={Sparkles} collapsible defaultOpen>
                   <p className="text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
                   <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
                 </SettingGroup>

@@ -45,7 +45,7 @@ function EmailThumb({
       )}
     >
       <div className="h-14 w-full overflow-hidden rounded bg-muted/30">{children}</div>
-      <span className="text-[10px] font-medium leading-tight text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium leading-tight text-muted-foreground">{label}</span>
     </button>
   )
 }
@@ -332,7 +332,7 @@ function EmailLayoutSection({
       {/* Layout */}
       {/* Open until a layout is picked — choosing one is what unlocks the Text/Logo/Colours
           groups below, so guide first-time users straight to it */}
-      <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen={!selectedLayout}>
+      <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
@@ -919,7 +919,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             <h2 className="text-lg font-semibold">Email style</h2>
             <p className="text-sm text-muted-foreground">Global settings applied across every outbound email.</p>
           </div>
-          <SettingGroup title="Theme" icon={Sparkles} collapsible>
+          <SettingGroup title="Theme" icon={Sparkles} collapsible defaultOpen>
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
           </SettingGroup>
           <SettingGroup title="Colours" icon={Palette} collapsible>
