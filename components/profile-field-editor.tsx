@@ -69,6 +69,12 @@ import { ConditionalBadge, ConditionalVisibilityNote } from '@/components/condit
 const TEXT_LIKE_TYPES: ProfileFieldType[] = ['text', 'email', 'phone', 'number', 'textarea']
 const NUMERIC_RANGE_TYPES: ProfileFieldType[] = ['number', 'range']
 
+// Shown wherever the edit form displays something the builder can look at but not change,
+// because it belongs to the underlying custom field. Kept as one short, matter-of-fact line
+// rather than per-control warnings -- it's a fact about where the value came from, not a
+// telling-off for trying to edit it.
+const FROM_FIELD_HINT = 'Set on the custom field'
+
 // One-line plain-text snippet for the collapsed card preview -- paragraph content is now
 // rich HTML, so showing it raw would print literal tags instead of readable text.
 function stripHtml(html: string): string {
@@ -477,31 +483,39 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
       {NUMERIC_RANGE_TYPES.includes(type) && (field.min !== undefined || field.max !== undefined || field.step !== undefined) && (
         <div className="space-y-2">
           <Label>Range</Label>
-          <p className="text-xs text-muted-foreground">
-            {field.min ?? 0}–{field.max ?? '∞'}{field.step ? `, in steps of ${field.step}` : ''} — fixed by the field, can&apos;t be changed here.
-          </p>
+          <p className="text-xs text-muted-foreground">{FROM_FIELD_HINT}</p>
+          <div className="flex flex-wrap gap-1.5">
+            <Badge variant="outline" className="font-normal">
+              {field.min ?? 0}–{field.max ?? '∞'}
+            </Badge>
+            {field.step ? <Badge variant="outline" className="font-normal">Steps of {field.step}</Badge> : null}
+          </div>
         </div>
       )}
 
       {type === 'rating' && (
         <div className="space-y-2">
           <Label>Number of stars</Label>
-          <p className="text-xs text-muted-foreground">{field.ratingMax ?? 5} — fixed by the field, can&apos;t be changed here.</p>
+          <p className="text-xs text-muted-foreground">{FROM_FIELD_HINT}</p>
+          <div className="flex flex-wrap gap-1.5">
+            <Badge variant="outline" className="font-normal">{field.ratingMax ?? 5} stars</Badge>
+          </div>
         </div>
       )}
 
       {hasFixedOptions(type) && (
-        <p className="text-xs text-muted-foreground">
-          Uses a built-in list of {type === 'country' ? 'countries' : 'Australian states and territories'} — no setup needed.
-        </p>
+        <div className="space-y-2">
+          <Label>Options</Label>
+          <p className="text-xs text-muted-foreground">
+            Built-in list of {type === 'country' ? 'countries' : 'Australian states and territories'}
+          </p>
+        </div>
       )}
 
       {isChoiceFieldType(type) && (
         <div className="space-y-2">
           <Label>Options</Label>
-          <p className="text-xs text-muted-foreground">
-            These come from the field itself and can&apos;t be changed here — only the display text above can be edited.
-          </p>
+          <p className="text-xs text-muted-foreground">Preview of options from the custom field</p>
           <div className="flex flex-wrap gap-1.5">
             {field.options?.map((option) => (
               <Badge key={option.value} variant="outline" className="font-normal">
