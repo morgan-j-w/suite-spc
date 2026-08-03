@@ -261,14 +261,13 @@ export function PreviewEditor({
     <div className="space-y-6">
       {/* Brand */}
           {designSection === 'brand' && (
-            <Card className="gap-0 py-0">
-              <CardHeader className="px-6 pt-4 pb-2">
-                <CardTitle className="text-base">Brand</CardTitle>
-              </CardHeader>
-              <CardContent className="px-6 pt-2 pb-6">
-                <BrandEditor brand={centre.brand} onChange={onBrandChange} />
-              </CardContent>
-            </Card>
+            <>
+              <div>
+                <h2 className="text-lg font-semibold">Brand</h2>
+                <p className="text-sm text-muted-foreground">Logo, social links, and contact details used across banner, footer, and email layouts.</p>
+              </div>
+              <BrandEditor brand={centre.brand} onChange={onBrandChange} />
+            </>
           )}
 
           {/* Style */}
@@ -277,53 +276,53 @@ export function PreviewEditor({
             const patchCs = (u: Partial<CardStyle>) => onCardStyleChange({ ...cs, ...u })
             const onOff = [{ value: 'on', label: 'On' }, { value: 'off', label: 'Off' }] as const
             return (
-              <Card className="gap-0 py-0">
-                <CardHeader className="px-6 pt-4 pb-2">
-                  <CardTitle className="text-base">Style</CardTitle>
-                </CardHeader>
-                <CardContent className="px-6 pt-0 pb-6 space-y-5">
-                  <SettingGroup title="Theme" icon={Sparkles} collapsible>
-                    <p className="text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
-                    <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
-                  </SettingGroup>
+              <>
+                <div>
+                  <h2 className="text-lg font-semibold">Style</h2>
+                  <p className="text-sm text-muted-foreground">Theme, page background, and form card appearance.</p>
+                </div>
 
-                  <SettingGroup title="Page" icon={PanelTop} collapsible>
-                    <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
-                    <SettingRow label="Content width">
-                      <Segmented
-                        options={[{ value: 'narrow', label: 'Narrow' }, { value: 'default', label: 'Default' }, { value: 'wide', label: 'Wide' }]}
-                        value={centre.formWidth ?? 'default'}
-                        onChange={onFormWidthChange}
-                      />
-                    </SettingRow>
-                  </SettingGroup>
+                <SettingGroup title="Theme" icon={Sparkles} collapsible>
+                  <p className="text-xs text-muted-foreground">Colour and font cascade from the theme preset to all components.</p>
+                  <ThemePresetPicker value={centre.themePresetId} onChange={onThemeChange} />
+                </SettingGroup>
 
-                  <SettingGroup title="Form cards" icon={SquareStack} collapsible>
-                    <SettingRow label="Border">
-                      <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
-                        onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
-                    </SettingRow>
-                    <div className={cn('transition-opacity', cs.borderEnabled === false && 'pointer-events-none opacity-40')}>
-                      <ColorRow label="Border colour" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
-                    </div>
-                    <SettingRow label="Border width" dimmed={cs.borderEnabled === false}>
-                      <UnitInput min={1} max={4} value={cs.borderWidth} placeholder="Theme" onChange={(v) => patchCs({ borderWidth: v })} />
-                    </SettingRow>
-                    <SettingRow label="Border radius">
-                      <UnitInput min={0} max={24} value={cs.borderRadius} placeholder="Theme" onChange={(v) => patchCs({ borderRadius: v })} />
-                    </SettingRow>
-                    <SettingRow label="Drop shadow">
-                      <Segmented options={onOff} value={(cs.shadow ?? 'on') as 'on' | 'off'} onChange={(v) => patchCs({ shadow: v as CardStyle['shadow'] })} />
-                    </SettingRow>
-                    <SettingRow label="Card padding">
-                      <SizeControl value={cs.padding} onChange={(v) => patchCs({ padding: v })} defaultCustomValue={24} max={80} />
-                    </SettingRow>
-                    <SettingRow label="Card spacing">
-                      <SizeControl value={cs.spacing} onChange={(v) => patchCs({ spacing: v })} defaultCustomValue={24} max={80} />
-                    </SettingRow>
-                  </SettingGroup>
-                </CardContent>
-              </Card>
+                <SettingGroup title="Page" icon={PanelTop} collapsible>
+                  <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
+                  <SettingRow label="Content width">
+                    <Segmented
+                      options={[{ value: 'narrow', label: 'Narrow' }, { value: 'default', label: 'Default' }, { value: 'wide', label: 'Wide' }]}
+                      value={centre.formWidth ?? 'default'}
+                      onChange={onFormWidthChange}
+                    />
+                  </SettingRow>
+                </SettingGroup>
+
+                <SettingGroup title="Form cards" icon={SquareStack} collapsible>
+                  <SettingRow label="Border">
+                    <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
+                      onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
+                  </SettingRow>
+                  <div className={cn('transition-opacity', cs.borderEnabled === false && 'pointer-events-none opacity-40')}>
+                    <ColorRow label="Border colour" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
+                  </div>
+                  <SettingRow label="Border width" dimmed={cs.borderEnabled === false}>
+                    <UnitInput min={1} max={4} value={cs.borderWidth} placeholder="Theme" onChange={(v) => patchCs({ borderWidth: v })} />
+                  </SettingRow>
+                  <SettingRow label="Border radius">
+                    <UnitInput min={0} max={24} value={cs.borderRadius} placeholder="Theme" onChange={(v) => patchCs({ borderRadius: v })} />
+                  </SettingRow>
+                  <SettingRow label="Drop shadow">
+                    <Segmented options={onOff} value={(cs.shadow ?? 'on') as 'on' | 'off'} onChange={(v) => patchCs({ shadow: v as CardStyle['shadow'] })} />
+                  </SettingRow>
+                  <SettingRow label="Card padding">
+                    <SizeControl value={cs.padding} onChange={(v) => patchCs({ padding: v })} defaultCustomValue={24} max={80} />
+                  </SettingRow>
+                  <SettingRow label="Card spacing">
+                    <SizeControl value={cs.spacing} onChange={(v) => patchCs({ spacing: v })} defaultCustomValue={24} max={80} />
+                  </SettingRow>
+                </SettingGroup>
+              </>
             )
           })()}
 
@@ -336,8 +335,6 @@ export function PreviewEditor({
             const patchBannerText = (u: { bannerHeading?: string; bannerBlurb?: string }) =>
               onStatusPagesChange({ ...centre.statusPages, [bannerTextFlow]: { ...centre.statusPages[bannerTextFlow], ...u } })
             return (
-            <Card className="gap-0 py-0">
-              <CardContent className="p-4">
                 <BannerEditor
                   banner={centre.banner}
                   onBannerChange={onBannerChange}
@@ -389,15 +386,11 @@ export function PreviewEditor({
                     </SettingGroup>
                   }
                 />
-              </CardContent>
-            </Card>
             )
           })()}
 
           {/* Footer */}
           {designSection === 'footer' && (
-            <Card className="gap-0 py-0">
-              <CardContent className="p-4">
                 <FooterEditor
                   footer={centre.footer}
                   onFooterChange={onFooterChange}
@@ -415,8 +408,6 @@ export function PreviewEditor({
                     </div>
                   )}
                 />
-              </CardContent>
-            </Card>
           )}
 
           {/* Form */}

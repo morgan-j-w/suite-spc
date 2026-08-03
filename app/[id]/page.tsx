@@ -15,7 +15,6 @@ import { MobilePreviewDialog } from '@/components/mobile-preview-dialog'
 import { PreviewEditor } from '@/components/preview-editor'
 import { StatusPagesEditor } from '@/components/status-pages-editor'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
@@ -873,18 +872,14 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
             )}
 
             {activeSection === 'emails' && (
-              <Card className="gap-0 py-0">
-                <CardContent className="px-6 py-6">
-                  <EmailsEditor
-                    section={emailSection}
-                    emailConfig={centre.emailConfig ?? defaultEmailConfig}
-                    onEmailConfigChange={handleEmailConfigChange}
-                    brand={centre.brand}
-                    themeId={centre.themePresetId}
-                    onThemeChange={handleThemeChange}
-                  />
-                </CardContent>
-              </Card>
+              <EmailsEditor
+                section={emailSection}
+                emailConfig={centre.emailConfig ?? defaultEmailConfig}
+                onEmailConfigChange={handleEmailConfigChange}
+                brand={centre.brand}
+                themeId={centre.themePresetId}
+                onThemeChange={handleThemeChange}
+              />
             )}
 
             {activeSection === 'pages' && (

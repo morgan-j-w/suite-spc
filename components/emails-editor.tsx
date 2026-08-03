@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { defaultTheme, type ColorTheme } from '@/lib/brand-config'
 import { ThemePresetPicker } from '@/components/theme-preset-picker'
@@ -326,7 +326,7 @@ function EmailLayoutSection({
   const [showCustomCss, setShowCustomCss] = useState(false)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {preview}
 
       {/* Layout */}
@@ -784,28 +784,30 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
     : undefined
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
 
       {section === 'messages' && (
         <div>
-          <p className="text-sm font-semibold">Messages</p>
-          <p className="text-xs text-muted-foreground">Configure the subject, preview text, and body for each transactional email.</p>
+          <h2 className="text-lg font-semibold">Messages</h2>
+          <p className="text-sm text-muted-foreground">Configure the subject, preview text, and body for each transactional email.</p>
         </div>
       )}
 
       {/* Banner sub-section */}
       {section === 'banner' && (
         <>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">Email banner</p>
-              <p className="text-xs text-muted-foreground">Header shown above the body in every outbound email.</p>
-            </div>
-            <Switch
-              checked={!!cfg.bannerEnabled}
-              onCheckedChange={(on) => patch({ bannerEnabled: on })}
-            />
-          </div>
+          <Card className="gap-0 py-0">
+            <CardContent className="flex items-center justify-between gap-3 px-6 py-4">
+              <div>
+                <CardTitle className="text-base">Email banner</CardTitle>
+                <CardDescription>Header shown above the body in every outbound email.</CardDescription>
+              </div>
+              <Switch
+                checked={!!cfg.bannerEnabled}
+                onCheckedChange={(on) => patch({ bannerEnabled: on })}
+              />
+            </CardContent>
+          </Card>
           {cfg.bannerEnabled && (
             <EmailLayoutSection
               section="banner"
@@ -847,16 +849,18 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
       {/* Footer sub-section */}
       {section === 'footer' && (
         <>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">Email footer</p>
-              <p className="text-xs text-muted-foreground">Footer shown below the body in every outbound email. Emails render at 650px wide.</p>
-            </div>
-            <Switch
-              checked={!!cfg.footerEnabled}
-              onCheckedChange={(on) => patch({ footerEnabled: on })}
-            />
-          </div>
+          <Card className="gap-0 py-0">
+            <CardContent className="flex items-center justify-between gap-3 px-6 py-4">
+              <div>
+                <CardTitle className="text-base">Email footer</CardTitle>
+                <CardDescription>Footer shown below the body in every outbound email. Emails render at 650px wide.</CardDescription>
+              </div>
+              <Switch
+                checked={!!cfg.footerEnabled}
+                onCheckedChange={(on) => patch({ footerEnabled: on })}
+              />
+            </CardContent>
+          </Card>
           {cfg.footerEnabled && (
             <EmailLayoutSection
               section="footer"
@@ -912,8 +916,8 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
       {section === 'design' && (
         <>
           <div>
-            <p className="text-sm font-semibold">Email style</p>
-            <p className="text-xs text-muted-foreground">Global settings applied across every outbound email.</p>
+            <h2 className="text-lg font-semibold">Email style</h2>
+            <p className="text-sm text-muted-foreground">Global settings applied across every outbound email.</p>
           </div>
           <SettingGroup title="Theme" icon={Sparkles} collapsible>
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />

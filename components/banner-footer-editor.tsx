@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { ImageUploadField } from '@/components/image-upload-field'
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { ColorRow } from '@/components/colour-row'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
@@ -486,20 +487,22 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
   const isImageBg = !!cfg.imageBackground
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold">Banner</p>
-          <p className="text-xs text-muted-foreground">Shown above the form on all subscriber-facing pages.</p>
-        </div>
-        <Switch
-          checked={enabled}
-          onCheckedChange={(on) => onBannerChange(on ? { layout: 'centred', fullWidth: false } : null)}
-        />
-      </div>
+    <div className="space-y-6">
+      <Card className="gap-0 py-0">
+        <CardContent className="flex items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <CardTitle className="text-base">Banner</CardTitle>
+            <CardDescription>Shown above the form on all subscriber-facing pages.</CardDescription>
+          </div>
+          <Switch
+            checked={enabled}
+            onCheckedChange={(on) => onBannerChange(on ? { layout: 'centred', fullWidth: false } : null)}
+          />
+        </CardContent>
+      </Card>
 
       {enabled && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {preview}
 
           {/* Layout */}
@@ -735,20 +738,22 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
   const isImageBg = !!cfg.imageBackground
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold">Footer</p>
-          <p className="text-xs text-muted-foreground">Shown below the form on all subscriber-facing pages.</p>
-        </div>
-        <Switch
-          checked={enabled}
-          onCheckedChange={(on) => onFooterChange(on ? { layout: 'minimal-line', fullWidth: false } : null)}
-        />
-      </div>
+    <div className="space-y-6">
+      <Card className="gap-0 py-0">
+        <CardContent className="flex items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <CardTitle className="text-base">Footer</CardTitle>
+            <CardDescription>Shown below the form on all subscriber-facing pages.</CardDescription>
+          </div>
+          <Switch
+            checked={enabled}
+            onCheckedChange={(on) => onFooterChange(on ? { layout: 'minimal-line', fullWidth: false } : null)}
+          />
+        </CardContent>
+      </Card>
 
       {enabled && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {preview}
 
           {/* Layout */}

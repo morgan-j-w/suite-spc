@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
 interface SettingRowProps {
@@ -38,31 +39,32 @@ interface SettingGroupProps {
   defaultOpen?: boolean
 }
 
-// Group header inside a flattened settings card — replaces the old nested
-// `rounded-lg border p-3` sub-cards with a divider-and-title rhythm.
+// Each settings group is its own card — matching the Build tab's convention (Parent
+// Mailgroup, Your Details, each mailgroup category) of one titled card per block, rather
+// than several groups sharing one big card separated by dividers.
 export function SettingGroup({ title, icon: Icon, action, children, className, collapsible, defaultOpen = false }: SettingGroupProps) {
   const [open, setOpen] = useState(!collapsible || defaultOpen)
   const titleRow = (
     <>
-      {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-      <p className="truncate text-[13px] font-semibold">{title}</p>
+      {Icon && <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />}
+      <p className="truncate text-base font-semibold">{title}</p>
     </>
   )
   return (
-    <div className={cn('border-t border-border/70 pt-4 first:border-t-0 first:pt-0', className)}>
-      <div className="flex items-center justify-between gap-2">
+    <Card className={cn('gap-0 py-0', className)}>
+      <div className="flex items-center justify-between gap-2 px-6 py-4">
         {collapsible ? (
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="-m-1 flex min-w-0 flex-1 items-center gap-1.5 rounded p-1 text-left transition-colors hover:bg-muted/60"
+            className="-m-1 flex min-w-0 flex-1 items-center gap-2 rounded p-1 text-left transition-colors hover:bg-muted/60"
           >
-            <ChevronRight className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')} />
+            <ChevronRight className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')} />
             {titleRow}
           </button>
         ) : (
-          <div className="flex min-w-0 flex-1 items-center gap-1.5">{titleRow}</div>
+          <div className="flex min-w-0 flex-1 items-center gap-2">{titleRow}</div>
         )}
         {action}
       </div>
@@ -77,7 +79,7 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
         <div className="min-h-0 overflow-hidden">
           <div
             className={cn(
-              'space-y-2.5 pt-2.5 transition-opacity duration-200',
+              'space-y-2.5 px-6 pb-6 transition-opacity duration-200',
               collapsible && !open && 'opacity-0'
             )}
           >
@@ -85,6 +87,6 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }
