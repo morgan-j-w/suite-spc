@@ -75,33 +75,47 @@ export const isConditionSourceFieldType = (type: ProfileFieldType) => CONDITION_
 const BOOLEAN_FIELD_TYPES: ProfileFieldType[] = ['checkbox']
 export const isBooleanFieldType = (type: ProfileFieldType) => BOOLEAN_FIELD_TYPES.includes(type)
 
-// The real system this tool models only stores answers as one of these four shapes,
-// regardless of which input widget collected them — used to label fields in the
-// field-reuse autocomplete the way they'll actually be saved.
-export type SimplifiedFieldType = 'Text' | 'Number' | 'Single select' | 'Multi select' | 'Date'
+// The real backend this tool models only stores custom-field answers as one of these four
+// shapes, regardless of which widget collected them. A field's shape is fixed by the field
+// catalog entry it comes from (see field-catalog.ts) — the builder can pick any widget whose
+// shape matches, but can never invent a field the real system has no column for.
+//
+// Multi-pick widgets (Checkbox group, Multi select, Toggle) don't get their own shape — they
+// all write into a single Text column as a comma-separated list of the picked labels, same as
+// a single-line text answer. Number absorbs Range and Rating (both are just numeric input
+// styles). Single choice absorbs every one-pick-from-a-list widget, including the fixed-list
+// Country/State pickers.
+export type FieldShape = 'Text' | 'Number' | 'Single choice' | 'Date'
 
-const SIMPLIFIED_FIELD_TYPE_MAP: Partial<Record<ProfileFieldType, SimplifiedFieldType>> = {
+const FIELD_SHAPE_MAP: Partial<Record<ProfileFieldType, FieldShape>> = {
   text: 'Text',
   email: 'Text',
   phone: 'Text',
   textarea: 'Text',
+  toggle: 'Text',
+  checkboxGroup: 'Text',
+  multiSelect: 'Text',
   number: 'Number',
   range: 'Number',
   rating: 'Number',
-  select: 'Single select',
-  multiSelect: 'Multi select',
-  country: 'Single select',
-  state_au: 'Single select',
-  radio: 'Single select',
-  checkbox: 'Single select',
-  checkboxGroup: 'Single select',
-  toggle: 'Single select',
+  select: 'Single choice',
+  country: 'Single choice',
+  state_au: 'Single choice',
+  radio: 'Single choice',
   date: 'Date',
 }
 
-export function getSimplifiedFieldType(type: ProfileFieldType): SimplifiedFieldType | null {
-  return SIMPLIFIED_FIELD_TYPE_MAP[type] ?? null
+// checkbox (boolean) and heading/paragraph (display-only) deliberately have no shape — they
+// sit outside the field-catalog system entirely (see isDisplayFieldType / the Add Field flow).
+export function getFieldShape(type: ProfileFieldType): FieldShape | null {
+  return FIELD_SHAPE_MAP[type] ?? null
 }
+
+// Widgets that let a subscriber pick more than one option from the same list — their answer
+// is joined into a single comma-separated string of labels (see FieldShape doc above) rather
+// than kept as an array, once it leaves the builder's editing state.
+const MULTI_PICK_FIELD_TYPES: ProfileFieldType[] = ['checkboxGroup', 'multiSelect', 'toggle']
+export const isMultiPickFieldType = (type: ProfileFieldType) => MULTI_PICK_FIELD_TYPES.includes(type)
 
 export const AU_STATE_OPTIONS: { value: string; label: string }[] = [
   { value: 'NSW', label: 'New South Wales' },
@@ -187,6 +201,21 @@ export const standardFieldCatalog: StandardFieldDef[] = [
 
 export const standardFieldIds = standardFieldCatalog.map((f) => f.id)
 export const isStandardFieldId = (id: string) => standardFieldIds.includes(id)
+
+// The one place a placeable field gets built from a standard field def -- shared by the
+// builder's Add Field flow and the demo templates so both construct standard fields the
+// same way.
+export function buildStandardField(def: StandardFieldDef): CustomProfileField {
+  return {
+    id: def.id,
+    label: def.label,
+    type: def.type,
+    required: def.required ?? false,
+    placeholder: def.placeholder,
+    helpText: def.helpText,
+    options: def.options,
+  }
+}
 
 // A card of profile fields shown together in the builder and on the live form. Centres can
 // have multiple sections, reorderable alongside mail group categories (e.g. a "Your Details"

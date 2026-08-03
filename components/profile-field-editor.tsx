@@ -19,16 +19,15 @@ import {
   StandardFieldDef,
   fieldTypeBadge,
   getBuiltInFieldOptions,
-  getSimplifiedFieldType,
   hasFixedOptions,
   isBooleanFieldType,
   isChoiceFieldType,
   isConditionSourceFieldType,
   isDisplayFieldType,
-  isStandardFieldId,
   standardFieldCatalog,
+  buildStandardField,
 } from '@/lib/subscription-types'
-import { getFieldLibrary, upsertFieldInLibrary } from '@/lib/field-library-store'
+import { buildFieldFromCatalog } from '@/lib/field-catalog'
 import { RichTextEditor } from '@/components/rich-text-editor'
 import { AddFieldDialog } from '@/components/add-field-dialog'
 import { Button } from '@/components/ui/button'
@@ -41,7 +40,6 @@ import { MultiSelect } from '@/components/multi-select'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Plus,
-  X,
   GripVertical,
   Pencil,
   Check,
@@ -163,47 +161,37 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
     // Belt-and-suspenders: availableStandardFields already filters these out,
     // but guard here too so any future import or programmatic path can't slip a duplicate through.
     if (allFieldIds.has(def.id)) return
-    const field: CustomProfileField = {
-      id: def.id,
-      label: def.label,
-      type: def.type,
-      required: def.required ?? false,
-      placeholder: def.placeholder,
-      helpText: def.helpText,
-      options: def.options,
-    }
+    const field = buildStandardField(def)
     onFieldsChange([...fields, field])
     setExpandedFieldId(def.id)
     flashJustAdded(def.id)
     setIsAddFieldDialogOpen(false)
   }
 
-  const handlePickFieldType = (type: ProfileFieldType) => {
+  // Heading/paragraph are display-only content, not subscriber data -- no backend field
+  // to protect, so they're still created blank and freely authored.
+  const handlePickDisplayType = (type: ProfileFieldType) => {
     const id = uuidv4()
-    const field: CustomProfileField = {
-      id,
-      label: '',
-      type,
-      required: false,
-      options: isChoiceFieldType(type) ? [] : undefined,
-      ratingMax: type === 'rating' ? 5 : undefined,
-    }
+    const field: CustomProfileField = { id, label: '', type, required: false }
     onFieldsChange([...fields, field])
-    if (!isDisplayFieldType(type)) upsertFieldInLibrary(field)
     setExpandedFieldId(id)
     flashJustAdded(id)
     setIsAddFieldDialogOpen(false)
   }
 
+  // Every other field type must come from the fixed catalog -- the chosen widget can differ
+  // from the catalog entry's own type (any widget whose shape matches is fine), but the
+  // label/options/min/max/step it starts with are the catalog's, not invented here.
+  const handlePickCatalogField = (catalogField: CustomProfileField, widgetType: ProfileFieldType) => {
+    const field = buildFieldFromCatalog(catalogField.id, widgetType)
+    onFieldsChange([...fields, field])
+    setExpandedFieldId(field.id)
+    flashJustAdded(field.id)
+    setIsAddFieldDialogOpen(false)
+  }
+
   const handleUpdateField = (fieldId: string, patch: Partial<CustomProfileField>) => {
-    const updated = fields.map((f) => (f.id === fieldId ? { ...f, ...patch } : f))
-    onFieldsChange(updated)
-    // Keep the library in sync while the user is actively setting this field up, so it shows
-    // up with its real label/options rather than whatever it looked like at creation.
-    const updatedField = updated.find((f) => f.id === fieldId)
-    if (updatedField && !isStandardFieldId(updatedField.id) && !isDisplayFieldType(updatedField.type)) {
-      upsertFieldInLibrary(updatedField)
-    }
+    onFieldsChange(fields.map((f) => (f.id === fieldId ? { ...f, ...patch } : f)))
   }
 
   const handleRemoveField = (fieldId: string) => {
@@ -263,7 +251,8 @@ export function ProfileFieldEditor({ fields, onFieldsChange, fieldsInOtherSectio
         onOpenChange={setIsAddFieldDialogOpen}
         availableStandardFields={availableStandardFields}
         onPickStandardField={handlePickStandardField}
-        onPickFieldType={handlePickFieldType}
+        onPickDisplayType={handlePickDisplayType}
+        onPickCatalogField={handlePickCatalogField}
       />
     </div>
   )
@@ -392,107 +381,6 @@ function FieldCard({ field, fields, fieldsInOtherSections, isExpanded, isJustAdd
   )
 }
 
-interface FieldLabelAutocompleteProps {
-  field: CustomProfileField
-  onUpdateField: (patch: Partial<CustomProfileField>) => void
-  id: string
-  placeholder: string
-  autoFocus: boolean
-  asInput?: boolean
-}
-
-// Suggests existing fields of the same simplified type (Text/Number/Single select/Date) as the
-// user types a label, so reusing a question's label/placeholder/help text/options is as easy
-// as picking it from the list instead of rebuilding it from scratch. The widget type itself is
-// never touched -- it was already chosen before this autocomplete appeared. Styled to blend in
-// as plain text until hovered/focused, since this now lives directly in the card header rather
-// than a separate "Field Label" row in the edit form below.
-function FieldLabelAutocomplete({ field, onUpdateField, id, placeholder, autoFocus, asInput }: FieldLabelAutocompleteProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [fieldLibrary, setFieldLibrary] = useState<CustomProfileField[]>([])
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setFieldLibrary(getFieldLibrary())
-  }, [])
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setIsOpen(false)
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const bucket = getSimplifiedFieldType(field.type)
-  const searchTerm = field.label.trim().toLowerCase()
-  const suggestions = bucket
-    ? fieldLibrary
-        .filter((f) => f.id !== field.id && getSimplifiedFieldType(f.type) === bucket)
-        // An exact label match means this field was already built from (or matches) that
-        // library entry -- re-suggesting it would just clone identical content into itself.
-        .filter((f) => f.label.trim().toLowerCase() !== searchTerm)
-        .filter((f) => !searchTerm || f.label.toLowerCase().includes(searchTerm))
-        .slice(0, 6)
-    : []
-
-  const handleSelect = (source: CustomProfileField) => {
-    // Deliberately doesn't copy `type` -- the user already chose a concrete widget (e.g. Range
-    // slider) before this autocomplete ever appeared, and a same-bucket suggestion can be a
-    // different concrete type (e.g. Annual Revenue is a plain Number field), so cloning it
-    // wholesale would silently swap their chosen widget out from under them.
-    onUpdateField({
-      label: source.label,
-      placeholder: source.placeholder,
-      helpText: source.helpText,
-      required: source.required,
-      options: source.options ? [...source.options] : undefined,
-      min: source.min,
-      max: source.max,
-      step: source.step,
-      ratingMax: source.ratingMax,
-    })
-    setIsOpen(false)
-  }
-
-  return (
-    <div ref={containerRef} className="relative min-w-0 flex-1">
-      <input
-        id={id}
-        value={field.label}
-        onChange={(e) => {
-          onUpdateField({ label: e.target.value })
-          setIsOpen(true)
-        }}
-        onFocus={() => setIsOpen(true)}
-        placeholder={placeholder}
-        autoFocus={autoFocus}
-        autoComplete="off"
-        aria-label="Field label"
-        className={asInput
-          ? 'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]'
-          : 'h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm font-medium shadow-none outline-none transition-colors hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring'
-        }
-      />
-      {isOpen && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
-          <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Reuse an existing field</p>
-          {suggestions.map((source) => (
-            <button
-              key={source.id}
-              type="button"
-              onClick={() => handleSelect(source)}
-              className="flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
-            >
-              <span className="truncate">{source.label || 'Untitled field'}</span>
-              <span className="shrink-0 text-xs text-muted-foreground">{fieldTypeBadge[source.type].label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 interface FieldEditFormProps {
   field: CustomProfileField
@@ -501,31 +389,11 @@ interface FieldEditFormProps {
 }
 
 function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
-  const [newOption, setNewOption] = useState('')
-  const standardEdit = isStandardFieldId(field.id)
   const type = field.type
   const isHeading = type === 'heading'
   const isParagraph = type === 'paragraph'
   const isDisplay = isHeading || isParagraph
   const updateLabel = (next: string) => onUpdateField({ label: next })
-
-  const handleAddOption = () => {
-    if (!newOption.trim()) return
-    onUpdateField({
-      options: [...(field.options || []), { value: newOption.toLowerCase().replace(/\s+/g, '_'), label: newOption }],
-    })
-    setNewOption('')
-  }
-
-  const handleRemoveOption = (index: number) => {
-    onUpdateField({ options: field.options?.filter((_, i) => i !== index) })
-  }
-
-  // Only the label is editable -- the underlying value stays put since conditional
-  // visibility rules elsewhere may already reference this option by its value.
-  const handleUpdateOptionLabel = (index: number, label: string) => {
-    onUpdateField({ options: field.options?.map((o, i) => (i === index ? { ...o, label } : o)) })
-  }
 
   const conditionSources = fields.filter((f) => f.id !== field.id && isConditionSourceFieldType(f.type))
   const currentRule = field.visibleWhen?.[0]
@@ -571,14 +439,13 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
 
       {!isParagraph && (
         <div className="space-y-2">
-          <Label htmlFor={`field-label-${field.id}`}>{isHeading ? 'Heading Text' : 'Label'}<span aria-hidden="true" className="ml-px text-destructive">*</span></Label>
-          <FieldLabelAutocomplete
-            field={field}
-            onUpdateField={onUpdateField}
+          <Label htmlFor={`field-label-${field.id}`}>{isHeading ? 'Heading Text' : 'Display Text'}<span aria-hidden="true" className="ml-px text-destructive">*</span></Label>
+          <Input
             id={`field-label-${field.id}`}
+            value={field.label}
+            onChange={(e) => updateLabel(e.target.value)}
             placeholder={isHeading ? 'e.g., Tell us about yourself' : 'e.g., Department'}
             autoFocus={!field.label}
-            asInput
           />
         </div>
       )}
@@ -607,90 +474,40 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
         </div>
       )}
 
-      {!standardEdit && NUMERIC_RANGE_TYPES.includes(type) && (
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-2">
-            <Label htmlFor={`field-min-${field.id}`}>Min</Label>
-            <Input
-              id={`field-min-${field.id}`}
-              type="number"
-              value={field.min ?? ''}
-              onChange={(e) => onUpdateField({ min: e.target.value === '' ? undefined : Number(e.target.value) })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor={`field-max-${field.id}`}>Max</Label>
-            <Input
-              id={`field-max-${field.id}`}
-              type="number"
-              value={field.max ?? ''}
-              onChange={(e) => onUpdateField({ max: e.target.value === '' ? undefined : Number(e.target.value) })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor={`field-step-${field.id}`}>Step</Label>
-            <Input
-              id={`field-step-${field.id}`}
-              type="number"
-              value={field.step ?? ''}
-              onChange={(e) => onUpdateField({ step: e.target.value === '' ? undefined : Number(e.target.value) })}
-            />
-          </div>
-        </div>
-      )}
-
-      {!standardEdit && type === 'rating' && (
+      {NUMERIC_RANGE_TYPES.includes(type) && (field.min !== undefined || field.max !== undefined || field.step !== undefined) && (
         <div className="space-y-2">
-          <Label htmlFor={`field-rating-max-${field.id}`}>Number of stars</Label>
-          <Input
-            id={`field-rating-max-${field.id}`}
-            type="number"
-            min={2}
-            max={10}
-            value={field.ratingMax ?? 5}
-            onChange={(e) => onUpdateField({ ratingMax: Number(e.target.value) || 5 })}
-          />
+          <Label>Range</Label>
+          <p className="text-xs text-muted-foreground">
+            {field.min ?? 0}–{field.max ?? '∞'}{field.step ? `, in steps of ${field.step}` : ''} — fixed by the field, can&apos;t be changed here.
+          </p>
         </div>
       )}
 
-      {!standardEdit && hasFixedOptions(type) && (
+      {type === 'rating' && (
+        <div className="space-y-2">
+          <Label>Number of stars</Label>
+          <p className="text-xs text-muted-foreground">{field.ratingMax ?? 5} — fixed by the field, can&apos;t be changed here.</p>
+        </div>
+      )}
+
+      {hasFixedOptions(type) && (
         <p className="text-xs text-muted-foreground">
           Uses a built-in list of {type === 'country' ? 'countries' : 'Australian states and territories'} — no setup needed.
         </p>
       )}
 
-      {!standardEdit && isChoiceFieldType(type) && (
+      {isChoiceFieldType(type) && (
         <div className="space-y-2">
           <Label>Options</Label>
-          <div className="space-y-2">
-            {field.options?.map((option, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Input
-                  value={option.label}
-                  onChange={(e) => handleUpdateOptionLabel(index, e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveOption(index)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+          <p className="text-xs text-muted-foreground">
+            These come from the field itself and can&apos;t be changed here — only the display text above can be edited.
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {field.options?.map((option) => (
+              <Badge key={option.value} variant="outline" className="font-normal">
+                {option.label}
+              </Badge>
             ))}
-            <div className="flex gap-2">
-              <Input
-                value={newOption}
-                onChange={(e) => setNewOption(e.target.value)}
-                placeholder="Add an option"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleAddOption()
-                  }
-                }}
-              />
-              <Button type="button" variant="outline" onClick={handleAddOption}>
-                Add
-              </Button>
-            </div>
           </div>
         </div>
       )}

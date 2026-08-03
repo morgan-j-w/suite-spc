@@ -3,8 +3,17 @@
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { CalendarDays, LayoutGrid, LayoutTemplate, Mail, ShoppingBag, type LucideIcon } from 'lucide-react'
-import { type Category, type ProfileFieldSection, type FieldVisibilityRule } from '@/lib/subscription-types'
+import { type Category, type ProfileFieldSection, type FieldVisibilityRule, buildStandardField, standardFieldCatalog } from '@/lib/subscription-types'
+import { buildFieldFromCatalog } from '@/lib/field-catalog'
 import { defaultMailGroups, type MailGroup } from '@/lib/subscription-centre'
+
+// Demo-only helper: every template below builds its fields from real standard/catalog
+// entries, never freehand -- same rule the Add Field dialog enforces for real centres.
+function standardField(id: string) {
+  const def = standardFieldCatalog.find((f) => f.id === id)
+  if (!def) throw new Error(`Unknown standard field id: ${id}`)
+  return buildStandardField(def)
+}
 import {
   Dialog,
   DialogContent,
@@ -36,8 +45,8 @@ export function makeNewsletter(): TemplateConfig {
         description: '',
         fields: [
           { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
-          { id: uuidv4(), label: 'First name', type: 'text', required: false, placeholder: 'Jane' },
-          { id: uuidv4(), label: 'Last name', type: 'text', required: false, placeholder: 'Smith' },
+          standardField('firstName'),
+          standardField('lastName'),
         ],
       },
     ],
@@ -78,10 +87,10 @@ function makeEvents(): TemplateConfig {
         description: '',
         fields: [
           { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
-          { id: uuidv4(), label: 'First name', type: 'text', required: false, placeholder: 'Jane' },
-          { id: uuidv4(), label: 'Last name', type: 'text', required: false, placeholder: 'Smith' },
-          { id: uuidv4(), label: 'Company', type: 'text', required: false, placeholder: 'Your Company' },
-          { id: uuidv4(), label: 'Job title', type: 'text', required: false, placeholder: 'Marketing Manager' },
+          standardField('firstName'),
+          standardField('lastName'),
+          buildFieldFromCatalog('lib-company-name', 'text'),
+          buildFieldFromCatalog('lib-job-title', 'text'),
         ],
       },
     ],
@@ -125,8 +134,8 @@ function makeEcommerce(): TemplateConfig {
         description: '',
         fields: [
           { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
-          { id: uuidv4(), label: 'First name', type: 'text', required: false, placeholder: 'Jane' },
-          { id: uuidv4(), label: 'Last name', type: 'text', required: false, placeholder: 'Smith' },
+          standardField('firstName'),
+          standardField('lastName'),
         ],
       },
     ],
@@ -177,8 +186,8 @@ export function makeFull(): TemplateConfig {
         description: 'Help us personalise your experience.',
         fields: [
           { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com', locked: true },
-          { id: uuidv4(), label: 'First name', type: 'text', required: false, placeholder: 'Jane' },
-          { id: uuidv4(), label: 'Last name', type: 'text', required: false, placeholder: 'Smith' },
+          standardField('firstName'),
+          standardField('lastName'),
         ],
       },
       {
@@ -188,25 +197,18 @@ export function makeFull(): TemplateConfig {
         fields: [
           { id: uuidv4(), label: 'Tell us about yourself', type: 'heading', required: false },
           { id: uuidv4(), label: 'Your answers help us tailor our content to what matters most to you.', type: 'paragraph', required: false },
-          { id: radioHowDidYouHearId, label: 'How did you hear about us?', type: 'radio', required: false, options: [
-            { value: 'social', label: 'Social media' },
-            { value: 'word-of-mouth', label: 'Word of mouth' },
-            { value: 'search', label: 'Search engine' },
-            { value: 'event', label: 'Event or conference' },
-          ]},
-          { id: uuidv4(), label: 'Which topics interest you?', type: 'checkboxGroup', required: false, options: [
-            { value: 'technology', label: 'Technology' },
-            { value: 'design', label: 'Design' },
-            { value: 'marketing', label: 'Marketing' },
-            { value: 'business', label: 'Business strategy' },
-          ]},
+          buildFieldFromCatalog('lib-how-did-you-hear', 'radio', { id: radioHowDidYouHearId }),
+          buildFieldFromCatalog('lib-topics-of-interest', 'checkboxGroup', { label: 'Which topics interest you?' }),
+          // Boolean checkbox -- not a catalog-backed shape (nothing to lock down, it's a
+          // single yes/no with no options), so it's still authored directly.
           { id: checkboxDecisionMakerId, label: 'I work in a decision-making role', type: 'checkbox', required: false, options: [
             { value: 'yes', label: 'Yes' },
           ]},
-          { id: uuidv4(), label: 'Team size', type: 'number', required: false, placeholder: '25',
+          buildFieldFromCatalog('lib-team-size', 'number', {
+            placeholder: '25',
             helpText: 'Approximate number of people in your organisation.',
             visibleWhen: [{ fieldId: checkboxDecisionMakerId, operator: 'hasValue' } as FieldVisibilityRule],
-          },
+          }),
         ],
       },
       {
@@ -215,21 +217,12 @@ export function makeFull(): TemplateConfig {
         description: 'Tell us how often and in what format you would like to hear from us.',
         visibleWhen: [{ fieldId: radioHowDidYouHearId, operator: 'hasValue' } as FieldVisibilityRule],
         fields: [
-          { id: uuidv4(), label: 'Preferred language', type: 'select', required: false, options: [
-            { value: 'en', label: 'English' },
-            { value: 'fr', label: 'French' },
-            { value: 'de', label: 'German' },
-            { value: 'es', label: 'Spanish' },
-          ]},
-          { id: toggleOptInId, label: 'Opt-in preferences', type: 'toggle', required: false, options: [
-            { value: 'newsletter', label: 'Weekly newsletter' },
-            { value: 'product-news', label: 'Product news & updates' },
-            { value: 'events', label: 'Events & webinars' },
-          ]},
-          { id: uuidv4(), label: 'Phone', type: 'phone', required: false, placeholder: '+61 4XX XXX XXX',
+          buildFieldFromCatalog('lib-preferred-language', 'select'),
+          buildFieldFromCatalog('lib-contact-preferences', 'toggle', { id: toggleOptInId }),
+          buildFieldFromCatalog('lib-work-phone', 'phone', {
             visibleWhen: [{ fieldId: toggleOptInId, operator: 'equals', value: 'events' } as FieldVisibilityRule],
-          },
-          { id: uuidv4(), label: 'Additional comments', type: 'textarea', required: false, placeholder: "Anything else you'd like us to know?" },
+          }),
+          buildFieldFromCatalog('lib-additional-comments', 'textarea'),
         ],
       },
     ],
