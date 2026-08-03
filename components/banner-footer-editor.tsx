@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { AlignCenter, AlignLeft, AlignRight, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, SlidersHorizontal, Trash2, Wallpaper } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, SlidersHorizontal, Trash2 } from 'lucide-react'
 import type { BannerConfig, BannerLayout, Brand, FooterConfig, FooterLayout, BannerLink } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { Input } from '@/components/ui/input'
@@ -533,6 +533,40 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               <span className="text-sm text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
+            {/* Revealed inline rather than as its own card -- these only exist because of
+                the toggle directly above, so splitting them out made the relationship
+                harder to see. */}
+            {isImageBg && (
+              <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
+                <ImageUploadField
+                  label="Image"
+                  value={cfg.imageUrl}
+                  onChange={(url) => patch({ imageUrl: url })}
+                  previewClassName="max-h-24 max-w-full"
+                />
+                <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
+                <SettingRow label="Overlay opacity">
+                  <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
+                    onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
+                    className="flex-1 accent-primary" style={{ height: '6px' }} />
+                  <span className="w-8 text-right text-sm text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+                </SettingRow>
+                <SettingRow label="Image fit">
+                  <Segmented
+                    options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
+                    value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
+                    onChange={(v) => patch({ backgroundSize: v })}
+                  />
+                </SettingRow>
+                <SettingRow label="Tiling">
+                  <Segmented
+                    options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
+                    value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
+                    onChange={(v) => patch({ backgroundRepeat: v })}
+                  />
+                </SettingRow>
+              </div>
+            )}
           </SettingGroup>
 
           {/* Logo (conditional) */}
@@ -601,38 +635,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             )}
           </SettingGroup>
 
-          {/* Background image (conditional) */}
-          {isImageBg && (
-            <SettingGroup title="Background image" icon={Wallpaper} collapsible>
-              <ImageUploadField
-                label="Image"
-                value={cfg.imageUrl}
-                onChange={(url) => patch({ imageUrl: url })}
-                previewClassName="max-h-24 max-w-full"
-              />
-              <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
-              <SettingRow label="Overlay opacity">
-                <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
-                  onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
-                  className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-sm text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
-              </SettingRow>
-              <SettingRow label="Image fit">
-                <Segmented
-                  options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
-                  value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
-                  onChange={(v) => patch({ backgroundSize: v })}
-                />
-              </SettingRow>
-              <SettingRow label="Tiling">
-                <Segmented
-                  options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
-                  value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
-                  onChange={(v) => patch({ backgroundRepeat: v })}
-                />
-              </SettingRow>
-            </SettingGroup>
-          )}
 
           <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
             <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
@@ -760,6 +762,40 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               <span className="text-sm text-muted-foreground">Background image</span>
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </div>
+            {/* Revealed inline rather than as its own card -- these only exist because of
+                the toggle directly above, so splitting them out made the relationship
+                harder to see. */}
+            {isImageBg && (
+              <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
+                <ImageUploadField
+                  label="Image"
+                  value={cfg.imageUrl}
+                  onChange={(url) => patch({ imageUrl: url })}
+                  previewClassName="max-h-24 max-w-full"
+                />
+                <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
+                <SettingRow label="Overlay opacity">
+                  <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
+                    onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
+                    className="flex-1 accent-primary" style={{ height: '6px' }} />
+                  <span className="w-8 text-right text-sm text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
+                </SettingRow>
+                <SettingRow label="Image fit">
+                  <Segmented
+                    options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
+                    value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
+                    onChange={(v) => patch({ backgroundSize: v })}
+                  />
+                </SettingRow>
+                <SettingRow label="Tiling">
+                  <Segmented
+                    options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
+                    value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
+                    onChange={(v) => patch({ backgroundRepeat: v })}
+                  />
+                </SettingRow>
+              </div>
+            )}
           </SettingGroup>
 
           {/* Links */}
@@ -809,38 +845,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             )}
           </SettingGroup>
 
-          {/* Background image (conditional) */}
-          {isImageBg && (
-            <SettingGroup title="Background image" icon={Wallpaper} collapsible>
-              <ImageUploadField
-                label="Image"
-                value={cfg.imageUrl}
-                onChange={(url) => patch({ imageUrl: url })}
-                previewClassName="max-h-24 max-w-full"
-              />
-              <ColorRow label="Overlay colour" value={cfg.imageOverlayColor} onChange={(v) => patch({ imageOverlayColor: v })} themeId={themeId} />
-              <SettingRow label="Overlay opacity">
-                <input type="range" min={0} max={100} value={cfg.imageOverlayOpacity ?? 45}
-                  onChange={(e) => patch({ imageOverlayOpacity: Number(e.target.value) })}
-                  className="flex-1 accent-primary" style={{ height: '6px' }} />
-                <span className="w-8 text-right text-sm text-muted-foreground tabular-nums">{cfg.imageOverlayOpacity ?? 45}%</span>
-              </SettingRow>
-              <SettingRow label="Image fit">
-                <Segmented
-                  options={[{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'auto', label: 'Auto' }]}
-                  value={(cfg.backgroundSize ?? 'cover') as 'cover' | 'contain' | 'auto'}
-                  onChange={(v) => patch({ backgroundSize: v })}
-                />
-              </SettingRow>
-              <SettingRow label="Tiling">
-                <Segmented
-                  options={[{ value: 'no-repeat', label: 'None' }, { value: 'repeat', label: 'Tile' }, { value: 'repeat-x', label: 'Horiz' }, { value: 'repeat-y', label: 'Vert' }]}
-                  value={(cfg.backgroundRepeat ?? 'no-repeat') as 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'}
-                  onChange={(v) => patch({ backgroundRepeat: v })}
-                />
-              </SettingRow>
-            </SettingGroup>
-          )}
 
           <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
             <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
