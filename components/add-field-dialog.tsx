@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import type { CustomProfileField, ProfileFieldType, StandardFieldDef } from '@/lib/subscription-types'
 import { fieldTypeBadge, getFieldShape, isChoiceFieldType, isDisplayFieldType } from '@/lib/subscription-types'
 import { getFieldCatalog } from '@/lib/field-catalog'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FIELD_TYPE_GROUPS, FIELD_TYPE_ICONS } from '@/components/profile-field-editor'
 import { cn } from '@/lib/utils'
@@ -48,14 +49,6 @@ export function AddFieldDialog({
   const [selectedType, setSelectedType] = useState<ProfileFieldType | null>(null)
   const catalog = getFieldCatalog()
   const matches = selectedType ? catalog.filter((f) => catalogFieldMatchesType(f, selectedType)) : []
-  const matchesRef = useRef<HTMLDivElement>(null)
-
-  // The matches panel renders below the full type grid, easily below the fold -- without
-  // this, picking a type silently reveals a panel the user never scrolls down to see, and
-  // "nothing happens" as far as they can tell.
-  useEffect(() => {
-    if (selectedType) matchesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }, [selectedType])
 
   const close = (v: boolean) => {
     onOpenChange(v)
@@ -69,7 +62,7 @@ export function AddFieldDialog({
           <DialogTitle>Add Field</DialogTitle>
           <DialogDescription>Pick a standard field, or choose a question type to select from existing fields.</DialogDescription>
         </DialogHeader>
-        <div className="max-h-[70vh] space-y-5 overflow-y-auto pr-1">
+        <div className="max-h-[55vh] space-y-5 overflow-y-auto pr-1">
           {availableStandardFields.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Standard Fields</p>
@@ -126,39 +119,52 @@ export function AddFieldDialog({
             ))}
           </div>
 
-          {selectedType && (
-            <div ref={matchesRef} className="space-y-2 rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                  ↳ Existing {fieldTypeBadge[selectedType].label.toLowerCase()} fields — pick one to add it
-                </p>
-                <button type="button" onClick={() => setSelectedType(null)} className="text-xs text-muted-foreground hover:text-foreground">
-                  Clear
-                </button>
-              </div>
-              {matches.length === 0 ? (
-                <p className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
-                  No existing fields of this type yet.
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {matches.map((catalogField) => (
-                    <button
-                      key={catalogField.id}
-                      type="button"
-                      onClick={() => onPickCatalogField(catalogField, selectedType)}
-                      className="rounded-lg border bg-background p-3 text-left transition-colors hover:border-primary hover:bg-muted/40"
-                    >
-                      <p className="text-sm font-medium">{catalogField.label}</p>
-                      {catalogField.options?.length ? (
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                          {catalogField.options.map((o) => o.label).join(', ')}
-                        </p>
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
+        </div>
+
+        {/* Sits outside the scroll area so the fields you can actually pick are always in
+            view — the type grid above is long enough that an inline panel scrolls off. */}
+        <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Available fields</p>
+              {selectedType && (
+                <Badge variant="outline" className={fieldTypeBadge[selectedType].className}>
+                  {fieldTypeBadge[selectedType].label}
+                </Badge>
               )}
+            </div>
+            {selectedType && (
+              <button type="button" onClick={() => setSelectedType(null)} className="text-xs text-muted-foreground hover:text-foreground">
+                Clear
+              </button>
+            )}
+          </div>
+
+          {!selectedType ? (
+            <p className="py-2 text-xs text-muted-foreground">
+              Choose a question type above to see the fields you can add.
+            </p>
+          ) : matches.length === 0 ? (
+            <p className="py-2 text-xs text-muted-foreground">
+              No fields of this type are available yet.
+            </p>
+          ) : (
+            <div className="grid max-h-44 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
+              {matches.map((catalogField) => (
+                <button
+                  key={catalogField.id}
+                  type="button"
+                  onClick={() => onPickCatalogField(catalogField, selectedType)}
+                  className="rounded-lg border bg-background p-3 text-left transition-colors hover:border-primary hover:bg-muted/40"
+                >
+                  <p className="text-sm font-medium">{catalogField.label}</p>
+                  {catalogField.options?.length ? (
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {catalogField.options.map((o) => o.label).join(', ')}
+                    </p>
+                  ) : null}
+                </button>
+              ))}
             </div>
           )}
         </div>
