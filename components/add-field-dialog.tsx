@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CustomProfileField, ProfileFieldType, StandardFieldDef } from '@/lib/subscription-types'
 import { fieldTypeBadge, getFieldShape, isChoiceFieldType, isDisplayFieldType } from '@/lib/subscription-types'
 import { getFieldCatalog } from '@/lib/field-catalog'
@@ -48,6 +48,14 @@ export function AddFieldDialog({
   const [selectedType, setSelectedType] = useState<ProfileFieldType | null>(null)
   const catalog = getFieldCatalog()
   const matches = selectedType ? catalog.filter((f) => catalogFieldMatchesType(f, selectedType)) : []
+  const matchesRef = useRef<HTMLDivElement>(null)
+
+  // The matches panel renders below the full type grid, easily below the fold -- without
+  // this, picking a type silently reveals a panel the user never scrolls down to see, and
+  // "nothing happens" as far as they can tell.
+  useEffect(() => {
+    if (selectedType) matchesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [selectedType])
 
   const close = (v: boolean) => {
     onOpenChange(v)
@@ -119,10 +127,10 @@ export function AddFieldDialog({
           </div>
 
           {selectedType && (
-            <div className="space-y-2 rounded-lg border bg-muted/20 p-3">
+            <div ref={matchesRef} className="space-y-2 rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Existing {fieldTypeBadge[selectedType].label.toLowerCase()} fields
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                  ↳ Existing {fieldTypeBadge[selectedType].label.toLowerCase()} fields — pick one to add it
                 </p>
                 <button type="button" onClick={() => setSelectedType(null)} className="text-xs text-muted-foreground hover:text-foreground">
                   Clear
@@ -155,7 +163,7 @@ export function AddFieldDialog({
           )}
         </div>
         <DialogFooter>
-          <Button onClick={() => close(false)}>Done</Button>
+          <Button variant="outline" onClick={() => close(false)}>Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
