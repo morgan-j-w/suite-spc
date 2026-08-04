@@ -249,6 +249,16 @@ function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle:
 const TEXT_BANNER_LAYOUTS: EmailBannerLayout[] = ['heading-band', 'bar-cta', 'brand-band', 'feature-hero']
 // Footer layouts that show a logo/fallback wordmark.
 const LOGO_FOOTER_LAYOUTS: EmailFooterLayout[] = ['links-copyright', 'two-col', 'inline-band']
+
+// Layouts whose generator actually reads logoPosition, with the alignment each falls back
+// to when it's unset -- so the control reflects what's rendered instead of always showing
+// "centre". Everything else anchors its logo structurally and ignores the setting.
+const ALIGNABLE_LOGO_LAYOUTS: Record<string, 'left' | 'center' | 'right'> = {
+  'logo-centered': 'center',
+  'logo-left': 'left',
+  'heading-band': 'center',
+  'links-copyright': 'left',
+}
 // Banner/footer layouts with an accent stripe or border to colour.
 const ACCENT_BANNER_LAYOUTS: EmailBannerLayout[] = ['brand-band']
 const ACCENT_FOOTER_LAYOUTS: EmailFooterLayout[] = ['inline-band']
@@ -406,17 +416,15 @@ function EmailLayoutSection({
             <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={logoMaxWidth} onChange={onLogoMaxWidthChange} />
             <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={logoMaxHeight} onChange={onLogoMaxHeightChange} />
           </SettingRow>
-          {/* Position only makes sense for layouts where the logo isn't already anchored by
-              the layout itself (logo-left is always left; heading-band is always centred) */}
-          {(section !== 'banner' || selectedLayout === 'logo-centered') && (
-            <SettingRow label="Position">
+          {selectedLayout && ALIGNABLE_LOGO_LAYOUTS[selectedLayout] && (
+            <SettingRow label="Alignment">
               <Segmented
                 options={[
                   { value: 'left', icon: AlignLeft, title: 'Left' },
                   { value: 'center', icon: AlignCenter, title: 'Centre' },
                   { value: 'right', icon: AlignRight, title: 'Right' },
                 ]}
-                value={logoPosition ?? 'center'}
+                value={logoPosition ?? ALIGNABLE_LOGO_LAYOUTS[selectedLayout]}
                 onChange={(v) => onLogoPositionChange(v)}
               />
             </SettingRow>
