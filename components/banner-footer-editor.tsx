@@ -517,7 +517,7 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {textEditor}
 
           {/* Options */}
-          <SettingGroup title="Placement & background" icon={SlidersHorizontal} collapsible>
+          <SettingGroup title="Banner options" icon={SlidersHorizontal} collapsible>
             <p className="text-sm text-muted-foreground">How the banner sits on the page, the space inside it, and its backdrop.</p>
             <SettingRow label="Full width">
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
@@ -567,6 +567,35 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             )}
           </SettingGroup>
 
+          {/* Banner image — full-width band below the banner; uploading an image enables it */}
+          <SettingGroup title="Banner image" icon={GalleryHorizontalEnd} collapsible>
+            <p className="text-sm text-muted-foreground">Optional edge-to-edge image shown below the banner, above the page content. Upload an image to enable it.</p>
+            <ImageUploadField
+              label="Image"
+              value={cfg.bannerImageUrl}
+              onChange={(url) => patch({ bannerImageUrl: url })}
+              previewClassName="max-h-24 max-w-full"
+            />
+            {cfg.bannerImageUrl && (
+              <SettingRow label="Height">
+                <UnitInput min={60} max={600} placeholder="240" value={cfg.bannerImageHeight} onChange={(v) => patch({ bannerImageHeight: v })} />
+              </SettingRow>
+            )}
+          </SettingGroup>
+
+
+          {/* Split image (conditional) */}
+          {needsSplitImage && (
+            <SettingGroup title="Split image" icon={ImagePlus} collapsible>
+              <ImageUploadField
+                label="Split image"
+                value={cfg.imageUrl}
+                onChange={(url) => patch({ imageUrl: url })}
+                previewClassName="max-h-24 max-w-full"
+              />
+            </SettingGroup>
+          )}
+
           {/* Logo (conditional) */}
           {cfg.layout !== 'minimal' && (
             <SettingGroup title="Logo" icon={Image} collapsible>
@@ -590,18 +619,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             </SettingGroup>
           )}
 
-          {/* Split image (conditional) */}
-          {needsSplitImage && (
-            <SettingGroup title="Image" icon={ImagePlus} collapsible>
-              <ImageUploadField
-                label="Split image"
-                value={cfg.imageUrl}
-                onChange={(url) => patch({ imageUrl: url })}
-                previewClassName="max-h-24 max-w-full"
-              />
-            </SettingGroup>
-          )}
-
           {/* Colours */}
           <SettingGroup title="Colours" icon={Palette} collapsible>
             <div className="space-y-1">
@@ -616,23 +633,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               ))}
             </div>
           </SettingGroup>
-
-          {/* Banner image — full-width band below the banner; uploading an image enables it */}
-          <SettingGroup title="Banner image" icon={GalleryHorizontalEnd} collapsible>
-            <p className="text-sm text-muted-foreground">Optional edge-to-edge image shown below the banner, above the page content. Upload an image to enable it.</p>
-            <ImageUploadField
-              label="Image"
-              value={cfg.bannerImageUrl}
-              onChange={(url) => patch({ bannerImageUrl: url })}
-              previewClassName="max-h-24 max-w-full"
-            />
-            {cfg.bannerImageUrl && (
-              <SettingRow label="Height">
-                <UnitInput min={60} max={600} placeholder="240" value={cfg.bannerImageHeight} onChange={(v) => patch({ bannerImageHeight: v })} />
-              </SettingRow>
-            )}
-          </SettingGroup>
-
 
           <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
             <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>
@@ -748,7 +748,7 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           </SettingGroup>
 
           {/* Options */}
-          <SettingGroup title="Placement & background" icon={SlidersHorizontal} collapsible>
+          <SettingGroup title="Footer options" icon={SlidersHorizontal} collapsible>
             <p className="text-sm text-muted-foreground">How the footer sits on the page, the space inside it, and its backdrop.</p>
             <SettingRow label="Full width">
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
@@ -795,6 +795,23 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             )}
           </SettingGroup>
 
+          {/* Footer image — full-width band above the footer; uploading an image enables it */}
+          <SettingGroup title="Footer image" icon={GalleryHorizontalEnd} collapsible>
+            <p className="text-sm text-muted-foreground">Optional edge-to-edge image shown above the footer, below the page content. Upload an image to enable it.</p>
+            <ImageUploadField
+              label="Image"
+              value={cfg.footerImageUrl}
+              onChange={(url) => patch({ footerImageUrl: url })}
+              previewClassName="max-h-24 max-w-full"
+            />
+            {cfg.footerImageUrl && (
+              <SettingRow label="Height">
+                <UnitInput min={60} max={600} placeholder="240" value={cfg.footerImageHeight} onChange={(v) => patch({ footerImageHeight: v })} />
+              </SettingRow>
+            )}
+          </SettingGroup>
+
+
           {/* Links */}
           <SettingGroup title="Links" icon={Link2} collapsible>
             <LinksEditor
@@ -825,23 +842,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               ))}
             </div>
           </SettingGroup>
-
-          {/* Footer image — full-width band above the footer; uploading an image enables it */}
-          <SettingGroup title="Footer image" icon={GalleryHorizontalEnd} collapsible>
-            <p className="text-sm text-muted-foreground">Optional edge-to-edge image shown above the footer, below the page content. Upload an image to enable it.</p>
-            <ImageUploadField
-              label="Image"
-              value={cfg.footerImageUrl}
-              onChange={(url) => patch({ footerImageUrl: url })}
-              previewClassName="max-h-24 max-w-full"
-            />
-            {cfg.footerImageUrl && (
-              <SettingRow label="Height">
-                <UnitInput min={60} max={600} placeholder="240" value={cfg.footerImageHeight} onChange={(v) => patch({ footerImageHeight: v })} />
-              </SettingRow>
-            )}
-          </SettingGroup>
-
 
           <SettingGroup title="Advanced" icon={Code2} collapsible staffOnly>
             <p className="text-sm text-amber-700 dark:text-amber-300">Internal use only — these raw HTML/CSS overrides are not shown to client users.</p>

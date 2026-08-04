@@ -346,13 +346,6 @@ function EmailLayoutSection({
       </SettingGroup>
 
       {/* Options */}
-      <SettingGroup title="Spacing" icon={SlidersHorizontal} collapsible>
-        <p className="text-sm text-muted-foreground">Space above and below the {section} content.</p>
-        <SettingRow label="Padding">
-          <SizeControl value={padding} onChange={onPaddingChange} defaultCustomValue={24} max={100} />
-        </SettingRow>
-      </SettingGroup>
-
       {/* Text — heading/subheading. Only the layouts that actually render this text show
           the group; Logo centered and Logo left don't use it. */}
       {section === 'banner' && selectedLayout && TEXT_BANNER_LAYOUTS.includes(selectedLayout as EmailBannerLayout) && onHeadingChange && (
@@ -404,6 +397,13 @@ function EmailLayoutSection({
           )}
         </SettingGroup>
       )}
+
+      <SettingGroup title="Spacing" icon={SlidersHorizontal} collapsible>
+        <p className="text-sm text-muted-foreground">Space above and below the {section} content.</p>
+        <SettingRow label="Padding">
+          <SizeControl value={padding} onChange={onPaddingChange} defaultCustomValue={24} max={100} />
+        </SettingRow>
+      </SettingGroup>
 
       {/* Colours (shown when a layout is selected) */}
       {selectedLayout && (
