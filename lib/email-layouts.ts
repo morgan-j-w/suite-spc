@@ -10,7 +10,7 @@ export interface EmailLayoutColorOptions {
   logoMaxWidth?: number
   logoMaxHeight?: number
   logoPosition?: 'left' | 'center' | 'right'
-  padding?: number | 'compact' | 'spacious'
+  padding?: number | 'compact' | 'spacious' | PaddingBox
 }
 
 
@@ -18,11 +18,45 @@ export interface EmailLayoutColorOptions {
 // user's chosen padding and that layout's own "normal" baseline, preserving each layout's
 // asymmetric top/bottom shape (e.g. logo-centered's 26px-top/22px-bottom) rather than
 // flattening every row to one identical number.
-function paddingScale(padding: number | 'compact' | 'spacious' | undefined, normalBase: number): number {
+function paddingScale(padding: number | 'compact' | 'spacious' | PaddingBox | undefined, normalBase: number): number {
+  // A PaddingBox never reaches the scaling path (callers short-circuit on it), but accept
+  // it in the signature so every call site can pass opts.padding through unchanged.
+  if (padding && typeof padding === 'object') return 1
   if (typeof padding === 'number') return padding / normalBase
   if (padding === 'compact') return 0.6
   if (padding === 'spacious') return 1.6
   return 1
+}
+
+
+// Section padding for the email banner/footer rows. Presets and a plain number scale each
+// layout's own vertical baseline (preserving its asymmetric top/bottom shape) while the
+// 40px side gutters scale with them; a PaddingBox takes over all four sides verbatim.
+const EMAIL_SIDE_PAD = 40
+export function emailSectionPad(
+  padding: number | 'compact' | 'spacious' | PaddingBox | undefined,
+  topBase: number,
+  bottomBase?: number
+): string {
+  if (padding && typeof padding === 'object') {
+    return `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`
+  }
+  const scale = paddingScale(padding, topBase)
+  const side = Math.round(EMAIL_SIDE_PAD * scale)
+  const top = Math.round(topBase * scale)
+  if (bottomBase === undefined) return `${top}px ${side}px`
+  return `${top}px ${side}px ${Math.round(bottomBase * scale)}px`
+}
+
+// Just the side value for layouts that keep a bespoke inner gutter (two-column rows,
+// logo rows) and only need their outer edge to follow the padding setting.
+export function emailSideOf(
+  padding: number | 'compact' | 'spacious' | PaddingBox | undefined,
+  base: number
+): { left: number; right: number } {
+  if (padding && typeof padding === 'object') return { left: padding.left, right: padding.right }
+  const side = Math.round(EMAIL_SIDE_PAD * paddingScale(padding, base))
+  return { left: side, right: side }
 }
 
 function esc(s?: string): string {
@@ -63,7 +97,7 @@ export function generateEmailBannerHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td align="${align}" style="padding:${Math.round(26 * scale)}px 40px ${Math.round(22 * scale)}px;">`,
+        `    <td align="${align}" style="padding:${emailSectionPad(opts.padding, 26, 22)};">`,
         `      ${logoOrName(brand.logoUrl, fg, logoH, logoW)}`,
         `    </td>`,
         `  </tr>`,
@@ -78,7 +112,7 @@ export function generateEmailBannerHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td style="padding:${pad}px 40px;">`,
+        `    <td style="padding:${emailSectionPad(opts.padding, 16)};">`,
         `      <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>`,
         `        <td align="${align}">${logoOrName(brand.logoUrl, fg, logoH, logoW)}</td>`,
         brand.backUrl
@@ -98,13 +132,13 @@ export function generateEmailBannerHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td align="${align}" style="padding:${Math.round(26 * scale)}px 40px ${Math.round(16 * scale)}px;">`,
+        `    <td align="${align}" style="padding:${emailSectionPad(opts.padding, 26, 16)};">`,
         `      ${logoOrName(brand.logoUrl, fg, logoH, logoW)}`,
         `    </td>`,
         `  </tr>`,
         `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
         `  <tr>`,
-        `    <td align="center" style="padding:${Math.round(20 * scale)}px 40px ${Math.round(28 * scale)}px;">`,
+        `    <td align="center" style="padding:${emailSectionPad(opts.padding, 20, 28)};">`,
         `      <p style="margin:0;font-size:22px;font-weight:700;color:${escAttr(fg)};font-family:Arial,sans-serif;">${esc(heading)}</p>`,
         subheading ? `      <p style="margin:8px 0 0;font-size:14px;color:${escAttr(fg)};opacity:0.65;font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
         `    </td>`,
@@ -120,7 +154,7 @@ export function generateEmailBannerHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td style="padding:${Math.round(18 * scale)}px 40px 0;">`,
+        `    <td style="padding:${emailSectionPad(opts.padding, 18, 0)};">`,
         `      <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>`,
         `        <td align="left">${logoOrName(brand.logoUrl, fg, logoH, logoW)}</td>`,
         brand.backUrl
@@ -130,7 +164,7 @@ export function generateEmailBannerHtml(
         `    </td>`,
         `  </tr>`,
         `  <tr>`,
-        `    <td style="padding:${Math.round(22 * scale)}px 40px ${Math.round(18 * scale)}px;">`,
+        `    <td style="padding:${emailSectionPad(opts.padding, 22, 18)};">`,
         `      <p style="margin:0;font-size:20px;font-weight:700;color:${escAttr(fg)};font-family:Arial,sans-serif;">${esc(heading)}</p>`,
         subheading ? `      <p style="margin:6px 0 0;font-size:14px;color:${escAttr(fg)};font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
         `    </td>`,
@@ -170,7 +204,7 @@ export function generateEmailBannerHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td align="center" style="padding:${Math.round(34 * scale)}px 40px;">`,
+        `    <td align="center" style="padding:${emailSectionPad(opts.padding, 34)};">`,
         brand.logoUrl ? `      <img src="${escAttr(brand.logoUrl)}" alt="" height="${sz.h}" style="display:block;margin:0 auto 16px;max-width:${sz.w}px;height:auto;max-height:${sz.h}px;border:0;opacity:0.9;" />` : '',
         `      <p style="margin:0 0 10px;font-size:26px;font-weight:800;color:${escAttr(fg)};line-height:1.15;font-family:Arial,sans-serif;">${esc(heading)}</p>`,
         subheading ? `      <p style="margin:0;font-size:15px;color:${escAttr(fg)};opacity:0.85;line-height:1.5;font-family:Arial,sans-serif;">${esc(subheading)}</p>` : '',
@@ -331,7 +365,7 @@ export function generateEmailFooterHtml(
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr><td style="border-top:1px solid ${escAttr(fg)};opacity:0.15;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>`,
         `  <tr>`,
-        `    <td style="padding:${pad}px 40px;text-align:center;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
+        `    <td style="padding:${emailSectionPad(opts.padding, 18)};text-align:center;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
         `      ${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a>`,
         `    </td>`,
         `  </tr>`,
@@ -344,11 +378,11 @@ export function generateEmailFooterHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         logo
-          ? `  <tr><td align="${logoAlign}" style="padding:${Math.round(22 * scale)}px 40px ${Math.round(16 * scale)}px;"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td></tr>`
+          ? `  <tr><td align="${logoAlign}" style="padding:${emailSectionPad(opts.padding, 22, 16)};"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td></tr>`
           : '',
         `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
         `  <tr>`,
-        `    <td style="padding:${Math.round(16 * scale)}px 40px ${Math.round(22 * scale)}px;font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
+        `    <td style="padding:${emailSectionPad(opts.padding, 16, 22)};font-size:12px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.6;">`,
         `      <p style="margin:0 0 4px;">${copyright}</p>`,
         `      <p style="margin:0;"><a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a> &middot; <a href="${PREFS_URL}" style="color:${escAttr(link)};text-decoration:underline;">Manage preferences</a></p>`,
         `    </td>`,
@@ -363,7 +397,7 @@ export function generateEmailFooterHtml(
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid ${escAttr(fg)};opacity:0.15;margin:0;" /></td></tr>`,
         `  <tr>`,
-        `    <td style="padding:${pad}px 40px;font-size:11px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.7;">`,
+        `    <td style="padding:${emailSectionPad(opts.padding, 18)};font-size:11px;color:${escAttr(fg)};font-family:Arial,sans-serif;line-height:1.7;">`,
         addressHtml ? `      <p style="margin:0 0 6px;">${addressHtml}</p>` : '',
         `      <p style="margin:0;">${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a></p>`,
         `    </td>`,
@@ -379,12 +413,12 @@ export function generateEmailFooterHtml(
       return [
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr>`,
-        `    <td width="325" valign="top" style="padding:${pad}px 20px ${pad}px 40px;font-family:Arial,sans-serif;">`,
+        `    <td width="325" valign="top" style="padding:${pad}px 20px ${pad}px ${emailSideOf(opts.padding, 20).left}px;font-family:Arial,sans-serif;">`,
         logo ? `      <img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;margin:0 0 10px;" />` : '',
         addressHtml ? `      <p style="margin:0 0 4px;font-size:12px;color:${escAttr(fg)};">${addressHtml}</p>` : '',
         `      <p style="margin:0;font-size:11px;color:${escAttr(fg)};">${copyright}</p>`,
         `    </td>`,
-        `    <td width="325" valign="top" align="right" style="padding:${pad}px 40px ${pad}px 20px;font-family:Arial,sans-serif;">`,
+        `    <td width="325" valign="top" align="right" style="padding:${pad}px ${emailSideOf(opts.padding, 20).right}px ${pad}px 20px;font-family:Arial,sans-serif;">`,
         `      <p style="margin:0 0 4px;font-size:12px;"><a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a></p>`,
         `      <p style="margin:0;font-size:12px;"><a href="${PREFS_URL}" style="color:${escAttr(link)};text-decoration:underline;">Manage preferences</a></p>`,
         `    </td>`,
@@ -403,7 +437,7 @@ export function generateEmailFooterHtml(
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
         `  <tr><td style="border-top:1px solid ${escAttr(fg)};opacity:0.15;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr>`,
         `  <tr>`,
-        `    <td align="center" style="padding:${pad}px 40px;font-family:Arial,sans-serif;">`,
+        `    <td align="center" style="padding:${emailSectionPad(opts.padding, 20)};font-family:Arial,sans-serif;">`,
         socialLinks.length
           ? `      <p style="margin:0 0 10px;font-size:12px;">${socialLinks.map((sl) => `<a href="${escAttr(sl.url)}" style="color:${escAttr(link)};text-decoration:none;margin:0 6px;font-weight:600;">${SOCIAL_LABELS[sl.platform] ?? sl.platform}</a>`).join('')}</p>`
           : '',
@@ -423,9 +457,9 @@ export function generateEmailFooterHtml(
         `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};border-top:3px solid ${escAttr(accent)};">`,
         `  <tr>`,
         logo
-          ? `    <td width="140" valign="middle" align="left" style="padding:${pad}px 16px ${pad}px 40px;"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td>`
-          : `    <td valign="middle" align="left" style="padding:${pad}px 16px ${pad}px 40px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:${escAttr(fg)};">Your Company</td>`,
-        `    <td valign="middle" align="right" style="padding:${pad}px 40px ${pad}px 16px;font-family:Arial,sans-serif;font-size:11px;color:${escAttr(fg)};">`,
+          ? `    <td width="140" valign="middle" align="left" style="padding:${pad}px 16px ${pad}px ${emailSideOf(opts.padding, 16).left}px;"><img src="${escAttr(logo)}" alt="" height="${logoH}" style="display:block;max-width:${logoW}px;height:auto;max-height:${logoH}px;border:0;" /></td>`
+          : `    <td valign="middle" align="left" style="padding:${pad}px 16px ${pad}px ${emailSideOf(opts.padding, 16).left}px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:${escAttr(fg)};">Your Company</td>`,
+        `    <td valign="middle" align="right" style="padding:${pad}px ${emailSideOf(opts.padding, 16).right}px ${pad}px 16px;font-family:Arial,sans-serif;font-size:11px;color:${escAttr(fg)};">`,
         `      ${copyright} &middot; <a href="${UNSUB_URL}" style="color:${escAttr(link)};text-decoration:underline;">Unsubscribe</a>`,
         `    </td>`,
         `  </tr>`,

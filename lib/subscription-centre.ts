@@ -53,7 +53,7 @@ export interface EmailConfig {
   bannerLogoMaxWidth?: number
   bannerLogoMaxHeight?: number
   bannerLogoPosition?: 'left' | 'center' | 'right'
-  bannerPadding?: number | 'compact' | 'spacious' // vertical section padding — px, a preset, or undefined for layout default
+  bannerPadding?: number | 'compact' | 'spacious' | PaddingBox // section padding — preset/px scales layout defaults, PaddingBox sets each side
   footerLayout?: EmailFooterLayout
   footerBgColor?: string
   footerTextColor?: string
@@ -63,7 +63,7 @@ export interface EmailConfig {
   footerLogoMaxWidth?: number
   footerLogoMaxHeight?: number
   footerLogoPosition?: 'left' | 'center' | 'right'
-  footerPadding?: number | 'compact' | 'spacious' // vertical section padding — px, a preset, or undefined for layout default
+  footerPadding?: number | 'compact' | 'spacious' | PaddingBox // section padding — preset/px scales layout defaults, PaddingBox sets each side
   doubleOptIn: EmailTemplate
   confirmation: EmailTemplate
   unsubscribed: EmailTemplate
@@ -140,7 +140,7 @@ export interface BannerConfig {
   imageOverlayOpacity?: number // overlay opacity 0–100 when imageBackground is on (default 45)
   backgroundSize?: string     // CSS background-size (cover/contain/auto)
   backgroundRepeat?: string   // CSS background-repeat
-  padding?: number | 'compact' | 'spacious'    // vertical section padding — px, a preset, or undefined for layout default
+  padding?: number | 'compact' | 'spacious' | PaddingBox  // section padding — a preset/px scales the layout's own defaults, a PaddingBox sets each side
   logoPosition?: 'left' | 'center' | 'right' // alignment within logo-only layout
   logoSize?: 'sm' | 'md' | 'lg'              // legacy preset — overridden by logoMaxWidth/logoMaxHeight
   logoMaxWidth?: number                        // px, max-width for logo image
@@ -182,7 +182,7 @@ export interface FooterConfig {
   backgroundRepeat?: string
   links?: BannerLink[]     // primary footer nav / legal links
   quickLinks?: BannerLink[] // secondary column (multi-column layout)
-  padding?: number | 'compact' | 'spacious' // vertical section padding — px, a preset, or undefined for layout default
+  padding?: number | 'compact' | 'spacious' | PaddingBox  // section padding — a preset/px scales the layout's own defaults, a PaddingBox sets each side
   fullWidth: boolean
   footerImageUrl?: string     // edge-to-edge image band above the footer; set = enabled
   footerImageHeight?: number  // px, default 240

@@ -11,9 +11,8 @@ import { getThemeBrandColors } from '@/lib/style-previews'
 import { RichTextEditor } from '@/components/rich-text-editor'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
-import { SizeControl, type SizeValue } from '@/components/ui/size-control'
 import { UnitInput } from '@/components/ui/unit-input'
-import { PaddingBoxControl } from '@/components/ui/padding-box-control'
+import { PaddingControl, type PaddingValue } from '@/components/ui/padding-control'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -265,8 +264,8 @@ interface EmailLayoutSectionProps {
   htmlValue: string
   cssValue: string
   themeId?: ColorTheme
-  padding?: number | 'compact' | 'spacious'
-  onPaddingChange: (v: SizeValue) => void
+  padding?: PaddingValue
+  onPaddingChange: (v: PaddingValue) => void
   // Text content (banner only, for text-based layouts)
   heading?: string
   subheading?: string
@@ -417,9 +416,12 @@ function EmailLayoutSection({
 
       <SettingGroup title="Spacing" icon={SlidersHorizontal} collapsible>
         <p className="text-sm text-muted-foreground">Space above and below the {section} content.</p>
-        <SettingRow label="Padding">
-          <SizeControl value={padding} onChange={onPaddingChange} defaultCustomValue={24} max={100} />
-        </SettingRow>
+        <PaddingControl
+          value={padding}
+          onChange={onPaddingChange}
+          normalBox={{ top: 24, right: 40, bottom: 24, left: 40 }}
+          idPrefix={`email-${section}-pad`}
+        />
       </SettingGroup>
 
       {/* Colours (shown when a layout is selected) */}
@@ -515,54 +517,6 @@ function EmailLayoutSection({
           />
         </div>
       </SettingGroup>
-    </div>
-  )
-}
-
-// Container padding gets its own control rather than the shared SizeControl: the sides and
-// the top/bottom of an email card often want different values, so "Custom" here opens four
-// inputs instead of one. Presets and the single-value legacy shape still scale both axes
-// together (see resolveContainerPadding).
-function ContainerPaddingControl({
-  value,
-  onChange,
-}: {
-  value?: number | 'compact' | 'spacious' | PaddingBox
-  onChange: (v?: number | 'compact' | 'spacious' | PaddingBox) => void
-}) {
-  const isPerSide = !!value && typeof value === 'object'
-  const mode: 'compact' | 'normal' | 'spacious' | 'custom' =
-    isPerSide ? 'custom' : typeof value === 'number' ? 'custom' : (value ?? 'normal')
-  const box = resolveContainerPadding(value)
-
-  const setSide = (side: keyof PaddingBox, v?: number) =>
-    onChange({ ...box, [side]: v ?? 0 })
-
-  return (
-    <div className="space-y-2.5">
-      <SettingRow label="Padding">
-        <Segmented
-          options={[
-            { value: 'compact', label: 'Compact' },
-            { value: 'normal', label: 'Normal' },
-            { value: 'spacious', label: 'Spacious' },
-            { value: 'custom', label: 'Custom' },
-          ]}
-          value={mode}
-          onChange={(v) => {
-            if (v === 'custom') onChange({ ...box })
-            else if (v === 'normal') onChange(undefined)
-            else onChange(v)
-          }}
-        />
-      </SettingRow>
-
-      {mode === 'custom' && (
-        <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
-          <p className="text-sm text-muted-foreground">Set each side independently.</p>
-          <PaddingBoxControl value={box} onChange={onChange} idPrefix="container-pad" />
-        </div>
-      )}
     </div>
   )
 }
@@ -880,7 +834,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               htmlValue={cfg.bannerHtml}
               themeId={themeId ?? defaultTheme}
               padding={cfg.bannerPadding}
-              onPaddingChange={(v) => patch({ bannerPadding: v === 'normal' ? undefined : v })}
+              onPaddingChange={(v) => patch({ bannerPadding: v })}
               heading={cfg.bannerHeading}
               subheading={cfg.bannerSubheading}
               onHeadingChange={(bannerHeading) => patch({ bannerHeading })}
@@ -933,7 +887,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               htmlValue={cfg.footerHtml}
               themeId={themeId ?? defaultTheme}
               padding={cfg.footerPadding}
-              onPaddingChange={(v) => patch({ footerPadding: v === 'normal' ? undefined : v })}
+              onPaddingChange={(v) => patch({ footerPadding: v })}
               logoMaxWidth={cfg.footerLogoMaxWidth}
               logoMaxHeight={cfg.footerLogoMaxHeight}
               logoPosition={cfg.footerLogoPosition}
@@ -1050,9 +1004,11 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
           </SettingGroup>
           <SettingGroup title="Container" icon={Square} collapsible>
             <p className="text-sm text-muted-foreground">The middle card between the banner and footer.</p>
-            <ContainerPaddingControl
+            <PaddingControl
               value={cfg.emailContainerPadding}
               onChange={(v) => patch({ emailContainerPadding: v })}
+              normalBox={resolveContainerPadding(undefined)}
+              idPrefix="container-pad"
             />
           </SettingGroup>
         </>

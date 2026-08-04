@@ -18,7 +18,7 @@ import { ColorRow } from '@/components/colour-row'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
-import { SizeControl } from '@/components/ui/size-control'
+import { PaddingControl } from '@/components/ui/padding-control'
 import { UnitInput } from '@/components/ui/unit-input'
 import { cn } from '@/lib/utils'
 
@@ -558,9 +558,13 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
                 )}
               </>
             )}
-            <SettingRow label="Inner padding">
-              <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
-            </SettingRow>
+            <PaddingControl
+              value={cfg.padding}
+              onChange={(v) => patch({ padding: v })}
+              normalBox={{ top: 40, right: 24, bottom: 40, left: 24 }}
+              idPrefix="section-pad"
+              label="Inner padding"
+            />
             <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </SettingRow>
@@ -813,9 +817,13 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 )}
               </>
             )}
-            <SettingRow label="Inner padding">
-              <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
-            </SettingRow>
+            <PaddingControl
+              value={cfg.padding}
+              onChange={(v) => patch({ padding: v })}
+              normalBox={{ top: 40, right: 24, bottom: 40, left: 24 }}
+              idPrefix="section-pad"
+              label="Inner padding"
+            />
             <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </SettingRow>

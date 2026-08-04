@@ -1,7 +1,7 @@
 // Brand configuration - Edit these values to customise your preference centre
 export const brandConfig = {
   // Brand identity
-  name: 'Acme Inc',
+  name: 'Your Company',
   tagline: 'Your trusted partner',
   logo: null as string | null, // Set to a path like '/logo.png' to use a custom logo
 

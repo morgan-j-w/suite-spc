@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Brand, BannerConfig, FooterConfig, SocialPlatform, SocialLink } from '@/lib/subscription-centre'
+import type { Brand, BannerConfig, FooterConfig, PaddingBox, SocialPlatform, SocialLink } from '@/lib/subscription-centre'
 
 // ─── Social icons ─────────────────────────────────────────────────────────────
 
@@ -91,10 +91,15 @@ function wrap(fullWidth: boolean, maxWidth = 896): React.CSSProperties {
   return fullWidth ? {} : { maxWidth, margin: '0 auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }
 }
 
-// Computes section outer padding from the 'padding' config field.
-// Each layout has its own "normal" default; a numeric value (px) overrides directly.
-function sectionPad(padding: number | string | undefined, normalV: string, normalH: string): string {
+// Computes section outer padding from the 'padding' config field. Each layout passes its
+// own "normal" vertical/horizontal defaults; presets scale both axes from those, a plain
+// number sets the vertical only (keeping the layout's horizontal rhythm), and a PaddingBox
+// takes over all four sides verbatim.
+function sectionPad(padding: number | string | PaddingBox | undefined, normalV: string, normalH: string): string {
   const v = parseFloat(normalV), h = parseFloat(normalH)
+  if (padding && typeof padding === 'object') {
+    return `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`
+  }
   if (typeof padding === 'number') return `${padding}px ${h}rem`
   if (padding === 'compact') return `${v * 0.55}rem ${h * 0.67}rem`
   if (padding === 'spacious') return `${v * 1.6}rem ${h * 1.25}rem`

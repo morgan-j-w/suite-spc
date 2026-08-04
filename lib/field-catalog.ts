@@ -13,7 +13,7 @@ import type { CustomProfileField, FieldVisibilityRule, ProfileFieldType } from '
 // reusable field means adding an entry here.
 export const fieldCatalog: CustomProfileField[] = [
   { id: 'lib-job-title', label: 'Job Title', type: 'text', required: false, placeholder: 'e.g., Marketing Manager' },
-  { id: 'lib-company-name', label: 'Company Name', type: 'text', required: false, placeholder: 'e.g., Acme Inc' },
+  { id: 'lib-company-name', label: 'Company Name', type: 'text', required: false, placeholder: 'e.g., Your Company' },
   { id: 'lib-work-phone', label: 'Work Phone', type: 'phone', required: false, placeholder: '+61 2 XXXX XXXX' },
   { id: 'lib-additional-comments', label: 'Additional Comments', type: 'textarea', required: false, placeholder: "Anything else you'd like us to know?" },
 
