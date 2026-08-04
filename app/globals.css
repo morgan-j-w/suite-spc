@@ -49,6 +49,17 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: #0c798d;
+
+  /* Builder chrome accents that deliberately sit outside the theme scale — they identify
+     parts of the builder UI rather than following the centre's colour theme. */
+  --nav-active: #656d78;              /* selected section in the left rail */
+  --nav-active-foreground: #ffffff;   /* 4.87:1 on the above — clears WCAG AA */
+  --publish: #ec2176;                 /* Publish button */
+  --publish-foreground: #ffffff;
+  /* Setting-group icon circles. This is the one place the true brand blue is used at full
+     strength: the icon is decorative, not text, so it isn't carrying a contrast burden. */
+  --icon-accent: #21cdec;
+  --icon-accent-bg: #e9fafd;
 }
 
 /* Blue Theme (Default) */
@@ -223,6 +234,12 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-nav-active: var(--nav-active);
+  --color-nav-active-foreground: var(--nav-active-foreground);
+  --color-publish: var(--publish);
+  --color-publish-foreground: var(--publish-foreground);
+  --color-icon-accent: var(--icon-accent);
+  --color-icon-accent-bg: var(--icon-accent-bg);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

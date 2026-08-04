@@ -51,8 +51,8 @@ interface SettingGroupProps {
 export function SettingGroup({ title, icon: Icon, action, children, className, collapsible, defaultOpen = false, staffOnly = false }: SettingGroupProps) {
   const [open, setOpen] = useState(!collapsible || defaultOpen)
   const iconCircle = Icon && (
-    <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', staffOnly ? 'bg-amber-100 dark:bg-amber-950' : 'bg-primary/10')}>
-      <Icon className={cn('h-4 w-4', staffOnly ? 'text-amber-600 dark:text-amber-400' : 'text-primary')} />
+    <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', staffOnly ? 'bg-amber-100 dark:bg-amber-950' : 'bg-icon-accent-bg')}>
+      <Icon className={cn('h-4 w-4', staffOnly ? 'text-amber-600 dark:text-amber-400' : 'text-icon-accent')} />
     </div>
   )
   const staffBadge = staffOnly && (

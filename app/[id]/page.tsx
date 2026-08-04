@@ -545,7 +545,11 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     Unpublished changes
                   </span>
-                  <Button size="sm" onClick={handlePublish}>
+                  <Button
+                    size="sm"
+                    onClick={handlePublish}
+                    className="bg-publish text-publish-foreground hover:bg-publish/90 focus-visible:ring-publish/40"
+                  >
                     Publish
                   </Button>
                 </>
@@ -716,7 +720,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     className={cn(
                       'flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors',
                       activeSection === section.id
-                        ? 'bg-primary text-primary-foreground'
+                        ? 'bg-nav-active text-nav-active-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )}
                   >
@@ -781,7 +785,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                 className={cn(
                   'flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                   activeSection === section.id
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-nav-active text-nav-active-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
