@@ -467,6 +467,12 @@ function populateFooterHtml(cfg: FooterConfig, brand: Brand): string {
   return html
 }
 
+
+// Only these layouts render a "Back to website" link, so the toggle for it is hidden
+// elsewhere rather than shown as a control that does nothing.
+const BACK_LINK_BANNER_LAYOUTS: BannerLayout[] = ['bar-cta', 'nav-strip', 'editorial-split', 'triple-row']
+const BACK_LINK_FOOTER_LAYOUTS: FooterLayout[] = ['split-cta']
+
 // ─── Banner editor ────────────────────────────────────────────────────────────
 
 interface BannerEditorProps {
@@ -525,6 +531,19 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
             <SettingRow label="Stick to top">
               <Switch checked={!!cfg.sticky} onCheckedChange={(v) => patch({ sticky: v || undefined })} />
             </SettingRow>
+            {BACK_LINK_BANNER_LAYOUTS.includes(cfg.layout) && (
+              <>
+                <SettingRow label="Back to website">
+                  <Switch
+                    checked={cfg.showBackLink !== false}
+                    onCheckedChange={(v) => patch({ showBackLink: v ? undefined : false })}
+                  />
+                </SettingRow>
+                {!brand?.backUrl && cfg.showBackLink !== false && (
+                  <p className="text-sm text-muted-foreground">Add a website URL under Brand for this link to appear.</p>
+                )}
+              </>
+            )}
             <SettingRow label="Inner padding">
               <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
@@ -753,6 +772,19 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             <SettingRow label="Full width">
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
             </SettingRow>
+            {BACK_LINK_FOOTER_LAYOUTS.includes(cfg.layout) && (
+              <>
+                <SettingRow label="Back to website">
+                  <Switch
+                    checked={cfg.showBackLink !== false}
+                    onCheckedChange={(v) => patch({ showBackLink: v ? undefined : false })}
+                  />
+                </SettingRow>
+                {!brand?.backUrl && cfg.showBackLink !== false && (
+                  <p className="text-sm text-muted-foreground">Add a website URL under Brand for this link to appear.</p>
+                )}
+              </>
+            )}
             <SettingRow label="Inner padding">
               <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>

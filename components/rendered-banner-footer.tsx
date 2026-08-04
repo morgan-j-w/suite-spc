@@ -148,7 +148,7 @@ function BannerBarCta({ config, brand, heading, blurb, maxWidth = 896 }: BannerP
           {brand.logoUrl
             ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140 }} />
             : <span style={{ fontWeight: 600, color: fg }}>Your Brand</span>}
-          {brand.backUrl && (
+          {brand.backUrl && config.showBackLink !== false && (
             <a href={brand.backUrl} style={{ fontSize: '0.875rem', color: link, textDecoration: 'none', fontWeight: 500 }}>
               ← Back to website
             </a>
@@ -274,7 +274,7 @@ function BannerNavStrip({ config, brand, heading, blurb, maxWidth = 896 }: Banne
           {brand.logoUrl
             ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 32, maxWidth: 120 }} />
             : <span style={{ fontWeight: 700, fontSize: '0.9rem', color: fg }}>Brand</span>}
-          {brand.backUrl && (
+          {brand.backUrl && config.showBackLink !== false && (
             <a href={brand.backUrl} style={{ fontSize: '0.875rem', color: link, textDecoration: 'none', fontWeight: 500 }}>← Back to website</a>
           )}
         </div>
@@ -356,7 +356,7 @@ function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }:
             {brand.logoUrl
               ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
               : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg }}>Brand</span>}
-            {brand.backUrl && <a href={brand.backUrl} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>← Back to website</a>}
+            {brand.backUrl && config.showBackLink !== false && <a href={brand.backUrl} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>← Back to website</a>}
           </div>
         </div>
       </div>
@@ -376,7 +376,7 @@ function BannerTripleRow({ config, brand, heading, blurb, maxWidth = 896 }: Bann
     <div>
       <div style={{ background: utilBg, padding: '0.375rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
         <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          {brand.backUrl && <a href={brand.backUrl} style={{ fontSize: '0.75rem', color: link, textDecoration: 'none', fontWeight: 500 }}>← Back to website</a>}
+          {brand.backUrl && config.showBackLink !== false && <a href={brand.backUrl} style={{ fontSize: '0.75rem', color: link, textDecoration: 'none', fontWeight: 500 }}>← Back to website</a>}
         </div>
       </div>
       <div style={{ background: mainBg, padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', textAlign: 'center' }}>
@@ -618,7 +618,7 @@ function FooterSplitCta({ config, brand, maxWidth = 896 }: FooterProps) {
             {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: 0, whiteSpace: 'pre-line' }}>{brand.address}</p>}
           </div>
           <div className="spc-splitcta-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.875rem' }}>
-            {brand.backUrl && (
+            {brand.backUrl && config.showBackLink !== false && (
               <HoverLink href={brand.backUrl} bg={btnBg} text={btnText}>Back to website</HoverLink>
             )}
             {!!brand.socialLinks?.length && <SocialIcons links={brand.socialLinks} size="sm" color={icon} />}

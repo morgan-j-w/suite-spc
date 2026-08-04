@@ -147,6 +147,11 @@ export interface BannerConfig {
   logoMaxHeight?: number                       // px, max-height for logo image
   fullWidth: boolean
   sticky?: boolean            // fix banner to top of viewport while scrolling
+  // Layouts that render a "Back to website" link (banner: bar-cta, nav-strip,
+  // editorial-split, triple-row; footer: split-cta) hide it when this is false. Undefined
+  // means shown, so existing centres are unaffected. The link also needs brand.backUrl.
+  showBackLink?: boolean
+
   bannerImageUrl?: string     // edge-to-edge image band below the banner; set = enabled
   bannerImageHeight?: number  // px, default 240
   customHtml?: string
@@ -183,6 +188,10 @@ export interface FooterConfig {
   footerImageHeight?: number  // px, default 240
   customHtml?: string
   customCss?: string       // injected as <style> alongside the rendered layout
+  // Hides the "Back to website" link on the split-cta layout. Undefined means shown.
+  // The link also needs brand.backUrl to be set.
+  showBackLink?: boolean
+
 }
 
 export type ContentBlockType = 'text' | 'image'
