@@ -10,6 +10,7 @@ import { ColorRow } from '@/components/colour-row'
 import { getThemeBrandColors } from '@/lib/style-previews'
 import { RichTextEditor } from '@/components/rich-text-editor'
 import { SettingGroup, SettingRow } from '@/components/setting-row'
+import { LogoSourceField } from '@/components/logo-source-field'
 import { Segmented } from '@/components/ui/segmented'
 import { UnitInput } from '@/components/ui/unit-input'
 import { PaddingControl, type PaddingValue } from '@/components/ui/padding-control'
@@ -285,6 +286,9 @@ interface EmailLayoutSectionProps {
   logoMaxWidth?: number
   logoMaxHeight?: number
   logoPosition?: 'left' | 'center' | 'right'
+  logoUrl?: string
+  brandLogoUrl?: string
+  onLogoUrlChange: (v: string | undefined) => void
   onLogoMaxWidthChange: (v: number | undefined) => void
   onLogoMaxHeightChange: (v: number | undefined) => void
   onLogoPositionChange: (v: 'left' | 'center' | 'right' | undefined) => void
@@ -319,6 +323,9 @@ function EmailLayoutSection({
   logoMaxWidth,
   logoMaxHeight,
   logoPosition,
+  logoUrl,
+  brandLogoUrl,
+  onLogoUrlChange,
   onLogoMaxWidthChange,
   onLogoMaxHeightChange,
   onLogoPositionChange,
@@ -412,6 +419,12 @@ function EmailLayoutSection({
       {/* Logo — banner: all layouts; footer: layouts that show a logo/wordmark */}
       {selectedLayout && (section === 'banner' || (section === 'footer' && LOGO_FOOTER_LAYOUTS.includes(selectedLayout as EmailFooterLayout))) && (
         <SettingGroup title="Logo" icon={Image} collapsible>
+          <LogoSourceField
+            value={logoUrl}
+            onChange={onLogoUrlChange}
+            brandLogoUrl={brandLogoUrl}
+            section={`email ${section}`}
+          />
           <SettingRow label="Max size">
             <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={logoMaxWidth} onChange={onLogoMaxWidthChange} />
             <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={logoMaxHeight} onChange={onLogoMaxHeightChange} />
@@ -599,6 +612,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
         linkColor:  emailConfig.bannerLinkColor,
         heading:    emailConfig.bannerHeading,
         subheading: emailConfig.bannerSubheading,
+        logoUrl:       emailConfig.bannerLogoUrl,
         logoMaxWidth:  emailConfig.bannerLogoMaxWidth,
         logoMaxHeight: emailConfig.bannerLogoMaxHeight,
         logoPosition:  emailConfig.bannerLogoPosition,
@@ -610,6 +624,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
         bgColor:   emailConfig.footerBgColor,
         textColor: emailConfig.footerTextColor,
         linkColor: emailConfig.footerLinkColor,
+        logoUrl:       emailConfig.footerLogoUrl,
         logoMaxWidth:  emailConfig.footerLogoMaxWidth,
         logoMaxHeight: emailConfig.footerLogoMaxHeight,
         logoPosition:  emailConfig.footerLogoPosition,
@@ -744,6 +759,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         linkColor: cfg.bannerLinkColor,
         heading: cfg.bannerHeading,
         subheading: cfg.bannerSubheading,
+        logoUrl:      cfg.bannerLogoUrl,
         logoMaxWidth: cfg.bannerLogoMaxWidth,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition: cfg.bannerLogoPosition,
@@ -760,6 +776,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         bgColor: cfg.footerBgColor,
         textColor: cfg.footerTextColor,
         linkColor: cfg.footerLinkColor,
+        logoUrl:      cfg.footerLogoUrl,
         logoMaxWidth: cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
@@ -784,6 +801,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         linkColor: cfg.bannerLinkColor,
         heading: cfg.bannerHeading,
         subheading: cfg.bannerSubheading,
+        logoUrl:      cfg.bannerLogoUrl,
         logoMaxWidth: cfg.bannerLogoMaxWidth,
         logoMaxHeight: cfg.bannerLogoMaxHeight,
         logoPosition: cfg.bannerLogoPosition,
@@ -797,6 +815,7 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
         bgColor: cfg.footerBgColor,
         textColor: cfg.footerTextColor,
         linkColor: cfg.footerLinkColor,
+        logoUrl:      cfg.footerLogoUrl,
         logoMaxWidth: cfg.footerLogoMaxWidth,
         logoMaxHeight: cfg.footerLogoMaxHeight,
         logoPosition: cfg.footerLogoPosition,
@@ -850,6 +869,9 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               logoMaxWidth={cfg.bannerLogoMaxWidth}
               logoMaxHeight={cfg.bannerLogoMaxHeight}
               logoPosition={cfg.bannerLogoPosition}
+              logoUrl={cfg.bannerLogoUrl}
+              brandLogoUrl={brand?.logoUrl}
+              onLogoUrlChange={(v) => patch({ bannerLogoUrl: v })}
               onLogoMaxWidthChange={(v) => patch({ bannerLogoMaxWidth: v })}
               onLogoMaxHeightChange={(v) => patch({ bannerLogoMaxHeight: v })}
               onLogoPositionChange={(v) => patch({ bannerLogoPosition: v })}
@@ -899,6 +921,9 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               logoMaxWidth={cfg.footerLogoMaxWidth}
               logoMaxHeight={cfg.footerLogoMaxHeight}
               logoPosition={cfg.footerLogoPosition}
+              logoUrl={cfg.footerLogoUrl}
+              brandLogoUrl={brand?.logoUrl}
+              onLogoUrlChange={(v) => patch({ footerLogoUrl: v })}
               onLogoMaxWidthChange={(v) => patch({ footerLogoMaxWidth: v })}
               onLogoMaxHeightChange={(v) => patch({ footerLogoMaxHeight: v })}
               onLogoPositionChange={(v) => patch({ footerLogoPosition: v })}

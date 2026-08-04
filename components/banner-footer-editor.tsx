@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { ImageUploadField } from '@/components/image-upload-field'
+import { LogoSourceField } from '@/components/logo-source-field'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { ColorRow } from '@/components/colour-row'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
@@ -477,6 +478,13 @@ const BACK_LINK_BANNER_LAYOUTS: BannerLayout[] = ['bar-cta', 'nav-strip', 'edito
 // it would leave an empty band rather than a cleaner layout.
 const ACCENT_BANNER_LAYOUTS: BannerLayout[] = ['brand-band', 'editorial-split', 'logo-band']
 const ACCENT_FOOTER_LAYOUTS: FooterLayout[] = ['dark-band', 'inline-logo']
+
+// Footer layouts that render a logo image. The rest (minimal-line, unsubscribe-focus,
+// social-focused) are text/icon only, so a logo setting there would do nothing.
+const LOGO_FOOTER_LAYOUTS: FooterLayout[] = [
+  'centred-stack', 'multi-column', 'dark-band', 'split-cta', 'two-col',
+  'stacked-card', 'inline-logo', 'left-panel', 'logo-cta',
+]
 const BACK_LINK_FOOTER_LAYOUTS: FooterLayout[] = ['split-cta']
 
 // ─── Banner editor ────────────────────────────────────────────────────────────
@@ -655,6 +663,12 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {/* Logo (conditional) */}
           {cfg.layout !== 'minimal' && (
             <SettingGroup title="Logo" icon={Image} collapsible>
+              <LogoSourceField
+                value={cfg.logoUrl}
+                onChange={(logoUrl) => patch({ logoUrl })}
+                brandLogoUrl={brand?.logoUrl}
+                section="banner"
+              />
               <SettingRow label="Max size">
                 <UnitInput prefix="W" min={20} max={600} placeholder="auto" value={cfg.logoMaxWidth} onChange={(v) => patch({ logoMaxWidth: v })} />
                 <UnitInput prefix="H" min={16} max={300} placeholder="auto" value={cfg.logoMaxHeight} onChange={(v) => patch({ logoMaxHeight: v })} />
@@ -911,6 +925,18 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
             )}
           </SettingGroup>
 
+
+          {/* Logo — only the layouts that actually render one */}
+          {LOGO_FOOTER_LAYOUTS.includes(cfg.layout) && (
+            <SettingGroup title="Logo" icon={Image} collapsible>
+              <LogoSourceField
+                value={cfg.logoUrl}
+                onChange={(logoUrl) => patch({ logoUrl })}
+                brandLogoUrl={brand?.logoUrl}
+                section="footer"
+              />
+            </SettingGroup>
+          )}
 
           {/* Links */}
           <SettingGroup title="Links" icon={Link2} collapsible>

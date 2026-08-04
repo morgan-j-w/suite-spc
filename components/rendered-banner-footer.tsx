@@ -113,6 +113,13 @@ const LOGO_SIZES: Record<'sm' | 'md' | 'lg', { h: number; w: number }> = {
   lg: { h: 72, w: 220 },
 }
 
+// Which image a section shows: its own logo if one is set, otherwise the Brand logo. The
+// empty-string case matters — the Logo setting uses '' for "custom, nothing uploaded yet",
+// which should still fall through to Brand rather than render a broken image.
+function logoSrc(config: { logoUrl?: string }, brand: Brand): string | undefined {
+  return config.logoUrl || brand.logoUrl
+}
+
 // Resolve logo dimensions: explicit px values take priority over the legacy size preset.
 function logoSz(config: BannerConfig, defaultSize: 'sm' | 'md' | 'lg' = 'md'): { h: number; w: number } {
   if (config.logoMaxWidth != null || config.logoMaxHeight != null) {
@@ -126,6 +133,7 @@ function logoSz(config: BannerConfig, defaultSize: 'sm' | 'md' | 'lg' = 'md'): {
 interface BannerProps { config: BannerConfig; brand: Brand; heading?: string; blurb?: string; maxWidth?: number }
 
 function BannerCentred({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const hasBg = !!config.backgroundColor
   const fg = config.headingColor ?? 'var(--foreground)'
@@ -133,7 +141,7 @@ function BannerCentred({ config, brand, heading, blurb, maxWidth = 896 }: Banner
   return (
     <div style={{ background: bg, borderBottom: hasBg ? 'none' : '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5'), textAlign: 'center' }}>
       <div style={wrap(config.fullWidth, maxWidth)}>
-        {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, marginBottom: '1rem', display: 'inline-block' }} />}
+        {logo && <img src={logo} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, marginBottom: '1rem', display: 'inline-block' }} />}
         {heading && <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: fg, margin: '0 0 0.5rem' }}>{heading}</h1>}
         {blurb && <p style={{ color: body, margin: '0 auto', maxWidth: 520 }}>{blurb}</p>}
       </div>
@@ -142,6 +150,7 @@ function BannerCentred({ config, brand, heading, blurb, maxWidth = 896 }: Banner
 }
 
 function BannerBarCta({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const fg = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -150,8 +159,8 @@ function BannerBarCta({ config, brand, heading, blurb, maxWidth = 896 }: BannerP
     <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '1.5', '1.5') }}>
       <div style={wrap(config.fullWidth, maxWidth)}>
         <div style={{ display: 'flex', flexWrap: 'wrap', rowGap: '0.5rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: heading || blurb ? '1.25rem' : 0 }}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140 }} />
+          {logo
+            ? <img src={logo} alt="Logo" style={{ maxHeight: 40, maxWidth: 140 }} />
             : <span style={{ fontWeight: 600, color: fg }}>Your Brand</span>}
           {brand.backUrl && config.showBackLink !== false && (
             <a href={brand.backUrl} style={{ fontSize: '0.875rem', color: link, textDecoration: 'none', fontWeight: 500 }}>
@@ -168,6 +177,7 @@ function BannerBarCta({ config, brand, heading, blurb, maxWidth = 896 }: BannerP
 
 // Horizontal strip with a primary left accent bar — structurally distinct from the tall centred layout.
 function BannerBrandBand({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const fg = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -187,8 +197,8 @@ function BannerBrandBand({ config, brand, heading, blurb, maxWidth = 896 }: Bann
           {/* Left accent stripe + logo */}
           <div className="spc-brand-band-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingRight: '2rem', borderRight: '1px solid var(--border)', marginRight: '2rem', alignSelf: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
             {config.showAccent !== false && <div style={{ width: 4, alignSelf: 'stretch', background: accent, borderRadius: 2, flexShrink: 0 }} />}
-            {brand.logoUrl
-              ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, display: 'block' }} />
+            {logo
+              ? <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, display: 'block' }} />
               : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg, whiteSpace: 'nowrap' }}>Brand</span>
             }
           </div>
@@ -204,6 +214,7 @@ function BannerBrandBand({ config, brand, heading, blurb, maxWidth = 896 }: Bann
 }
 
 function BannerSplitImage({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const fg = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -223,7 +234,7 @@ function BannerSplitImage({ config, brand, heading, blurb, maxWidth = 896 }: Ban
       <div className="spc-split-image-section" style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5') }}>
         <div className="spc-split-image-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <div style={{ flex: '1 1 0' }}>
-            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140, marginBottom: '1rem' }} />}
+            {logo && <img src={logo} alt="Logo" style={{ maxHeight: 40, maxWidth: 140, marginBottom: '1rem' }} />}
             {heading && <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: fg, margin: '0 0 0.5rem' }}>{heading}</h1>}
             {blurb && <p style={{ color: body, margin: 0 }}>{blurb}</p>}
           </div>
@@ -240,12 +251,13 @@ function BannerSplitImage({ config, brand, heading, blurb, maxWidth = 896 }: Ban
 }
 
 function BannerMinimal({ config, brand, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const label = config.bodyColor ?? 'var(--muted-foreground)'
   return (
     <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: '1.25rem 1.5rem' }}>
       <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem' }}>
-        {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120 }} />}
+        {logo && <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120 }} />}
         <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: label }}>
           Preference Centre
         </span>
@@ -255,6 +267,7 @@ function BannerMinimal({ config, brand, maxWidth = 896 }: BannerProps) {
 }
 
 function BannerWithSocials({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const fg = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -262,7 +275,7 @@ function BannerWithSocials({ config, brand, heading, blurb, maxWidth = 896 }: Ba
   return (
     <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5'), textAlign: 'center' }}>
       <div style={wrap(config.fullWidth, maxWidth)}>
-        {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, marginBottom: '1rem', display: 'inline-block' }} />}
+        {logo && <img src={logo} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, marginBottom: '1rem', display: 'inline-block' }} />}
         {heading && <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: fg, margin: '0 0 0.5rem' }}>{heading}</h1>}
         {blurb && <p style={{ color: body, margin: '0 auto 1.25rem', maxWidth: 480 }}>{blurb}</p>}
         {!!brand.socialLinks?.length && <div style={{ display: 'flex', justifyContent: 'center' }}><SocialIcons links={brand.socialLinks} color={icon} /></div>}
@@ -273,6 +286,7 @@ function BannerWithSocials({ config, brand, heading, blurb, maxWidth = 896 }: Ba
 
 // Two rows: slim nav bar (logo + back link) on top, coloured content band with heading/body below.
 function BannerNavStrip({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const navBg = config.accentColor ?? 'var(--card)'
   const contentBg = config.backgroundColor ?? 'var(--muted)'
   const fg = config.headingColor ?? 'var(--foreground)'
@@ -282,8 +296,8 @@ function BannerNavStrip({ config, brand, heading, blurb, maxWidth = 896 }: Banne
     <div>
       <div style={{ background: navBg, borderBottom: '1px solid var(--border)', padding: '0.75rem 1.5rem' }}>
         <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', rowGap: '0.5rem', justifyContent: 'space-between', alignItems: 'center' }}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 32, maxWidth: 120 }} />
+          {logo
+            ? <img src={logo} alt="Logo" style={{ maxHeight: 32, maxWidth: 120 }} />
             : <span style={{ fontWeight: 700, fontSize: '0.9rem', color: fg }}>Brand</span>}
           {brand.backUrl && config.showBackLink !== false && (
             <a href={brand.backUrl} style={{ fontSize: '0.875rem', color: link, textDecoration: 'none', fontWeight: 500 }}>← Back to website</a>
@@ -304,6 +318,7 @@ function BannerNavStrip({ config, brand, heading, blurb, maxWidth = 896 }: Banne
 
 // Bold full-width hero — primary-coloured background, large heading, optional logo above.
 function BannerFeatureHero({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--primary)'
   const fg = config.headingColor ?? 'var(--primary-foreground)'
   const body = config.bodyColor ?? 'var(--primary-foreground)'
@@ -311,8 +326,8 @@ function BannerFeatureHero({ config, brand, heading, blurb, maxWidth = 896 }: Ba
   return (
     <div style={{ background: bg, padding: sectionPad(config.padding, '4', '1.5'), textAlign: 'center' }}>
       <div style={wrap(config.fullWidth, maxWidth)}>
-        {brand.logoUrl && (
-          <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, marginBottom: '1.5rem', display: 'inline-block', opacity: 0.9 }} />
+        {logo && (
+          <img src={logo} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, marginBottom: '1.5rem', display: 'inline-block', opacity: 0.9 }} />
         )}
         {heading && <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: fg, margin: '0 0 0.75rem', lineHeight: 1.1 }}>{heading}</h1>}
         {blurb && <p style={{ color: body, margin: '0 auto', maxWidth: 540, fontSize: '1.0625rem', lineHeight: 1.65, opacity: 0.85 }}>{blurb}</p>}
@@ -323,6 +338,7 @@ function BannerFeatureHero({ config, brand, heading, blurb, maxWidth = 896 }: Ba
 
 // Just the logo — large and positioned. Heading/blurb are suppressed.
 function BannerLogoOnly({ config, brand, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const pos = config.logoPosition ?? 'center'
   const sz = logoSz(config, 'lg')
@@ -330,8 +346,8 @@ function BannerLogoOnly({ config, brand, maxWidth = 896 }: BannerProps) {
   return (
     <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
       <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', justifyContent: justify }}>
-        {brand.logoUrl
-          ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
+        {logo
+          ? <img src={logo} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
           : <div style={{ height: sz.h * 0.75, width: sz.w * 0.65, background: 'var(--muted)', borderRadius: '0.375rem' }} />}
       </div>
     </div>
@@ -342,6 +358,7 @@ function BannerLogoOnly({ config, brand, maxWidth = 896 }: BannerProps) {
 
 // Editorial two-column: large display heading left, logo + back link right.
 function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const fg = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -365,8 +382,8 @@ function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }:
             {blurb && <p style={{ color: body, margin: 0, fontSize: '1rem', lineHeight: 1.6 }}>{blurb}</p>}
           </div>
           <div className="spc-editorial-side" style={{ flex: '1 1 0', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem', paddingTop: '0.25rem' }}>
-            {brand.logoUrl
-              ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
+            {logo
+              ? <img src={logo} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w }} />
               : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg }}>Brand</span>}
             {brand.backUrl && config.showBackLink !== false && <a href={brand.backUrl} style={{ fontSize: '0.8125rem', color: link, textDecoration: 'none' }}>← Back to website</a>}
           </div>
@@ -378,6 +395,7 @@ function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }:
 
 // Three distinct horizontal bands: utility bar → logo → heading/blurb.
 function BannerTripleRow({ config, brand, heading, blurb, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const utilBg = config.accentColor ?? 'var(--muted)'
   const mainBg = config.backgroundColor ?? 'var(--card)'
   const fg = config.headingColor ?? 'var(--foreground)'
@@ -393,8 +411,8 @@ function BannerTripleRow({ config, brand, heading, blurb, maxWidth = 896 }: Bann
       </div>
       <div style={{ background: mainBg, padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', textAlign: 'center' }}>
         <div style={wrap(config.fullWidth, maxWidth)}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, display: 'inline-block' }} />
+          {logo
+            ? <img src={logo} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, display: 'inline-block' }} />
             : <div style={{ display: 'inline-block', height: sz.h * 0.75, width: sz.w * 0.65, background: 'var(--muted)', borderRadius: '0.375rem' }} />}
         </div>
       </div>
@@ -412,6 +430,7 @@ function BannerTripleRow({ config, brand, heading, blurb, maxWidth = 896 }: Bann
 
 // Logo centred between two horizontal rules — a clean horizontal band with rule/logo/rule.
 function BannerLogoBand({ config, brand, maxWidth = 896 }: BannerProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const ruleColor = config.accentColor ?? 'var(--border)'
   const showRules = config.showAccent !== false
@@ -420,8 +439,8 @@ function BannerLogoBand({ config, brand, maxWidth = 896 }: BannerProps) {
     <div style={{ background: bg, padding: sectionPad(config.padding, '1.25', '1.5') }}>
       <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
         {showRules && <div style={{ flex: 1, height: 1, background: ruleColor }} />}
-        {brand.logoUrl
-          ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, display: 'block', flexShrink: 0 }} />
+        {logo
+          ? <img src={logo} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, display: 'block', flexShrink: 0 }} />
           : <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--foreground)', whiteSpace: 'nowrap', flexShrink: 0 }}>Your Company</span>}
         {showRules && <div style={{ flex: 1, height: 1, background: ruleColor }} />}
       </div>
@@ -488,6 +507,7 @@ export function RenderedBanner({ config, brand, heading, blurb, contentMaxWidth 
 interface FooterProps { config: FooterConfig; brand: Brand; maxWidth?: number }
 
 function FooterCentredStack({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
@@ -495,7 +515,7 @@ function FooterCentredStack({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5'), textAlign: 'center' }}>
       <div style={wrap(config.fullWidth, maxWidth)}>
-        {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '1.25rem', display: 'inline-block' }} />}
+        {logo && <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '1.25rem', display: 'inline-block' }} />}
         {!!brand.socialLinks?.length && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}><SocialIcons links={brand.socialLinks} color={icon} /></div>}
         {!!config.links?.length && (
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.25rem 1rem', marginBottom: '1rem' }}>
@@ -510,6 +530,7 @@ function FooterCentredStack({ config, brand, maxWidth = 896 }: FooterProps) {
 }
 
 function FooterMultiColumn({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const heading = config.headingColor ?? 'var(--foreground)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -520,7 +541,7 @@ function FooterMultiColumn({ config, brand, maxWidth = 896 }: FooterProps) {
       <div style={wrap(config.fullWidth, maxWidth)}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginBottom: '1.5rem' }}>
           <div style={{ flex: '2 1 200px' }}>
-            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
+            {logo && <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
             {!!brand.socialLinks?.length && <SocialIcons links={brand.socialLinks} size="sm" color={icon} />}
           </div>
           {!!config.quickLinks?.length && (
@@ -554,6 +575,7 @@ function FooterMultiColumn({ config, brand, maxWidth = 896 }: FooterProps) {
 // Thin horizontal strip — logo left · social centre · links+copyright right.
 // Light card background to match the other footer options.
 function FooterAccentBand({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const fg = config.bodyColor ?? 'var(--foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
@@ -563,8 +585,8 @@ function FooterAccentBand({ config, brand, maxWidth = 896 }: FooterProps) {
       <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         {/* Left — logo or fallback label */}
         <div style={{ flexShrink: 0 }}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 28, maxWidth: 100, display: 'block' }} />
+          {logo
+            ? <img src={logo} alt="Logo" style={{ maxHeight: 28, maxWidth: 100, display: 'block' }} />
             : <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: fg }}>Preference Centre</span>
           }
         </div>
@@ -608,6 +630,7 @@ function FooterMinimalLine({ config, brand, maxWidth = 896 }: FooterProps) {
 }
 
 function FooterSplitCta({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
@@ -628,7 +651,7 @@ function FooterSplitCta({ config, brand, maxWidth = 896 }: FooterProps) {
       <div className="spc-splitcta-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
         <div className="spc-splitcta-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem' }}>
           <div className="spc-splitcta-left">
-            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
+            {logo && <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
             {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: 0, whiteSpace: 'pre-line' }}>{brand.address}</p>}
           </div>
           <div className="spc-splitcta-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.875rem' }}>
@@ -672,6 +695,7 @@ function FooterUnsubscribeFocus({ config, brand, maxWidth = 896 }: FooterProps) 
 
 // Two columns: logo + address/copyright on the left, nav links stacked on the right.
 function FooterTwoCol({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
@@ -688,7 +712,7 @@ function FooterTwoCol({ config, brand, maxWidth = 896 }: FooterProps) {
       <div className="spc-twocol-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
         <div className="spc-twocol-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div className="spc-twocol-left">
-            {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem', display: 'block' }} />}
+            {logo && <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem', display: 'block' }} />}
             {brand.address && <p style={{ fontSize: '0.8125rem', color: body, margin: '0 0 0.375rem', whiteSpace: 'pre-line' }}>{brand.address}</p>}
             {brand.copyrightText && <p style={{ fontSize: '0.75rem', color: body, margin: 0 }}>{brand.copyrightText}</p>}
           </div>
@@ -753,6 +777,7 @@ function FooterSocialFocused({ config, brand, maxWidth = 896 }: FooterProps) {
 // All footer content in a raised card. Outer wrapper is transparent so it inherits
 // the page background (pageBackgroundColor applied on the outer shell div).
 function FooterStackedCard({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
   const icon = config.iconColor ?? link
@@ -767,7 +792,7 @@ function FooterStackedCard({ config, brand, maxWidth = 896 }: FooterProps) {
         padding: '2rem',
         textAlign: 'center',
       }}>
-        {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '1rem', display: 'inline-block' }} />}
+        {logo && <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '1rem', display: 'inline-block' }} />}
         {!!brand.socialLinks?.length && (
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
             <SocialIcons links={brand.socialLinks} color={icon} />
@@ -789,6 +814,7 @@ function FooterStackedCard({ config, brand, maxWidth = 896 }: FooterProps) {
 
 // Ultra-compact single line: logo · links · copyright — all inline.
 function FooterInlineLogo({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   const link = config.linkColor ?? 'var(--muted-foreground)'
@@ -806,8 +832,8 @@ function FooterInlineLogo({ config, brand, maxWidth = 896 }: FooterProps) {
       `}} />
       <div className="spc-inline-section" style={{ background: bg, borderTop: config.showAccent === false ? undefined : `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
         <div className="spc-inline-row" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 24, maxWidth: 80, flexShrink: 0 }} />}
-          {brand.logoUrl && (links.length > 0 || !!brand.copyrightText) && (
+          {logo && <img src={logo} alt="Logo" style={{ maxHeight: 24, maxWidth: 80, flexShrink: 0 }} />}
+          {logo && (links.length > 0 || !!brand.copyrightText) && (
             <span className="spc-inline-sep" style={{ color: body, opacity: 0.35 }}>•</span>
           )}
           {links.length > 0 && (
@@ -834,6 +860,7 @@ function FooterInlineLogo({ config, brand, maxWidth = 896 }: FooterProps) {
 
 // Two-panel: narrow accent panel left (logo), wide content panel right (address + links).
 function FooterLeftPanel({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const panelBg = config.accentColor ?? 'var(--primary)'
   const mainBg = config.backgroundColor ?? 'var(--card)'
   const body = config.bodyColor ?? 'var(--muted-foreground)'
@@ -852,8 +879,8 @@ function FooterLeftPanel({ config, brand, maxWidth = 896 }: FooterProps) {
       <div className="spc-leftpanel-section">
       <div className="spc-leftpanel-outer" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
         <div className="spc-leftpanel-side" style={{ background: panelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', minWidth: 160, flexShrink: 0 }}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 120 }} />
+          {logo
+            ? <img src={logo} alt="Logo" style={{ maxHeight: 40, maxWidth: 120 }} />
             : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary-foreground)' }}>Brand</span>}
         </div>
         <div className="spc-leftpanel-main" style={{ background: mainBg, flex: '1 1 0', padding: sectionPad(config.padding, '1.5', '2'), display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem', justifyContent: 'space-between' }}>
@@ -875,6 +902,7 @@ function FooterLeftPanel({ config, brand, maxWidth = 896 }: FooterProps) {
 
 // Logo centred, then a button-styled "Manage preferences" link next to an "Unsubscribe" text link, then copyright.
 function FooterLogoCta({ config, brand, maxWidth = 896 }: FooterProps) {
+  const logo = logoSrc(config, brand)
   const bg = config.backgroundColor ?? 'var(--card)'
   const btnBg = config.buttonBgColor ?? 'var(--primary)'
   const btnFg = config.buttonTextColor ?? 'var(--primary-foreground)'
@@ -890,8 +918,8 @@ function FooterLogoCta({ config, brand, maxWidth = 896 }: FooterProps) {
       `}} />
       <div className="spc-logocta-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
         <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-          {brand.logoUrl
-            ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 140, display: 'block' }} />
+          {logo
+            ? <img src={logo} alt="Logo" style={{ maxHeight: 36, maxWidth: 140, display: 'block' }} />
             : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--foreground)' }}>Your Company</span>}
           <div className="spc-logocta-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <a href="#" style={{ display: 'inline-block', padding: '0.375rem 1rem', background: btnBg, color: btnFg, fontSize: '0.8125rem', fontWeight: 500, borderRadius: '0.375rem', textDecoration: 'none' }}>

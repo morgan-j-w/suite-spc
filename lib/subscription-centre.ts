@@ -53,6 +53,8 @@ export interface EmailConfig {
   bannerLogoMaxWidth?: number
   bannerLogoMaxHeight?: number
   bannerLogoPosition?: 'left' | 'center' | 'right'
+  // Section-specific logos. Undefined (or empty) falls back to brand.logoUrl.
+  bannerLogoUrl?: string
   bannerPadding?: number | 'compact' | 'spacious' | PaddingBox // section padding — preset/px scales layout defaults, PaddingBox sets each side
   footerLayout?: EmailFooterLayout
   footerBgColor?: string
@@ -63,6 +65,7 @@ export interface EmailConfig {
   footerLogoMaxWidth?: number
   footerLogoMaxHeight?: number
   footerLogoPosition?: 'left' | 'center' | 'right'
+  footerLogoUrl?: string
   footerPadding?: number | 'compact' | 'spacious' | PaddingBox // section padding — preset/px scales layout defaults, PaddingBox sets each side
   doubleOptIn: EmailTemplate
   confirmation: EmailTemplate
@@ -145,6 +148,9 @@ export interface BannerConfig {
   logoSize?: 'sm' | 'md' | 'lg'              // legacy preset — overridden by logoMaxWidth/logoMaxHeight
   logoMaxWidth?: number                        // px, max-width for logo image
   logoMaxHeight?: number                       // px, max-height for logo image
+  // Section-specific logo. Undefined (or empty) falls back to brand.logoUrl, so a centre
+  // that never touches this setting keeps following Design > Brand.
+  logoUrl?: string
   fullWidth: boolean
   sticky?: boolean            // fix banner to top of viewport while scrolling
   // Layouts that render a "Back to website" link (banner: bar-cta, nav-strip,
@@ -184,6 +190,9 @@ export interface FooterConfig {
   imageOverlayOpacity?: number
   backgroundSize?: string
   backgroundRepeat?: string
+  // Section-specific logo. Undefined (or empty) falls back to brand.logoUrl, so a centre
+  // that never touches this setting keeps following Design > Brand.
+  logoUrl?: string
   links?: BannerLink[]     // primary footer nav / legal links
   quickLinks?: BannerLink[] // secondary column (multi-column layout)
   padding?: number | 'compact' | 'spacious' | PaddingBox  // section padding — a preset/px scales the layout's own defaults, a PaddingBox sets each side
