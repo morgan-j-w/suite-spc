@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { flushSync } from 'react-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { AlignCenter, AlignLeft, AlignRight, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, SlidersHorizontal, Trash2 } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, Code2, GalleryHorizontalEnd, Image, ImagePlus, LayoutTemplate, Link2, Palette, Plus, RefreshCw, Ruler, SlidersHorizontal, Trash2 } from 'lucide-react'
 import type { BannerConfig, BannerLayout, Brand, FooterConfig, FooterLayout, BannerLink } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
 import { Input } from '@/components/ui/input'
@@ -558,13 +558,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
                 )}
               </>
             )}
-            <PaddingControl
-              value={cfg.padding}
-              onChange={(v) => patch({ padding: v })}
-              normalBox={{ top: 40, right: 24, bottom: 40, left: 24 }}
-              idPrefix="section-pad"
-              label="Inner padding"
-            />
             <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </SettingRow>
@@ -603,6 +596,18 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               </div>
             )}
           </SettingGroup>
+
+          {/* Spacing */}
+          <SettingGroup title="Spacing" icon={Ruler} collapsible>
+            <p className="text-sm text-muted-foreground">Space inside the banner, around its content.</p>
+            <PaddingControl
+              value={cfg.padding}
+              onChange={(v) => patch({ padding: v })}
+              normalBox={{ top: 40, right: 24, bottom: 40, left: 24 }}
+              idPrefix="section-pad"
+            />
+          </SettingGroup>
+
 
           {/* Banner image — full-width band below the banner; uploading an image enables it */}
           <SettingGroup title="Banner image" icon={GalleryHorizontalEnd} collapsible>
@@ -817,13 +822,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                 )}
               </>
             )}
-            <PaddingControl
-              value={cfg.padding}
-              onChange={(v) => patch({ padding: v })}
-              normalBox={{ top: 40, right: 24, bottom: 40, left: 24 }}
-              idPrefix="section-pad"
-              label="Inner padding"
-            />
             <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
             </SettingRow>
@@ -862,6 +860,18 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               </div>
             )}
           </SettingGroup>
+
+          {/* Spacing */}
+          <SettingGroup title="Spacing" icon={Ruler} collapsible>
+            <p className="text-sm text-muted-foreground">Space inside the footer, around its content.</p>
+            <PaddingControl
+              value={cfg.padding}
+              onChange={(v) => patch({ padding: v })}
+              normalBox={{ top: 40, right: 24, bottom: 40, left: 24 }}
+              idPrefix="section-pad"
+            />
+          </SettingGroup>
+
 
           {/* Footer image — full-width band above the footer; uploading an image enables it */}
           <SettingGroup title="Footer image" icon={GalleryHorizontalEnd} collapsible>

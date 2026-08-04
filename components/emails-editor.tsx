@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, Image, LayoutTemplate, MailCheck, MailOpen, MailX, Palette, RefreshCw, SlidersHorizontal, Sparkles, Square, Type } from 'lucide-react'
+import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, Image, LayoutTemplate, MailCheck, MailOpen, MailX, Palette, RefreshCw, Ruler, Sparkles, Square, Type } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
 import { defaultEmailConfig, type EmailConfig, type EmailTemplate, type PaddingBox } from '@/lib/subscription-centre'
@@ -389,6 +389,16 @@ function EmailLayoutSection({
         </SettingGroup>
       )}
 
+      <SettingGroup title="Spacing" icon={Ruler} collapsible>
+        <p className="text-sm text-muted-foreground">Space above and below the {section} content.</p>
+        <PaddingControl
+          value={padding}
+          onChange={onPaddingChange}
+          normalBox={{ top: 24, right: 40, bottom: 24, left: 40 }}
+          idPrefix={`email-${section}-pad`}
+        />
+      </SettingGroup>
+
       {/* Logo — banner: all layouts; footer: layouts that show a logo/wordmark */}
       {selectedLayout && (section === 'banner' || (section === 'footer' && LOGO_FOOTER_LAYOUTS.includes(selectedLayout as EmailFooterLayout))) && (
         <SettingGroup title="Logo" icon={Image} collapsible>
@@ -413,16 +423,6 @@ function EmailLayoutSection({
           )}
         </SettingGroup>
       )}
-
-      <SettingGroup title="Spacing" icon={SlidersHorizontal} collapsible>
-        <p className="text-sm text-muted-foreground">Space above and below the {section} content.</p>
-        <PaddingControl
-          value={padding}
-          onChange={onPaddingChange}
-          normalBox={{ top: 24, right: 40, bottom: 24, left: 40 }}
-          idPrefix={`email-${section}-pad`}
-        />
-      </SettingGroup>
 
       {/* Colours (shown when a layout is selected) */}
       {selectedLayout && (
