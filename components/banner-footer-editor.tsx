@@ -511,6 +511,20 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
 
           {/* Layout */}
           <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
+            {cfg.customHtml && (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2">
+                <p className="text-sm text-amber-800">
+                  Custom HTML is overriding these layouts — picking one won&apos;t change anything.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => patch({ customHtml: undefined })}
+                  className="shrink-0 text-sm font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950"
+                >
+                  Reset to layout
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(B) as [BannerLayout, typeof B[BannerLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>
@@ -757,6 +771,20 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
 
           {/* Layout */}
           <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
+            {cfg.customHtml && (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2">
+                <p className="text-sm text-amber-800">
+                  Custom HTML is overriding these layouts — picking one won&apos;t change anything.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => patch({ customHtml: undefined })}
+                  className="shrink-0 text-sm font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950"
+                >
+                  Reset to layout
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {(Object.entries(F) as [FooterLayout, typeof F[FooterLayout]][]).map(([id, { label, sketch }]) => (
                 <Thumb key={id} label={label} selected={cfg.layout === id} onClick={() => patch({ layout: id })}>

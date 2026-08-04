@@ -13,6 +13,7 @@ import { SettingGroup, SettingRow } from '@/components/setting-row'
 import { Segmented } from '@/components/ui/segmented'
 import { SizeControl, type SizeValue } from '@/components/ui/size-control'
 import { UnitInput } from '@/components/ui/unit-input'
+import { PaddingBoxControl } from '@/components/ui/padding-box-control'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -331,6 +332,22 @@ function EmailLayoutSection({
       {/* Open until a layout is picked — choosing one is what unlocks the Text/Logo/Colours
           groups below, so guide first-time users straight to it */}
       <SettingGroup title="Layout" icon={LayoutTemplate} collapsible defaultOpen>
+        {/* Custom HTML wins over the generated layout, which made the picker look broken:
+            you'd change layout and nothing moved, with no clue why. */}
+        {htmlValue && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2">
+            <p className="text-sm text-amber-800">
+              Custom HTML is overriding these layouts — picking one won&apos;t change anything.
+            </p>
+            <button
+              type="button"
+              onClick={() => onHtmlChange('')}
+              className="shrink-0 text-sm font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950"
+            >
+              Reset to layout
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-2">
           {layouts.map(({ id, label, sketch }) => (
             <EmailThumb
@@ -543,20 +560,7 @@ function ContainerPaddingControl({
       {mode === 'custom' && (
         <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
           <p className="text-sm text-muted-foreground">Set each side independently.</p>
-          <div className="grid grid-cols-2 gap-2">
-            {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
-              <div key={side} className="space-y-1">
-                <Label htmlFor={`container-pad-${side}`} className="capitalize">{side}</Label>
-                <UnitInput
-                  id={`container-pad-${side}`}
-                  min={0}
-                  max={400}
-                  value={box[side]}
-                  onChange={(v) => setSide(side, v)}
-                />
-              </div>
-            ))}
-          </div>
+          <PaddingBoxControl value={box} onChange={onChange} idPrefix="container-pad" />
         </div>
       )}
     </div>
