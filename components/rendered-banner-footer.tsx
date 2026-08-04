@@ -175,13 +175,14 @@ function BannerBrandBand({ config, brand, heading, blurb, maxWidth = 896 }: Bann
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-brand-band-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-brand-band-inner { flex-direction: column !important; align-items: stretch !important; min-height: 0 !important; }
           .spc-brand-band-left { border-right: none !important; border-bottom: 1px solid var(--border) !important; margin-right: 0 !important; padding-right: 0 !important; }
           .spc-brand-band-right { flex: none !important; padding-right: 0 !important; padding-left: 0 !important; }
         }
       `}} />
-      <div style={{ background: bg, borderBottom: '1px solid var(--border)' }}>
+      <div className="spc-brand-band-section" style={{ background: bg, borderBottom: '1px solid var(--border)' }}>
         <div className="spc-brand-band-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: 0, minHeight: 80 }}>
           {/* Left accent stripe + logo */}
           <div className="spc-brand-band-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingRight: '2rem', borderRight: '1px solid var(--border)', marginRight: '2rem', alignSelf: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
@@ -350,12 +351,13 @@ function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }:
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-editorial-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-editorial-inner { flex-direction: column !important; gap: 1.5rem !important; }
           .spc-editorial-side { align-items: flex-start !important; padding-top: 0 !important; }
         }
       `}} />
-      <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '3', '1.5') }}>
+      <div className="spc-editorial-section" style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '3', '1.5') }}>
         <div className="spc-editorial-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
           <div style={{ flex: '3 1 0' }}>
             {config.showAccent !== false && <div style={{ width: '2.5rem', height: '3px', background: accent, marginBottom: '1rem', borderRadius: 2 }} />}
@@ -615,14 +617,15 @@ function FooterSplitCta({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-splitcta-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-splitcta-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
           .spc-splitcta-left img { margin-left: auto !important; margin-right: auto !important; }
           .spc-splitcta-right { align-items: center !important; }
           .spc-splitcta-right-links { justify-content: center !important; }
         }
       `}} />
-      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
+      <div className="spc-splitcta-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
         <div className="spc-splitcta-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1.5rem' }}>
           <div className="spc-splitcta-left">
             {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem' }} />}
@@ -675,13 +678,14 @@ function FooterTwoCol({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-twocol-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-twocol-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
           .spc-twocol-left img { margin-left: auto !important; margin-right: auto !important; }
           .spc-twocol-right { align-items: center !important; }
         }
       `}} />
-      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
+      <div className="spc-twocol-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
         <div className="spc-twocol-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div className="spc-twocol-left">
             {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, marginBottom: '0.75rem', display: 'block' }} />}
@@ -710,11 +714,12 @@ function FooterSocialFocused({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 480px) {
+        .spc-social-section { container-type: inline-size; }
+        @container (max-width: 480px) {
           .spc-social-links-row { flex-direction: column !important; gap: 0.5rem !important; }
         }
       `}} />
-      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5'), textAlign: 'center' }}>
+      <div className="spc-social-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5'), textAlign: 'center' }}>
         <div style={wrap(config.fullWidth, maxWidth)}>
           {!!brand.socialLinks?.length && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
@@ -792,13 +797,14 @@ function FooterInlineLogo({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-inline-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-inline-row { flex-direction: column !important; gap: 0.5rem !important; }
           .spc-inline-sep { display: none !important; }
           .spc-inline-links { flex-direction: column !important; gap: 0.375rem !important; }
         }
       `}} />
-      <div style={{ background: bg, borderTop: config.showAccent === false ? undefined : `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
+      <div className="spc-inline-section" style={{ background: bg, borderTop: config.showAccent === false ? undefined : `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
         <div className="spc-inline-row" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 24, maxWidth: 80, flexShrink: 0 }} />}
           {brand.logoUrl && (links.length > 0 || !!brand.copyrightText) && (
@@ -835,13 +841,15 @@ function FooterLeftPanel({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-leftpanel-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-leftpanel-outer { flex-direction: column !important; }
           .spc-leftpanel-side { min-width: 0 !important; width: 100% !important; padding: 1.25rem 1.5rem !important; }
           .spc-leftpanel-main { flex-direction: column !important; align-items: center !important; text-align: center !important; justify-content: center !important; }
           .spc-leftpanel-links { justify-content: center !important; }
         }
       `}} />
+      <div className="spc-leftpanel-section">
       <div className="spc-leftpanel-outer" style={{ display: 'flex', borderTop: '1px solid var(--border)' }}>
         <div className="spc-leftpanel-side" style={{ background: panelBg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', minWidth: 160, flexShrink: 0 }}>
           {brand.logoUrl
@@ -860,6 +868,7 @@ function FooterLeftPanel({ config, brand, maxWidth = 896 }: FooterProps) {
           )}
         </div>
       </div>
+      </div>
     </>
   )
 }
@@ -874,11 +883,12 @@ function FooterLogoCta({ config, brand, maxWidth = 896 }: FooterProps) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 480px) {
+        .spc-logocta-section { container-type: inline-size; }
+        @container (max-width: 480px) {
           .spc-logocta-actions { flex-direction: column !important; gap: 0.625rem !important; }
         }
       `}} />
-      <div style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
+      <div className="spc-logocta-section" style={{ background: bg, borderTop: '1px solid var(--border)', padding: sectionPad(config.padding, '2', '1.5') }}>
         <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
           {brand.logoUrl
             ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 140, display: 'block' }} />
