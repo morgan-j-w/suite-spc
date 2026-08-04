@@ -1,7 +1,7 @@
 'use client'
 
 import { v4 as uuidv4 } from 'uuid'
-import { AtSign, Building2, Image, Link2, Plus, Trash2 } from 'lucide-react'
+import { AtSign, Building2, Image, Plus, Trash2 } from 'lucide-react'
 import type { Brand, SocialLink, SocialPlatform } from '@/lib/subscription-centre'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -56,7 +56,7 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
         />
       </SettingGroup>
 
-      <SettingGroup title="Links" icon={Link2} collapsible>
+      <SettingGroup title="Details" icon={Building2} collapsible>
         <SettingRow label="Website">
           <Input
             placeholder="https://yoursite.com"
@@ -66,6 +66,23 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
           />
         </SettingRow>
         <p className="text-sm text-muted-foreground">Used in banner layouts that include a &ldquo;Back to website&rdquo; link.</p>
+        <SettingRow label="Address" className="items-start">
+          <Textarea
+            placeholder={"123 Example Street\nSydney NSW 2000, Australia"}
+            value={brand.address ?? ''}
+            onChange={(e) => patch({ address: e.target.value || undefined })}
+            rows={2}
+            className="min-h-0 flex-1 resize-none text-sm"
+          />
+        </SettingRow>
+        <SettingRow label="Copyright">
+          <Input
+            placeholder={`© ${new Date().getFullYear()} Your Company. All rights reserved.`}
+            value={brand.copyrightText ?? ''}
+            onChange={(e) => patch({ copyrightText: e.target.value || undefined })}
+            className="h-9 flex-1 text-sm"
+          />
+        </SettingRow>
       </SettingGroup>
 
       <SettingGroup title="Social" icon={AtSign} collapsible>
@@ -103,26 +120,6 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
           <Plus className="h-3.5 w-3.5" />
           Add social link
         </Button>
-      </SettingGroup>
-
-      <SettingGroup title="Details" icon={Building2} collapsible>
-        <SettingRow label="Address" className="items-start">
-          <Textarea
-            placeholder={"123 Example Street\nSydney NSW 2000, Australia"}
-            value={brand.address ?? ''}
-            onChange={(e) => patch({ address: e.target.value || undefined })}
-            rows={2}
-            className="min-h-0 flex-1 resize-none text-sm"
-          />
-        </SettingRow>
-        <SettingRow label="Copyright">
-          <Input
-            placeholder={`© ${new Date().getFullYear()} Your Company. All rights reserved.`}
-            value={brand.copyrightText ?? ''}
-            onChange={(e) => patch({ copyrightText: e.target.value || undefined })}
-            className="h-9 flex-1 text-sm"
-          />
-        </SettingRow>
       </SettingGroup>
     </div>
   )
