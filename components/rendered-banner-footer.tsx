@@ -208,13 +208,18 @@ function BannerSplitImage({ config, brand, heading, blurb, maxWidth = 896 }: Ban
   const body = config.bodyColor ?? 'var(--muted-foreground)'
   return (
     <>
+      {/* Container query, not a media query: this banner is rendered inside the builder's
+          ~280px preview rail as well as a full-width page, and a media query would read the
+          desktop viewport there and keep the image squashed alongside the text. Keying off
+          the section's own width stacks it wherever it's actually narrow. */}
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 600px) {
+        .spc-split-image-section { container-type: inline-size; }
+        @container (max-width: 600px) {
           .spc-split-image-inner { flex-direction: column !important; align-items: stretch !important; gap: 1.5rem !important; }
           .spc-split-image-media { width: 100% !important; max-width: 100% !important; }
         }
       `}} />
-      <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5') }}>
+      <div className="spc-split-image-section" style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '2.5', '1.5') }}>
         <div className="spc-split-image-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <div style={{ flex: '1 1 0' }}>
             {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 40, maxWidth: 140, marginBottom: '1rem' }} />}
