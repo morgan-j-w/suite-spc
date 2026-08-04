@@ -287,7 +287,6 @@ interface EmailLayoutSectionProps {
   logoMaxHeight?: number
   logoPosition?: 'left' | 'center' | 'right'
   logoUrl?: string
-  brandLogoUrl?: string
   onLogoUrlChange: (v: string | undefined) => void
   onLogoMaxWidthChange: (v: number | undefined) => void
   onLogoMaxHeightChange: (v: number | undefined) => void
@@ -324,7 +323,6 @@ function EmailLayoutSection({
   logoMaxHeight,
   logoPosition,
   logoUrl,
-  brandLogoUrl,
   onLogoUrlChange,
   onLogoMaxWidthChange,
   onLogoMaxHeightChange,
@@ -422,7 +420,6 @@ function EmailLayoutSection({
           <LogoSourceField
             value={logoUrl}
             onChange={onLogoUrlChange}
-            brandLogoUrl={brandLogoUrl}
             section={`email ${section}`}
           />
           <SettingRow label="Max size">
@@ -870,7 +867,6 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               logoMaxHeight={cfg.bannerLogoMaxHeight}
               logoPosition={cfg.bannerLogoPosition}
               logoUrl={cfg.bannerLogoUrl}
-              brandLogoUrl={brand?.logoUrl}
               onLogoUrlChange={(v) => patch({ bannerLogoUrl: v })}
               onLogoMaxWidthChange={(v) => patch({ bannerLogoMaxWidth: v })}
               onLogoMaxHeightChange={(v) => patch({ bannerLogoMaxHeight: v })}
@@ -922,7 +918,6 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
               logoMaxHeight={cfg.footerLogoMaxHeight}
               logoPosition={cfg.footerLogoPosition}
               logoUrl={cfg.footerLogoUrl}
-              brandLogoUrl={brand?.logoUrl}
               onLogoUrlChange={(v) => patch({ footerLogoUrl: v })}
               onLogoMaxWidthChange={(v) => patch({ footerLogoMaxWidth: v })}
               onLogoMaxHeightChange={(v) => patch({ footerLogoMaxHeight: v })}

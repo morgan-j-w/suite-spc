@@ -666,7 +666,6 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
               <LogoSourceField
                 value={cfg.logoUrl}
                 onChange={(logoUrl) => patch({ logoUrl })}
-                brandLogoUrl={brand?.logoUrl}
                 section="banner"
               />
               <SettingRow label="Max size">
@@ -932,7 +931,6 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
               <LogoSourceField
                 value={cfg.logoUrl}
                 onChange={(logoUrl) => patch({ logoUrl })}
-                brandLogoUrl={brand?.logoUrl}
                 section="footer"
               />
             </SettingGroup>

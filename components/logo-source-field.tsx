@@ -10,7 +10,6 @@ interface LogoSourceFieldProps {
   // keeps tracking it when Brand changes.
   value?: string
   onChange: (v: string | undefined) => void
-  brandLogoUrl?: string
   // What this section is, for the copy: "banner", "footer", "email banner"…
   section: string
 }
@@ -18,7 +17,7 @@ interface LogoSourceFieldProps {
 // Lets a banner/footer either inherit the Brand logo or carry its own image. Most centres
 // want one logo everywhere, so Brand stays the default and nothing is stored until someone
 // deliberately switches — an untouched section keeps following Design > Brand forever.
-export function LogoSourceField({ value, onChange, brandLogoUrl, section }: LogoSourceFieldProps) {
+export function LogoSourceField({ value, onChange, section }: LogoSourceFieldProps) {
   const mode = value === undefined ? 'brand' : 'custom'
 
   return (
@@ -27,7 +26,7 @@ export function LogoSourceField({ value, onChange, brandLogoUrl, section }: Logo
         <Segmented
           options={[
             { value: 'brand', label: 'Brand logo' },
-            { value: 'custom', label: 'Custom image' },
+            { value: 'custom', label: 'Custom logo' },
           ]}
           value={mode}
           // Switching to Custom starts empty rather than copying the Brand URL, so "custom"
@@ -37,27 +36,9 @@ export function LogoSourceField({ value, onChange, brandLogoUrl, section }: Logo
         />
       </SettingRow>
 
-      {mode === 'brand' ? (
-        <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
-          {brandLogoUrl ? (
-            <>
-              <img
-                src={brandLogoUrl}
-                alt=""
-                className="max-h-10 max-w-[120px] rounded border border-border object-contain"
-              />
-              <p className="text-sm text-muted-foreground">
-                Using the logo from Design &gt; Brand. Change it there and this {section} follows.
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No logo set in Design &gt; Brand yet — add one there, or switch to Custom image to
-              upload one just for this {section}.
-            </p>
-          )}
-        </div>
-      ) : (
+      {/* Brand mode needs no controls of its own — the live preview already shows what's
+          inherited, so a second copy of the logo here was just noise. */}
+      {mode === 'custom' && (
         <ImageUploadField
           value={value || undefined}
           // Clearing the image keeps Custom selected with an empty field, rather than snapping
