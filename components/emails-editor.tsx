@@ -346,8 +346,9 @@ function EmailLayoutSection({
       </SettingGroup>
 
       {/* Options */}
-      <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
-        <SettingRow label="Section padding">
+      <SettingGroup title="Spacing" icon={SlidersHorizontal} collapsible>
+        <p className="text-sm text-muted-foreground">Space above and below the {section} content.</p>
+        <SettingRow label="Padding">
           <SizeControl value={padding} onChange={onPaddingChange} defaultCustomValue={24} max={100} />
         </SettingRow>
       </SettingGroup>

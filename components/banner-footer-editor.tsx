@@ -517,22 +517,20 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
           {textEditor}
 
           {/* Options */}
-          <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Edge to edge</span>
+          <SettingGroup title="Placement & background" icon={SlidersHorizontal} collapsible>
+            <p className="text-sm text-muted-foreground">How the banner sits on the page, the space inside it, and its backdrop.</p>
+            <SettingRow label="Full width">
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Sticky (fixed to top)</span>
+            </SettingRow>
+            <SettingRow label="Stick to top">
               <Switch checked={!!cfg.sticky} onCheckedChange={(v) => patch({ sticky: v || undefined })} />
-            </div>
-            <SettingRow label="Section padding">
+            </SettingRow>
+            <SettingRow label="Inner padding">
               <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Background image</span>
+            <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
-            </div>
+            </SettingRow>
             {/* Revealed inline rather than as its own card -- these only exist because of
                 the toggle directly above, so splitting them out made the relationship
                 harder to see. */}
@@ -750,18 +748,17 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
           </SettingGroup>
 
           {/* Options */}
-          <SettingGroup title="Options" icon={SlidersHorizontal} collapsible>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Edge to edge</span>
+          <SettingGroup title="Placement & background" icon={SlidersHorizontal} collapsible>
+            <p className="text-sm text-muted-foreground">How the footer sits on the page, the space inside it, and its backdrop.</p>
+            <SettingRow label="Full width">
               <Switch checked={cfg.fullWidth} onCheckedChange={(v) => patch({ fullWidth: v })} />
-            </div>
-            <SettingRow label="Section padding">
+            </SettingRow>
+            <SettingRow label="Inner padding">
               <SizeControl value={cfg.padding} onChange={(v) => patch({ padding: v as typeof cfg.padding })} defaultCustomValue={40} max={200} />
             </SettingRow>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Background image</span>
+            <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
-            </div>
+            </SettingRow>
             {/* Revealed inline rather than as its own card -- these only exist because of
                 the toggle directly above, so splitting them out made the relationship
                 harder to see. */}

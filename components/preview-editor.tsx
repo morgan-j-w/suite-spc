@@ -288,6 +288,7 @@ export function PreviewEditor({
                 </SettingGroup>
 
                 <SettingGroup title="Page" icon={PanelTop} collapsible>
+                  <p className="text-sm text-muted-foreground">The area behind the form, and how wide its content runs.</p>
                   <ColorRow label="Background" value={pageBackgroundColor} onChange={onPageBackgroundColorChange} themeId={centre.themePresetId} />
                   <SettingRow label="Content width">
                     <Segmented
@@ -299,6 +300,7 @@ export function PreviewEditor({
                 </SettingGroup>
 
                 <SettingGroup title="Form cards" icon={SquareStack} collapsible>
+                  <p className="text-sm text-muted-foreground">Applies to every card on the form. Anything left on Auto follows the theme.</p>
                   <SettingRow label="Border">
                     <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
                       onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
@@ -307,10 +309,10 @@ export function PreviewEditor({
                     <ColorRow label="Border colour" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
                   </div>
                   <SettingRow label="Border width" dimmed={cs.borderEnabled === false}>
-                    <UnitInput min={1} max={4} value={cs.borderWidth} placeholder="Theme" onChange={(v) => patchCs({ borderWidth: v })} />
+                    <UnitInput min={1} max={4} value={cs.borderWidth} placeholder="Auto" onChange={(v) => patchCs({ borderWidth: v })} />
                   </SettingRow>
                   <SettingRow label="Border radius">
-                    <UnitInput min={0} max={24} value={cs.borderRadius} placeholder="Theme" onChange={(v) => patchCs({ borderRadius: v })} />
+                    <UnitInput min={0} max={24} value={cs.borderRadius} placeholder="Auto" onChange={(v) => patchCs({ borderRadius: v })} />
                   </SettingRow>
                   <SettingRow label="Drop shadow">
                     <Segmented options={onOff} value={(cs.shadow ?? 'on') as 'on' | 'off'} onChange={(v) => patchCs({ shadow: v as CardStyle['shadow'] })} />
