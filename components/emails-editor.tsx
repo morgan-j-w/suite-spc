@@ -4,8 +4,8 @@ import { useState, type ReactNode } from 'react'
 import { AlignCenter, AlignLeft, AlignRight, ChevronDown, ChevronRight, ChevronUp, Code2, Eye, EyeOff, Image, LayoutTemplate, MailCheck, MailOpen, MailX, Palette, RefreshCw, SlidersHorizontal, Sparkles, Square, Type } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
-import { defaultEmailConfig, type EmailConfig, type EmailTemplate } from '@/lib/subscription-centre'
-import { generateEmailBannerHtml, generateEmailBodyHtml, generateEmailFooterHtml } from '@/lib/email-layouts'
+import { defaultEmailConfig, type EmailConfig, type EmailTemplate, type PaddingBox } from '@/lib/subscription-centre'
+import { generateEmailBannerHtml, generateEmailBodyHtml, generateEmailFooterHtml, resolveContainerPadding } from '@/lib/email-layouts'
 import { ColorRow } from '@/components/colour-row'
 import { getThemeBrandColors } from '@/lib/style-previews'
 import { RichTextEditor } from '@/components/rich-text-editor'
@@ -502,6 +502,67 @@ function EmailLayoutSection({
   )
 }
 
+// Container padding gets its own control rather than the shared SizeControl: the sides and
+// the top/bottom of an email card often want different values, so "Custom" here opens four
+// inputs instead of one. Presets and the single-value legacy shape still scale both axes
+// together (see resolveContainerPadding).
+function ContainerPaddingControl({
+  value,
+  onChange,
+}: {
+  value?: number | 'compact' | 'spacious' | PaddingBox
+  onChange: (v?: number | 'compact' | 'spacious' | PaddingBox) => void
+}) {
+  const isPerSide = !!value && typeof value === 'object'
+  const mode: 'compact' | 'normal' | 'spacious' | 'custom' =
+    isPerSide ? 'custom' : typeof value === 'number' ? 'custom' : (value ?? 'normal')
+  const box = resolveContainerPadding(value)
+
+  const setSide = (side: keyof PaddingBox, v?: number) =>
+    onChange({ ...box, [side]: v ?? 0 })
+
+  return (
+    <div className="space-y-2.5">
+      <SettingRow label="Padding">
+        <Segmented
+          options={[
+            { value: 'compact', label: 'Compact' },
+            { value: 'normal', label: 'Normal' },
+            { value: 'spacious', label: 'Spacious' },
+            { value: 'custom', label: 'Custom' },
+          ]}
+          value={mode}
+          onChange={(v) => {
+            if (v === 'custom') onChange({ ...box })
+            else if (v === 'normal') onChange(undefined)
+            else onChange(v)
+          }}
+        />
+      </SettingRow>
+
+      {mode === 'custom' && (
+        <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
+          <p className="text-sm text-muted-foreground">Set each side independently.</p>
+          <div className="grid grid-cols-2 gap-2">
+            {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+              <div key={side} className="space-y-1">
+                <Label htmlFor={`container-pad-${side}`} className="capitalize">{side}</Label>
+                <UnitInput
+                  id={`container-pad-${side}`}
+                  min={0}
+                  max={400}
+                  value={box[side]}
+                  onChange={(v) => setSide(side, v)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Per-template editor ────────────────────────────────────────────────────────
 
 // Sample content for the Email style preview -- deliberately exercises every colour the
@@ -985,14 +1046,10 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
           </SettingGroup>
           <SettingGroup title="Container" icon={Square} collapsible>
             <p className="text-sm text-muted-foreground">The middle card between the banner and footer.</p>
-            <SettingRow label="Padding">
-              <SizeControl
-                value={cfg.emailContainerPadding}
-                onChange={(v) => patch({ emailContainerPadding: v === 'normal' ? undefined : v })}
-                defaultCustomValue={24}
-                max={100}
-              />
-            </SettingRow>
+            <ContainerPaddingControl
+              value={cfg.emailContainerPadding}
+              onChange={(v) => patch({ emailContainerPadding: v })}
+            />
           </SettingGroup>
         </>
       )}

@@ -1,4 +1,4 @@
-import type { Brand, EmailBannerLayout, EmailFooterLayout } from '@/lib/subscription-centre'
+import type { Brand, EmailBannerLayout, EmailFooterLayout, PaddingBox } from '@/lib/subscription-centre'
 
 export interface EmailLayoutColorOptions {
   bgColor?: string
@@ -12,6 +12,7 @@ export interface EmailLayoutColorOptions {
   logoPosition?: 'left' | 'center' | 'right'
   padding?: number | 'compact' | 'spacious'
 }
+
 
 // Scales every hardcoded vertical padding value in a layout by the ratio between the
 // user's chosen padding and that layout's own "normal" baseline, preserving each layout's
@@ -218,7 +219,24 @@ export interface EmailBodyOptions {
   bgColor?: string
   buttonBgColor?: string
   buttonTextColor?: string
-  padding?: number | 'compact' | 'spacious'
+  padding?: number | 'compact' | 'spacious' | PaddingBox
+}
+
+// The container's own defaults: 24px top/bottom, 40px left/right. Presets and a single
+// custom number scale BOTH axes from these, so "Spacious" widens the side gutters too --
+// previously only the vertical padding moved, which made Spacious read as a tall column
+// with unchanged margins. A PaddingBox bypasses scaling and is used verbatim.
+const CONTAINER_PAD_Y = 24
+const CONTAINER_PAD_X = 40
+
+export function resolveContainerPadding(
+  padding: number | 'compact' | 'spacious' | PaddingBox | undefined
+): PaddingBox {
+  if (padding && typeof padding === 'object') return padding
+  const scale = paddingScale(padding, CONTAINER_PAD_Y)
+  const y = Math.round(CONTAINER_PAD_Y * scale)
+  const x = Math.round(CONTAINER_PAD_X * scale)
+  return { top: y, right: x, bottom: y, left: x }
 }
 
 // Wraps rich-text bodyHtml in a 650px table matching the banner/footer's own structure,
@@ -229,7 +247,7 @@ export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions =
   const bg = opts.bgColor ?? '#ffffff'
   const btnBg = opts.buttonBgColor ?? '#2563eb'
   const btnFg = opts.buttonTextColor ?? '#ffffff'
-  const pad = Math.round(24 * paddingScale(opts.padding, 24))
+  const pad = resolveContainerPadding(opts.padding)
 
   let html = bodyHtml || '<p style="color:#9ca3af;font-style:italic;margin:0;">No body content yet.</p>'
 
@@ -268,7 +286,7 @@ export function generateEmailBodyHtml(bodyHtml: string, opts: EmailBodyOptions =
   return [
     `<table width="650" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;max-width:650px;background-color:${escAttr(bg)};">`,
     `  <tr>`,
-    `    <td style="padding:${pad}px 40px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${escAttr(text)};">`,
+    `    <td style="padding:${pad.top}px ${pad.right}px ${pad.bottom}px ${pad.left}px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:${escAttr(text)};">`,
     `      ${html}`,
     `    </td>`,
     `  </tr>`,

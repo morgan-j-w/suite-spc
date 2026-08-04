@@ -3,6 +3,8 @@
 import { cn } from '@/lib/utils'
 
 interface UnitInputProps {
+  id?: string
+  'aria-label'?: string
   value: number | undefined
   onChange: (v: number | undefined) => void
   min?: number
@@ -16,7 +18,7 @@ interface UnitInputProps {
 
 // Compact inspector-style number field: unit rendered inside the input's right edge,
 // browser spinners hidden (arrow keys still step), value clamped to min/max on change.
-export function UnitInput({ value, onChange, min, max, placeholder, unit = 'px', prefix, className }: UnitInputProps) {
+export function UnitInput({ id, 'aria-label': ariaLabel, value, onChange, min, max, placeholder, unit = 'px', prefix, className }: UnitInputProps) {
   return (
     <div className={cn('relative min-w-0 flex-1', className)}>
       {prefix && (
@@ -25,6 +27,8 @@ export function UnitInput({ value, onChange, min, max, placeholder, unit = 'px',
         </span>
       )}
       <input
+        id={id}
+        aria-label={ariaLabel}
         type="number"
         min={min}
         max={max}

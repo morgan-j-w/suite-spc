@@ -17,6 +17,15 @@ export interface EmailTemplate {
 export type EmailBannerLayout = 'logo-centered' | 'logo-left' | 'heading-band' | 'bar-cta' | 'brand-band' | 'feature-hero'
 export type EmailFooterLayout = 'minimal' | 'links-copyright' | 'address-footer' | 'two-col' | 'social-focused' | 'inline-band'
 
+// Per-side padding in px. Used where a single number isn't enough — e.g. the email
+// container, where the sides and the top/bottom often want different values.
+export interface PaddingBox {
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+
 export interface EmailConfig {
   // Shared banner/footer rendered in every outbound email (650px width).
   bannerEnabled?: boolean
@@ -31,7 +40,9 @@ export interface EmailConfig {
   emailLinkColor?: string        // link colour within the body content
   emailButtonBgColor?: string    // "Insert button" CTA background
   emailButtonTextColor?: string  // "Insert button" CTA text
-  emailContainerPadding?: number | 'compact' | 'spacious' // padding inside the 650px card, between banner and footer
+  // Padding inside the 650px card, between banner and footer. A number or preset scales
+  // top/bottom and left/right together; a PaddingBox sets each side independently.
+  emailContainerPadding?: number | 'compact' | 'spacious' | PaddingBox
   // Email layout selection — drives the layout picker UI and "Populate from layout" generator.
   bannerLayout?: EmailBannerLayout
   bannerBgColor?: string
