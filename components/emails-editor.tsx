@@ -503,6 +503,15 @@ function EmailLayoutSection({
 
 // ─── Per-template editor ────────────────────────────────────────────────────────
 
+// Sample content for the Email style preview -- deliberately exercises every colour the
+// panel controls: body text, a link, and a button.
+const STYLE_PREVIEW_BODY = [
+  '<h2>Your heading</h2>',
+  '<p>This is what body copy looks like in your emails. It uses the body text colour.</p>',
+  '<p>Here is <a href="#">a text link</a> so you can check its colour too.</p>',
+  '<p><a href="#" data-button="true">Example button</a></p>',
+].join('')
+
 const TEMPLATE_META: Record<
   keyof Pick<EmailConfig, 'doubleOptIn' | 'confirmation' | 'unsubscribed'>,
   { title: string; description: string; icon: React.ElementType; iconBg: string; iconColor: string }
@@ -689,6 +698,9 @@ interface EmailsEditorProps {
 export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand, themeId, onThemeChange }: EmailsEditorProps) {
   const cfg = emailConfig ?? defaultEmailConfig
   const patch = (update: Partial<EmailConfig>) => onEmailConfigChange({ ...cfg, ...update })
+
+  // Same fallback the real email preview route uses for unset link/button colours.
+  const themeBrandColor = getThemeBrandColors(themeId ?? defaultTheme)[5]?.hex ?? '#2F5FB3'
 
   const patchTemplate = (
     key: keyof Pick<EmailConfig, 'doubleOptIn' | 'confirmation' | 'unsubscribed'>,
@@ -901,10 +913,36 @@ export function EmailsEditor({ section, emailConfig, onEmailConfigChange, brand,
             <h2 className="text-lg font-semibold">Email style</h2>
             <p className="text-sm text-muted-foreground">Global settings applied across every outbound email.</p>
           </div>
+
+          {/* Every colour below is otherwise set blind -- unlike Banner/Footer, this
+              sub-section had no preview, so six identical "Auto" rows gave no clue what
+              an email actually looked like. Sample content exercises each one. */}
+          <div className="overflow-hidden rounded-lg border p-4" style={{ background: cfg.emailBodyBgColor ?? '#f4f4f4' }}>
+            <div className="mx-auto overflow-x-auto bg-white shadow-sm" style={{ width: 650, maxWidth: '100%' }}>
+              {cfg.bannerEnabled && bannerPreviewHtml && <div dangerouslySetInnerHTML={{ __html: bannerPreviewHtml }} />}
+              <div
+                dangerouslySetInnerHTML={{ __html: generateEmailBodyHtml(STYLE_PREVIEW_BODY, {
+                  bgColor: cfg.emailContainerBgColor,
+                  textColor: cfg.emailTextColor,
+                  linkColor: cfg.emailLinkColor ?? themeBrandColor,
+                  buttonBgColor: cfg.emailButtonBgColor ?? themeBrandColor,
+                  buttonTextColor: cfg.emailButtonTextColor,
+                  padding: cfg.emailContainerPadding,
+                }) }}
+              />
+              {cfg.footerEnabled && footerPreviewHtml && <div dangerouslySetInnerHTML={{ __html: footerPreviewHtml }} />}
+            </div>
+          </div>
+
           <SettingGroup title="Theme" icon={Sparkles} collapsible defaultOpen>
             <ThemePresetPicker value={themeId ?? defaultTheme} onChange={onThemeChange ?? (() => {})} />
           </SettingGroup>
           <SettingGroup title="Colours" icon={Palette} collapsible>
+            <p className="text-sm text-muted-foreground">
+              The <strong className="font-medium text-foreground">page</strong> is the area
+              around the email; the <strong className="font-medium text-foreground">container</strong> is
+              the card holding your content. Anything left on Auto follows the theme.
+            </p>
             <div className="space-y-1">
               <ColorRow
                 label="Page background"
