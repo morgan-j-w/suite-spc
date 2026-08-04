@@ -156,6 +156,10 @@ export interface BannerConfig {
   bannerImageHeight?: number  // px, default 240
   customHtml?: string
   customCss?: string          // injected as <style> alongside the rendered layout
+  // Hides the layout's decorative accent rule/stripe (banner: brand-band's side stripe,
+  // editorial-split's stroke, logo-band's rules; footer: dark-band and inline-logo's top
+  // border). Undefined means shown, so existing centres are unaffected.
+  showAccent?: boolean
 }
 
 // F1–F9 footer layout options.
@@ -192,6 +196,10 @@ export interface FooterConfig {
   // The link also needs brand.backUrl to be set.
   showBackLink?: boolean
 
+  // Hides the layout's decorative accent rule/stripe (banner: brand-band's side stripe,
+  // editorial-split's stroke, logo-band's rules; footer: dark-band and inline-logo's top
+  // border). Undefined means shown, so existing centres are unaffected.
+  showAccent?: boolean
 }
 
 export type ContentBlockType = 'text' | 'image'

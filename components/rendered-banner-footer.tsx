@@ -185,7 +185,7 @@ function BannerBrandBand({ config, brand, heading, blurb, maxWidth = 896 }: Bann
         <div className="spc-brand-band-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: 0, minHeight: 80 }}>
           {/* Left accent stripe + logo */}
           <div className="spc-brand-band-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingRight: '2rem', borderRight: '1px solid var(--border)', marginRight: '2rem', alignSelf: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
-            <div style={{ width: 4, alignSelf: 'stretch', background: accent, borderRadius: 2, flexShrink: 0 }} />
+            {config.showAccent !== false && <div style={{ width: 4, alignSelf: 'stretch', background: accent, borderRadius: 2, flexShrink: 0 }} />}
             {brand.logoUrl
               ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 36, maxWidth: 120, display: 'block' }} />
               : <span style={{ fontSize: '0.875rem', fontWeight: 700, color: fg, whiteSpace: 'nowrap' }}>Brand</span>
@@ -358,7 +358,7 @@ function BannerEditorialSplit({ config, brand, heading, blurb, maxWidth = 896 }:
       <div style={{ background: bg, borderBottom: '1px solid var(--border)', padding: sectionPad(config.padding, '3', '1.5') }}>
         <div className="spc-editorial-inner" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
           <div style={{ flex: '3 1 0' }}>
-            <div style={{ width: '2.5rem', height: '3px', background: accent, marginBottom: '1rem', borderRadius: 2 }} />
+            {config.showAccent !== false && <div style={{ width: '2.5rem', height: '3px', background: accent, marginBottom: '1rem', borderRadius: 2 }} />}
             {heading && <h1 style={{ fontSize: '2rem', fontWeight: 700, color: fg, margin: '0 0 0.5rem', lineHeight: 1.15 }}>{heading}</h1>}
             {blurb && <p style={{ color: body, margin: 0, fontSize: '1rem', lineHeight: 1.6 }}>{blurb}</p>}
           </div>
@@ -412,15 +412,16 @@ function BannerTripleRow({ config, brand, heading, blurb, maxWidth = 896 }: Bann
 function BannerLogoBand({ config, brand, maxWidth = 896 }: BannerProps) {
   const bg = config.backgroundColor ?? 'var(--card)'
   const ruleColor = config.accentColor ?? 'var(--border)'
+  const showRules = config.showAccent !== false
   const sz = logoSz(config, 'md')
   return (
     <div style={{ background: bg, padding: sectionPad(config.padding, '1.25', '1.5') }}>
       <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-        <div style={{ flex: 1, height: 1, background: ruleColor }} />
+        {showRules && <div style={{ flex: 1, height: 1, background: ruleColor }} />}
         {brand.logoUrl
           ? <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: sz.h, maxWidth: sz.w, display: 'block', flexShrink: 0 }} />
           : <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--foreground)', whiteSpace: 'nowrap', flexShrink: 0 }}>Your Company</span>}
-        <div style={{ flex: 1, height: 1, background: ruleColor }} />
+        {showRules && <div style={{ flex: 1, height: 1, background: ruleColor }} />}
       </div>
     </div>
   )
@@ -556,7 +557,7 @@ function FooterAccentBand({ config, brand, maxWidth = 896 }: FooterProps) {
   const link = config.linkColor ?? 'var(--muted-foreground)'
   const accent = config.accentColor ?? 'var(--primary)'
   return (
-    <div style={{ background: bg, borderTop: `2px solid ${accent}`, padding: '0.75rem 1.5rem' }}>
+    <div style={{ background: bg, borderTop: config.showAccent === false ? undefined : `2px solid ${accent}`, padding: '0.75rem 1.5rem' }}>
       <div style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         {/* Left — logo or fallback label */}
         <div style={{ flexShrink: 0 }}>
@@ -797,7 +798,7 @@ function FooterInlineLogo({ config, brand, maxWidth = 896 }: FooterProps) {
           .spc-inline-links { flex-direction: column !important; gap: 0.375rem !important; }
         }
       `}} />
-      <div style={{ background: bg, borderTop: `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
+      <div style={{ background: bg, borderTop: config.showAccent === false ? undefined : `2px solid ${accent}`, padding: '0.625rem 1.5rem' }}>
         <div className="spc-inline-row" style={{ ...wrap(config.fullWidth, maxWidth), display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {brand.logoUrl && <img src={brand.logoUrl} alt="Logo" style={{ maxHeight: 24, maxWidth: 80, flexShrink: 0 }} />}
           {brand.logoUrl && (links.length > 0 || !!brand.copyrightText) && (

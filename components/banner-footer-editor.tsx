@@ -471,6 +471,12 @@ function populateFooterHtml(cfg: FooterConfig, brand: Brand): string {
 // Only these layouts render a "Back to website" link, so the toggle for it is hidden
 // elsewhere rather than shown as a control that does nothing.
 const BACK_LINK_BANNER_LAYOUTS: BannerLayout[] = ['bar-cta', 'nav-strip', 'editorial-split', 'triple-row']
+
+// Layouts carrying a decorative accent rule/stripe that can be switched off. Others either
+// have no accent, or use accentColor as a background (nav-strip, triple-row) where hiding
+// it would leave an empty band rather than a cleaner layout.
+const ACCENT_BANNER_LAYOUTS: BannerLayout[] = ['brand-band', 'editorial-split', 'logo-band']
+const ACCENT_FOOTER_LAYOUTS: FooterLayout[] = ['dark-band', 'inline-logo']
 const BACK_LINK_FOOTER_LAYOUTS: FooterLayout[] = ['split-cta']
 
 // ─── Banner editor ────────────────────────────────────────────────────────────
@@ -557,6 +563,14 @@ export function BannerEditor({ banner, onBannerChange, themeId, brand, preview, 
                   <p className="text-sm text-muted-foreground">Add a website URL under Brand for this link to appear.</p>
                 )}
               </>
+            )}
+            {ACCENT_BANNER_LAYOUTS.includes(cfg.layout) && (
+              <SettingRow label="Accent line">
+                <Switch
+                  checked={cfg.showAccent !== false}
+                  onCheckedChange={(v) => patch({ showAccent: v ? undefined : false })}
+                />
+              </SettingRow>
             )}
             <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
@@ -821,6 +835,14 @@ export function FooterEditor({ footer, onFooterChange, themeId, brand, preview }
                   <p className="text-sm text-muted-foreground">Add a website URL under Brand for this link to appear.</p>
                 )}
               </>
+            )}
+            {ACCENT_FOOTER_LAYOUTS.includes(cfg.layout) && (
+              <SettingRow label="Accent line">
+                <Switch
+                  checked={cfg.showAccent !== false}
+                  onCheckedChange={(v) => patch({ showAccent: v ? undefined : false })}
+                />
+              </SettingRow>
             )}
             <SettingRow label="Background image">
               <Switch checked={isImageBg} onCheckedChange={(v) => patch({ imageBackground: v || undefined })} />
