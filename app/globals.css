@@ -8,21 +8,23 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Builder chrome palette. Brand blue is the single accent; everything else is a
-     cool neutral scale. Subscriber-facing pages are always wrapped in a
-     [data-color-theme] scope below, so these tokens never leak into rendered centres.
+  /* Builder chrome palette. Structural state -- what's selected, focused, just added --
+     is grey, so the only colours in the chrome carry meaning: pink for Publish, brand
+     blue for the setting-group icons and hover tints. Subscriber-facing pages are always
+     wrapped in a [data-color-theme] scope below, so these tokens never leak into rendered
+     centres.
 
-     --primary is #0c798d: brand blue (#21cdec) darkened to the same hue until white
-     text clears WCAG AA on it (5.08:1). The brand blue itself is far too light to carry
-     white text -- it only reaches 1.91:1 -- so it's used for tints/accents, not as a
-     text-bearing surface. */
+     --primary is #72777f: the left rail's slate (#434a54) lifted 25%. It reads clearly as
+     selection without the weight of a near-black border, and clears WCAG AA for white text
+     at 4.51:1. It replaced a teal (#0c798d) left over from when the brand blue was darkened
+     to be text-safe. */
   --background: oklch(0.98 0.005 240);
   --foreground: oklch(0.2 0.02 240);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 240);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.02 240);
-  --primary: #0c798d;
+  --primary: #72777f;
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.95 0.01 240);
   --secondary-foreground: oklch(0.3 0.02 240);
@@ -38,11 +40,11 @@
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.9 0.01 240);
   --input: oklch(0.9 0.01 240);
-  /* Focus ring is the true brand blue. Inputs render it as a 3px halo at 50% opacity plus a
-     full-strength border, so the saturation reads as an accent rather than a glare. Only the
-     builder chrome uses this — every [data-color-theme] scope sets its own --ring below, so a
-     rendered centre still focuses in its own palette. */
-  --ring: #21cdec;
+  /* Focus ring tracks --primary so focus and selection read as one state. Inputs draw it as
+     a 3px halo at 50% opacity plus a full-strength border. Only the builder chrome uses this
+     — every [data-color-theme] scope sets its own --ring below, so a rendered centre still
+     focuses in its own palette. */
+  --ring: #72777f;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -51,12 +53,12 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #0c798d;
+  --sidebar-primary: #72777f;
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: #0c798d;
+  --sidebar-ring: #72777f;
 
   /* Builder chrome accents that deliberately sit outside the theme scale — they identify
      parts of the builder UI rather than following the centre's colour theme. */
