@@ -281,15 +281,12 @@ function normalizeCentre(raw: any): SubscriptionCentre {
     ...centre,
     sectionOrder: [...kept, ...missing],
     mailGroups,
-    brand: (() => {
-      // Brand no longer absorbs a banner/footer logoUrl. That lift existed because sections
-      // couldn't hold their own logo, so an old centre's banner logo had nowhere else to
-      // live — but sections can again, and the lift had no way to tell legacy data from a
-      // logo someone had just deliberately set, so it deleted the latter on every reload.
-      // Old centres keep rendering their section logo exactly as before; it simply stays
-      // where it was saved.
-      return centre.brand ?? {}
-    })(),
+    // Brand no longer absorbs a banner/footer logoUrl. That lift existed because sections
+    // couldn't hold their own logo, so an old centre's banner logo had nowhere else to live
+    // — but sections can again, and the lift had no way to tell legacy data from a logo
+    // someone had just deliberately set, so it deleted the latter on every reload. Old
+    // centres keep rendering their section logo exactly as before; it stays where it was saved.
+    brand: centre.brand ?? {},
     pageBackgroundColor: centre.pageBackgroundColor,
     formWidth: centre.formWidth,
     cardStyle: (() => {
