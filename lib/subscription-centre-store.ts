@@ -144,6 +144,11 @@ function migrateBanner(raw: any): BannerConfig | null {
   const layout = (BANNER_LAYOUT_MAP[rawLayout] ?? 'centred') as BannerConfig['layout']
   if (rawLayout && BANNER_LAYOUT_MAP[rawLayout]) {
     return {
+      // Spread first so fields added since this migrator was written survive a reload.
+      // This used to be a strict whitelist, which silently dropped every setting it
+      // didn't know about (per-side padding, the accent and back-link toggles, the
+      // image bands, the section logo) the next time the centre was read back.
+      ...raw,
       layout,
       // Accept both old field names (colorOverride was used in early builds, backgroundColor in later)
       backgroundColor: raw.backgroundColor ?? raw.colorOverride,
@@ -154,8 +159,11 @@ function migrateBanner(raw: any): BannerConfig | null {
       accentColor: raw.accentColor,
       buttonBgColor: raw.buttonBgColor,
       buttonTextColor: raw.buttonTextColor,
+      // 'compact' and 'spacious' are first-class preset values now, not legacy strings.
+      // Coercing them to px meant the Spacing control came back as "Custom" after every
+      // reload; only genuinely unknown strings fall through to Normal.
       padding: typeof raw.padding === 'string'
-        ? (raw.padding === 'compact' ? 20 : raw.padding === 'spacious' ? 70 : 40)
+        ? (raw.padding === 'compact' || raw.padding === 'spacious' ? raw.padding : undefined)
         : raw.padding,
       logoPosition: raw.logoPosition,
       logoSize: raw.logoSize,
@@ -181,6 +189,8 @@ function migrateFooter(raw: any): FooterConfig | null {
   const layout = (FOOTER_LAYOUT_MAP[raw.layout] ?? 'minimal-line') as FooterConfig['layout']
   if (raw.layout && FOOTER_LAYOUT_MAP[raw.layout]) {
     return {
+      // See migrateBanner — spread so new config fields aren't dropped on read.
+      ...raw,
       layout,
       backgroundColor: raw.backgroundColor ?? raw.colorOverride,
       headingColor: raw.headingColor,
@@ -198,8 +208,11 @@ function migrateFooter(raw: any): FooterConfig | null {
       backgroundRepeat: raw.backgroundRepeat,
       links: raw.links,
       quickLinks: raw.quickLinks,
+      // 'compact' and 'spacious' are first-class preset values now, not legacy strings.
+      // Coercing them to px meant the Spacing control came back as "Custom" after every
+      // reload; only genuinely unknown strings fall through to Normal.
       padding: typeof raw.padding === 'string'
-        ? (raw.padding === 'compact' ? 20 : raw.padding === 'spacious' ? 70 : 40)
+        ? (raw.padding === 'compact' || raw.padding === 'spacious' ? raw.padding : undefined)
         : raw.padding,
       fullWidth: raw.fullWidth ?? false,
       customHtml: raw.customHtml,
@@ -269,10 +282,13 @@ function normalizeCentre(raw: any): SubscriptionCentre {
     sectionOrder: [...kept, ...missing],
     mailGroups,
     brand: (() => {
-      const b = centre.brand ?? {}
-      // Lift logoUrl from old banner/footer if brand has none yet
-      if (!b.logoUrl) b.logoUrl = centre.banner?.logoUrl || centre.footer?.logoUrl || undefined
-      return b
+      // Brand no longer absorbs a banner/footer logoUrl. That lift existed because sections
+      // couldn't hold their own logo, so an old centre's banner logo had nowhere else to
+      // live — but sections can again, and the lift had no way to tell legacy data from a
+      // logo someone had just deliberately set, so it deleted the latter on every reload.
+      // Old centres keep rendering their section logo exactly as before; it simply stays
+      // where it was saved.
+      return centre.brand ?? {}
     })(),
     pageBackgroundColor: centre.pageBackgroundColor,
     formWidth: centre.formWidth,

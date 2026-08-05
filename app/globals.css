@@ -54,7 +54,8 @@
      parts of the builder UI rather than following the centre's colour theme. */
   --nav-active: #434a54;              /* selected section in the left rail */
   --nav-active-foreground: #ffffff;   /* 8.95:1 on the above — clears WCAG AAA */
-  --publish: #ec2176;                 /* Publish button */
+  --brand-pink: #ec2176;              /* Publish, and the selected-layout highlight */
+  --publish: var(--brand-pink);
   --publish-foreground: #ffffff;
   /* Setting-group icon circles. This is the one place the true brand blue is used at full
      strength: the icon is decorative, not text, so it isn't carrying a contrast burden. */
@@ -236,6 +237,7 @@
   --color-chart-5: var(--chart-5);
   --color-nav-active: var(--nav-active);
   --color-nav-active-foreground: var(--nav-active-foreground);
+  --color-brand-pink: var(--brand-pink);
   --color-publish: var(--publish);
   --color-publish-foreground: var(--publish-foreground);
   --color-icon-accent: var(--icon-accent);

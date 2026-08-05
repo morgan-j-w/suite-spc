@@ -96,7 +96,7 @@ const EMAIL_BANNER_LAYOUTS: { id: EmailBannerLayout; label: string; sketch: Reac
       <div className="flex h-full flex-col justify-between bg-card p-1.5">
         <div className="flex items-center justify-between">
           <div className="h-2 w-8 rounded bg-muted" />
-          <div className="h-1.5 w-10 rounded bg-primary/50" />
+          <div className="h-1.5 w-10 rounded bg-brand-pink/50" />
         </div>
         <div>
           <div className="mb-0.5 h-1.5 w-14 rounded bg-foreground/30" />
@@ -111,7 +111,7 @@ const EMAIL_BANNER_LAYOUTS: { id: EmailBannerLayout; label: string; sketch: Reac
     sketch: (
       <div className="flex h-full items-center bg-card px-1.5 py-1 gap-2 border-b border-border">
         <div className="flex items-center gap-1 pr-2 border-r border-border self-stretch py-1 flex-shrink-0">
-          <div className="w-0.5 self-stretch rounded bg-primary" />
+          <div className="w-0.5 self-stretch rounded bg-brand-pink" />
           <div className="h-2 w-6 rounded bg-muted" />
         </div>
         <div className="flex flex-col gap-1 flex-1">
@@ -125,7 +125,7 @@ const EMAIL_BANNER_LAYOUTS: { id: EmailBannerLayout; label: string; sketch: Reac
     id: 'feature-hero',
     label: 'Feature hero',
     sketch: (
-      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-primary/80 p-2">
+      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-brand-pink/80 p-2">
         <div className="h-2 w-8 rounded bg-white/50" />
         <div className="h-3 w-16 rounded bg-white/90" />
         <div className="h-1.5 w-12 rounded bg-white/55" />
@@ -206,7 +206,7 @@ const EMAIL_FOOTER_LAYOUTS: { id: EmailFooterLayout; label: string; sketch: Reac
     id: 'inline-band',
     label: 'Inline band',
     sketch: (
-      <div className="flex h-full items-center justify-between bg-card px-1.5 py-1 gap-1.5 border-t-2 border-primary">
+      <div className="flex h-full items-center justify-between bg-card px-1.5 py-1 gap-1.5 border-t-2 border-brand-pink">
         <div className="h-2 w-8 rounded bg-muted flex-shrink-0" />
         <div className="h-1 w-14 rounded bg-muted-foreground/25" />
       </div>
