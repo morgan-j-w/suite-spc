@@ -65,7 +65,6 @@ export function BrandEditor({ brand, onChange }: BrandEditorProps) {
             className="h-9 flex-1 text-sm"
           />
         </SettingRow>
-        <p className="text-sm text-muted-foreground">Used in banner layouts that include a &ldquo;Back to website&rdquo; link.</p>
         <SettingRow label="Address" className="items-start">
           <Textarea
             placeholder={"123 Example Street\nSydney NSW 2000, Australia"}

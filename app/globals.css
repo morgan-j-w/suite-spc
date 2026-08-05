@@ -34,7 +34,11 @@
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.9 0.01 240);
   --input: oklch(0.9 0.01 240);
-  --ring: #0c798d;
+  /* Focus ring is the true brand blue. Inputs render it as a 3px halo at 50% opacity plus a
+     full-strength border, so the saturation reads as an accent rather than a glare. Only the
+     builder chrome uses this — every [data-color-theme] scope sets its own --ring below, so a
+     rendered centre still focuses in its own palette. */
+  --ring: #21cdec;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -53,6 +57,7 @@
   /* Builder chrome accents that deliberately sit outside the theme scale — they identify
      parts of the builder UI rather than following the centre's colour theme. */
   --nav-active: #434a54;              /* selected section in the left rail */
+  --switch-on: #434a54;               /* toggle track when on — matches the nav rail */
   --nav-active-foreground: #ffffff;   /* 8.95:1 on the above — clears WCAG AAA */
   --brand-pink: #ec2176;              /* Publish, and the selected-layout highlight */
   --publish: var(--brand-pink);
@@ -68,6 +73,7 @@
   font-family: 'Inter', sans-serif;
   --background: oklch(0.98 0.005 240);
   --foreground: oklch(0.2 0.02 240);
+  --switch-on: var(--foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 240);
   --popover: oklch(1 0 0);
@@ -90,6 +96,7 @@
   font-family: 'Nunito', sans-serif;
   --background: oklch(0.98 0.01 145);
   --foreground: oklch(0.2 0.03 145);
+  --switch-on: var(--foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.03 145);
   --popover: oklch(1 0 0);
@@ -112,6 +119,7 @@
   font-family: 'Poppins', sans-serif;
   --background: oklch(0.98 0.01 60);
   --foreground: oklch(0.25 0.03 50);
+  --switch-on: var(--foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.25 0.03 50);
   --popover: oklch(1 0 0);
@@ -134,6 +142,7 @@
   font-family: 'DM Sans', sans-serif;
   --background: oklch(0.98 0.01 300);
   --foreground: oklch(0.2 0.03 300);
+  --switch-on: var(--foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.03 300);
   --popover: oklch(1 0 0);
@@ -156,6 +165,7 @@
   font-family: 'IBM Plex Sans', sans-serif;
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.15 0 0);
+  --switch-on: var(--foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
@@ -178,6 +188,7 @@
   font-family: 'Albert Sans', sans-serif;
   --background: oklch(0.98 0.01 200);
   --foreground: oklch(0.2 0.03 210);
+  --switch-on: var(--foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.03 210);
   --popover: oklch(1 0 0);
