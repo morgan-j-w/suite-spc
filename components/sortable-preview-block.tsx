@@ -34,7 +34,10 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
 
   return (
     <div ref={setNodeRef} style={style} className={cn(isDragging && 'z-50')}>
-      <div className="mb-3 flex items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
+      {/* builder-chrome: this toolbar sits inside the preview's [data-color-theme] canvas, so
+          without it the buttons pick up the centre's background/border/accent and look tinted.
+          The font is reset for the same reason. */}
+      <div className="builder-chrome mb-3 flex items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
         <div className="flex items-center gap-1">
           <button
             type="button"

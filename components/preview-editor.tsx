@@ -453,7 +453,8 @@ export function PreviewEditor({
               <div data-color-theme={centre.themePresetId} data-card-canvas className="space-y-0">
                 {formCardMode === 'single' ? (
                   <>
-                    <div className="mb-2 flex justify-end" style={{ fontFamily: 'var(--font-sans)' }}>
+                    {/* builder-chrome — inside the themed canvas, same as the per-block toolbar */}
+                    <div className="builder-chrome mb-2 flex justify-end" style={{ fontFamily: 'var(--font-sans)' }}>
                       <StylePicker theme={centre.themePresetId} value={singleCardStyleIndex} onChange={onSingleCardStyleIndexChange} size="sm" className="w-[130px] bg-background shadow-sm" />
                     </div>
                     <Card className="gap-0 py-0" style={{ backgroundColor: singleStylePreview.background, ...(singleStylePreview.cardBorder ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 } : {}) }}>

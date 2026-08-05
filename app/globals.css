@@ -18,8 +18,20 @@
      selection without the weight of a near-black border, and clears WCAG AA for white text
      at 4.51:1. It replaced a teal (#0c798d) left over from when the brand blue was darkened
      to be text-safe. */
-  --background: oklch(0.98 0.005 240);
-  --foreground: oklch(0.2 0.02 240);
+  /* Chrome copies. No [data-color-theme] scope overrides these, so .builder-chrome below can
+     restore them for a builder control that has to render inside a themed preview canvas.
+     :root's own tokens point at them, so there's still one place to edit a value. */
+  --chrome-background: oklch(0.98 0.005 240);
+  --chrome-foreground: oklch(0.2 0.02 240);
+  --chrome-muted-foreground: oklch(0.5 0.02 240);
+  --chrome-border: oklch(0.9 0.01 240);
+  --chrome-input: oklch(0.9 0.01 240);
+  --chrome-accent: #e9fafd;
+  --chrome-accent-foreground: #434a54;
+  --chrome-ring: #72777f;
+
+  --background: var(--chrome-background);
+  --foreground: var(--chrome-foreground);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 240);
   --popover: oklch(1 0 0);
@@ -29,22 +41,22 @@
   --secondary: oklch(0.95 0.01 240);
   --secondary-foreground: oklch(0.3 0.02 240);
   --muted: oklch(0.95 0.01 240);
-  --muted-foreground: oklch(0.5 0.02 240);
+  --muted-foreground: var(--chrome-muted-foreground);
   /* Hover/selected surface for outline + ghost buttons, menu and select items. Was a teal
      pair left over from the old primary; now the same brand-blue tint the setting-group icon
      circles use, with slate text (8.3:1 on it). Theme scopes below set their own, so a
      rendered centre still hovers in its own palette. */
-  --accent: #e9fafd;
-  --accent-foreground: #434a54;
+  --accent: var(--chrome-accent);
+  --accent-foreground: var(--chrome-accent-foreground);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.01 240);
-  --input: oklch(0.9 0.01 240);
+  --border: var(--chrome-border);
+  --input: var(--chrome-input);
   /* Focus ring tracks --primary so focus and selection read as one state. Inputs draw it as
      a 3px halo at 50% opacity plus a full-strength border. Only the builder chrome uses this
      — every [data-color-theme] scope sets its own --ring below, so a rendered centre still
      focuses in its own palette. */
-  --ring: #72777f;
+  --ring: var(--chrome-ring);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -224,6 +236,21 @@
 [data-color-theme='coastal'] .sc-field-label { font-size: 15px; line-height: 21px; }
 [data-color-theme='coastal'] .sc-field-help-text { font-size: 14px; line-height: 22px; }
 
+
+/* Builder controls that have no choice but to render inside a themed preview canvas — the
+   per-block drag handle, reorder arrows and style picker sit between the preview cards.
+   Without this they inherit the centre's palette and quietly take on its tint, which reads
+   as a bug rather than as theming. */
+.builder-chrome {
+  --background: var(--chrome-background);
+  --foreground: var(--chrome-foreground);
+  --muted-foreground: var(--chrome-muted-foreground);
+  --border: var(--chrome-border);
+  --input: var(--chrome-input);
+  --accent: var(--chrome-accent);
+  --accent-foreground: var(--chrome-accent-foreground);
+  --ring: var(--chrome-ring);
+}
 
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
