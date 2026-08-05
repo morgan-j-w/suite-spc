@@ -62,7 +62,9 @@ export function AddFieldDialog({
           <DialogTitle>Add Field</DialogTitle>
           <DialogDescription>Pick a standard field, or choose a question type to select from existing fields.</DialogDescription>
         </DialogHeader>
-        <div className="max-h-[55vh] space-y-5 overflow-y-auto pr-1">
+        {/* px-1 rather than pr-1 alone: the scroll container clips, and the type-picker
+            buttons sit flush against its left edge, so their focus ring was shaved off. */}
+        <div className="max-h-[55vh] space-y-5 overflow-y-auto px-1 py-1">
           {availableStandardFields.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Standard Fields</p>
