@@ -40,8 +40,8 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             type="button"
             className={cn(
               'flex h-7 shrink-0 cursor-grab items-center gap-1.5 rounded-md border bg-background px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors',
-              'hover:bg-muted hover:text-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600',
+              'hover:bg-accent hover:text-accent-foreground',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
               isDragging && 'cursor-grabbing'
             )}
             {...attributes}
@@ -58,8 +58,8 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             aria-label="Move up"
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
-              'hover:bg-muted hover:text-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600',
+              'hover:bg-accent hover:text-accent-foreground',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
               'disabled:pointer-events-none disabled:opacity-30'
             )}
           >
@@ -72,8 +72,8 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             aria-label="Move down"
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
-              'hover:bg-muted hover:text-foreground',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:focus-visible:ring-zinc-600',
+              'hover:bg-accent hover:text-accent-foreground',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
               'disabled:pointer-events-none disabled:opacity-30'
             )}
           >

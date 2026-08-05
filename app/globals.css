@@ -28,8 +28,12 @@
   --secondary-foreground: oklch(0.3 0.02 240);
   --muted: oklch(0.95 0.01 240);
   --muted-foreground: oklch(0.5 0.02 240);
-  --accent: oklch(0.955 0.03 215);
-  --accent-foreground: oklch(0.38 0.08 215);
+  /* Hover/selected surface for outline + ghost buttons, menu and select items. Was a teal
+     pair left over from the old primary; now the same brand-blue tint the setting-group icon
+     circles use, with slate text (8.3:1 on it). Theme scopes below set their own, so a
+     rendered centre still hovers in its own palette. */
+  --accent: #e9fafd;
+  --accent-foreground: #434a54;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.9 0.01 240);
