@@ -521,8 +521,17 @@ function FieldEditForm({ field, fields, onUpdateField }: FieldEditFormProps) {
             type="number"
             min={2}
             max={10}
-            value={field.ratingMax ?? 5}
-            onChange={(e) => onUpdateField({ ratingMax: Number(e.target.value) || 5 })}
+            value={field.ratingMax ?? ''}
+            placeholder="5"
+            // Take the typed value as-is and only fall back to the default once the field is
+            // left empty — `Number(v) || 5` refilled the box the instant you deleted the
+            // digit, so it was impossible to clear and retype.
+            onChange={(e) => onUpdateField({ ratingMax: e.target.value === '' ? undefined : Number(e.target.value) })}
+            onBlur={(e) => {
+              const v = Number(e.target.value)
+              if (!e.target.value || !Number.isFinite(v)) return onUpdateField({ ratingMax: 5 })
+              onUpdateField({ ratingMax: Math.min(10, Math.max(2, v)) })
+            }}
           />
         </div>
       )}
