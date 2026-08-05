@@ -17,7 +17,7 @@ function Textarea({ className, controlColor, style, ...props }: TextareaProps) {
         // second concentric stroke (ring/outline), when adapting the focus color to a card.
         controlColor
           ? 'focus-visible:border-2 focus-visible:border-[var(--control-color)] focus-visible:shadow-none'
-          : 'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+          : 'focus-visible:border-ring focus-visible:ring-ring/25 focus-visible:ring-[3px]',
         className,
       )}
       style={controlColor ? ({ '--control-color': controlColor, ...style } as React.CSSProperties) : style}

@@ -46,7 +46,7 @@ export function MultiSelect({ id, options, selected, onChange, placeholder = 'Se
             'w-full justify-between font-normal',
             controlColor
               ? 'border-[var(--control-color,var(--input))] aria-expanded:border-2 aria-expanded:border-[var(--control-color)]'
-              : 'aria-expanded:ring-[3px] aria-expanded:ring-ring/50 aria-expanded:border-ring',
+              : 'aria-expanded:ring-[3px] aria-expanded:ring-ring/25 aria-expanded:border-ring',
             className
           )}
           style={controlColor ? ({ '--control-color': controlColor } as React.CSSProperties) : undefined}

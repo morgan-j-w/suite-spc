@@ -87,7 +87,7 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
             aria-expanded={open}
             // Inset ring on purpose: the card clips to its rounded corners, so an outset
             // ring would be shaved off on three sides. Inset draws inside the box instead.
-            className="flex min-w-0 flex-1 items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50"
+            className="flex min-w-0 flex-1 items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
             <ChevronRight className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')} />
             <p className="min-w-0 truncate text-base font-semibold">{title}</p>

@@ -47,7 +47,7 @@ function SelectTrigger({
         // data-[state=open] mirrors the focus ring so mouse users see a clear open indicator.
         controlColor
           ? 'focus-visible:border-2 focus-visible:border-[var(--control-color)] focus-visible:shadow-none data-[state=open]:border-2 data-[state=open]:border-[var(--control-color)]'
-          : 'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] data-[state=open]:ring-[3px] data-[state=open]:ring-ring/50 data-[state=open]:border-ring',
+          : 'focus-visible:border-ring focus-visible:ring-ring/25 focus-visible:ring-[3px] data-[state=open]:ring-[3px] data-[state=open]:ring-ring/25 data-[state=open]:border-ring',
         className,
       )}
       style={controlColor ? ({ '--control-color': controlColor, ...style } as React.CSSProperties) : style}
