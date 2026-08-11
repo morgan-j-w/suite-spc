@@ -43,6 +43,13 @@
      instead, sitting midway between it and the white cards so the split is softer. */
   --chrome-panel: #ffffff;
   --chrome-rail: #faf9f6;
+  /* Raised controls sitting directly on the canvas — the reorder toolbar, the dashed
+     "add section" buttons. Brighter than the sand so they lift off it, but not white: white
+     is reserved for the cards and the top bar, and using it here would flatten the two
+     layers together. Hover steps down into a deeper sand rather than across to slate, so the
+     feedback stays in the same family as the surface it's on. */
+  --chrome-control: #fbfaf7;
+  --chrome-control-hover: #ece8dc;
   /* Track behind segmented controls. Beige-on-beige made them vanish into the page; a slate
      tint gives the selected white segment something to sit against (1.25:1). */
   --chrome-track: #e5e6e9;
@@ -307,6 +314,8 @@
   --color-icon-accent-bg: var(--icon-accent-bg);
   --color-panel: var(--chrome-panel);
   --color-rail: var(--chrome-rail);
+  --color-control: var(--chrome-control);
+  --color-control-hover: var(--chrome-control-hover);
   --color-track: var(--chrome-track);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

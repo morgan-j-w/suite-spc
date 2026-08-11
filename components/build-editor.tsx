@@ -318,7 +318,7 @@ export function BuildEditor({
             key={label}
             type="button"
             onClick={onClick}
-            className="group flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 px-4 py-4 transition-colors hover:border-primary/40 hover:bg-muted/40"
+            className="group flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-control px-4 py-4 transition-colors hover:border-primary/40 hover:bg-control-hover"
           >
             <Icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
             <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">{label}</span>

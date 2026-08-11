@@ -161,7 +161,7 @@ export function FormFieldsEditor({
         <button
           type="button"
           onClick={handleAddSection}
-          className="group flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 px-4 py-4 transition-colors hover:border-primary/40 hover:bg-muted/40"
+          className="group flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-control px-4 py-4 transition-colors hover:border-primary/40 hover:bg-control-hover"
         >
           <Plus className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
           <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">Add Section</span>
@@ -169,7 +169,7 @@ export function FormFieldsEditor({
         <button
           type="button"
           onClick={() => handleAddContentBlock('text')}
-          className="group flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 px-4 py-4 transition-colors hover:border-primary/40 hover:bg-muted/40"
+          className="group flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-control px-4 py-4 transition-colors hover:border-primary/40 hover:bg-control-hover"
         >
           <Type className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
           <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">Add Text</span>
@@ -177,7 +177,7 @@ export function FormFieldsEditor({
         <button
           type="button"
           onClick={() => handleAddContentBlock('image')}
-          className="group flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 px-4 py-4 transition-colors hover:border-primary/40 hover:bg-muted/40"
+          className="group flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-control px-4 py-4 transition-colors hover:border-primary/40 hover:bg-control-hover"
         >
           <Image className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
           <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">Add Image</span>

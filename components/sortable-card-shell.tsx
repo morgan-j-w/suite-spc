@@ -23,8 +23,8 @@ export function SortableCardShell({ id, isFirst, isLast, onMoveUp, onMoveDown, c
         <button
           type="button"
           className={cn(
-            'flex h-7 shrink-0 cursor-grab items-center gap-1.5 rounded-md border bg-background px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors',
-            'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'flex h-7 shrink-0 cursor-grab items-center gap-1.5 rounded-md border bg-control px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors',
+            'hover:bg-control-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             isDragging && 'cursor-grabbing'
           )}
           {...attributes}
@@ -40,8 +40,8 @@ export function SortableCardShell({ id, isFirst, isLast, onMoveUp, onMoveDown, c
           disabled={isFirst}
           aria-label="Move up"
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
-            'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'flex h-7 w-7 items-center justify-center rounded-md border bg-control text-muted-foreground shadow-sm transition-colors',
+            'hover:bg-control-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             'disabled:pointer-events-none disabled:opacity-30'
           )}
         >
@@ -53,8 +53,8 @@ export function SortableCardShell({ id, isFirst, isLast, onMoveUp, onMoveDown, c
           disabled={isLast}
           aria-label="Move down"
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
-            'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'flex h-7 w-7 items-center justify-center rounded-md border bg-control text-muted-foreground shadow-sm transition-colors',
+            'hover:bg-control-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             'disabled:pointer-events-none disabled:opacity-30'
           )}
         >

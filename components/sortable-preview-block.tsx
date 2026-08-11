@@ -42,8 +42,8 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
           <button
             type="button"
             className={cn(
-              'flex h-7 shrink-0 cursor-grab items-center gap-1.5 rounded-md border bg-background px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors',
-              'hover:bg-accent hover:text-accent-foreground',
+              'flex h-7 shrink-0 cursor-grab items-center gap-1.5 rounded-md border bg-control px-2 text-xs font-medium text-muted-foreground shadow-sm transition-colors',
+              'hover:bg-control-hover hover:text-foreground',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               isDragging && 'cursor-grabbing'
             )}
@@ -60,8 +60,8 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             disabled={isFirst}
             aria-label="Move up"
             className={cn(
-              'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
-              'hover:bg-accent hover:text-accent-foreground',
+              'flex h-7 w-7 items-center justify-center rounded-md border bg-control text-muted-foreground shadow-sm transition-colors',
+              'hover:bg-control-hover hover:text-foreground',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'disabled:pointer-events-none disabled:opacity-30'
             )}
@@ -74,8 +74,8 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
             disabled={isLast}
             aria-label="Move down"
             className={cn(
-              'flex h-7 w-7 items-center justify-center rounded-md border bg-background text-muted-foreground shadow-sm transition-colors',
-              'hover:bg-accent hover:text-accent-foreground',
+              'flex h-7 w-7 items-center justify-center rounded-md border bg-control text-muted-foreground shadow-sm transition-colors',
+              'hover:bg-control-hover hover:text-foreground',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'disabled:pointer-events-none disabled:opacity-30'
             )}
@@ -84,7 +84,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
           </button>
         </div>
         {!hideStylePicker && (
-          <StylePicker theme={theme} value={cardStyleIndex} onChange={onCardStyleChange} size="sm" className="w-[130px] bg-background shadow-sm" />
+          <StylePicker theme={theme} value={cardStyleIndex} onChange={onCardStyleChange} size="sm" className="w-[130px] bg-control shadow-sm" />
         )}
       </div>
       <div className={cn(isDragging && 'opacity-60 shadow-lg ring-2 ring-zinc-300 dark:ring-zinc-600')}>{children}</div>

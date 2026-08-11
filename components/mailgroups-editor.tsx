@@ -207,7 +207,7 @@ export function MailgroupsEditor({
         <button
           type="button"
           onClick={handleAddCategory}
-          className="group flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 px-6 py-4 transition-colors hover:border-primary/40 hover:bg-muted/40"
+          className="group flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 bg-control px-6 py-4 transition-colors hover:border-primary/40 hover:bg-control-hover"
         >
           <Plus className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
           <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">Add Mailgroup Category</span>
