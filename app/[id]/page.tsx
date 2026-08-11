@@ -469,8 +469,10 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     <div className="flex h-dvh flex-col overflow-hidden">
       <div className="z-20 shrink-0 border-b bg-panel">
         <div className="px-4 py-3">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
-            <div className="shrink-0">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-0">
+            {/* w-44 + the row's px-4 = the nav rail's w-48, so the name field starts exactly on
+                the rail's right border. Keep these in step if the rail width ever changes. */}
+            <div className="shrink-0 md:w-44">
               <p className="text-sm font-semibold whitespace-nowrap">Subscription builder</p>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-3">
