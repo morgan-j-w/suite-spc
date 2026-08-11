@@ -72,7 +72,7 @@ function EmailPreviewContent() {
   if (!loaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f4f4f4]">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -81,8 +81,8 @@ function EmailPreviewContent() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f4f4f4] p-8">
         <div className="rounded-lg bg-white p-8 text-center shadow-sm" style={{ maxWidth: 650 }}>
-          <p className="font-medium text-gray-600">Invalid preview link</p>
-          <p className="mt-1 text-sm text-gray-400">This link is missing required parameters.</p>
+          <p className="font-medium text-foreground">Invalid preview link</p>
+          <p className="mt-1 text-sm text-muted-foreground">This link is missing required parameters.</p>
         </div>
       </div>
     )
@@ -92,8 +92,8 @@ function EmailPreviewContent() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f4f4f4] p-8">
         <div className="rounded-lg bg-white p-8 text-center shadow-sm" style={{ maxWidth: 650 }}>
-          <p className="font-medium text-gray-600">Centre not found</p>
-          <p className="mt-1 text-sm text-gray-400">This centre may have been deleted or the link is outdated.</p>
+          <p className="font-medium text-foreground">Centre not found</p>
+          <p className="mt-1 text-sm text-muted-foreground">This centre may have been deleted or the link is outdated.</p>
         </div>
       </div>
     )
@@ -166,7 +166,7 @@ export default function EmailPreviewPage() {
   return (
     <Suspense fallback={
       <div className="flex min-h-screen items-center justify-center bg-[#f4f4f4]">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     }>
       <EmailPreviewContent />

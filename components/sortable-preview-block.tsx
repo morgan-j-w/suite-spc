@@ -87,7 +87,7 @@ export function SortablePreviewBlock({ id, theme, cardStyleIndex, onCardStyleCha
           <StylePicker theme={theme} value={cardStyleIndex} onChange={onCardStyleChange} size="sm" className="w-[130px] bg-control shadow-sm" />
         )}
       </div>
-      <div className={cn(isDragging && 'opacity-60 shadow-lg ring-2 ring-zinc-300 dark:ring-zinc-600')}>{children}</div>
+      <div className={cn(isDragging && 'opacity-60 shadow-lg ring-2 ring-border')}>{children}</div>
     </div>
   )
 }

@@ -306,7 +306,7 @@ function FieldCard({ field, fields, fieldsInOtherSections, isExpanded, isJustAdd
       className={cn(
         'group relative rounded-lg border bg-card transition-shadow duration-700 hover:shadow-md',
         field.visibleWhen?.length && 'border-l-4 border-l-amber-400',
-        isDragging && 'z-50 shadow-lg ring-2 ring-zinc-300 dark:ring-zinc-600',
+        isDragging && 'z-50 shadow-lg ring-2 ring-border',
         isJustAdded && 'ring-2 ring-primary ring-offset-2'
       )}
     >

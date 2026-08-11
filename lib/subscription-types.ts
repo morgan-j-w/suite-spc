@@ -354,11 +354,16 @@ export function buildDefaultAnswers(categories: Category[]): CategoryAnswers {
 
 // Color-coded badge styling for field/category types, shared between the profile field
 // editor and the category editor so type names read consistently everywhere.
-const blue = 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300'
-const purple = 'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950 dark:text-purple-300'
-const emerald = 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
-const amber = 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300'
-const slate = 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
+// Hues stay distinct so the type coding still works at a glance, but chroma is pulled well
+// down from Tailwind's stock 50/200/700 steps: on a warm sand chrome those read as a
+// different design system rather than as labels. Every pair clears 6.4:1. The neutral family
+// sits on the chrome's own hue (91.5) — it was Tailwind slate, the last cool grey in the
+// builder. Same lightness across all five so no one type shouts louder than another.
+const blue = 'border-[#cbe1f8] bg-[#ebf5ff] text-[#33587d]'
+const purple = 'border-[#e6d7f2] bg-[#f7f0fd] text-[#624974]'
+const emerald = 'border-[#c8e7d5] bg-[#eaf7ef] text-[#2a6247]'
+const amber = 'border-[#eedbc1] bg-[#fbf2e6] text-[#6d4f20]'
+const slate = 'border-[#e2ddd0] bg-[#f7f4ed] text-[#575246]'
 
 export const fieldTypeBadge: Record<ProfileFieldType, { label: string; className: string }> = {
   text: { label: 'Text', className: blue },
