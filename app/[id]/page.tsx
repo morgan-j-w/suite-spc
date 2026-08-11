@@ -552,7 +552,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
               )}
               {isDirty ? (
                 <>
-                  <span className="hidden items-center gap-1.5 text-xs font-medium text-amber-600 lg:flex dark:text-amber-400">
+                  <span className="hidden items-center gap-1.5 text-xs font-medium text-[#9d5e00] lg:flex dark:text-amber-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     Unpublished changes
                   </span>
@@ -601,7 +601,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   <div className="border-b px-4 py-3">
                     <p className="text-sm font-medium">Live URLs</p>
                     {isDirty ? (
-                      <p className="mt-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">Unpublished changes — publish to update the live site.</p>
+                      <p className="mt-0.5 text-xs font-medium text-[#9d5e00] dark:text-amber-400">Unpublished changes — publish to update the live site.</p>
                     ) : (
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         Last published {new Date(centre.updatedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}.

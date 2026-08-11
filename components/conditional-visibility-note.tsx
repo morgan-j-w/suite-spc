@@ -2,7 +2,7 @@ import { AlertCircle, EyeOff } from 'lucide-react'
 import type { FieldVisibilityRule } from '@/lib/subscription-types'
 import { cn } from '@/lib/utils'
 
-const amberText = 'text-amber-600 dark:text-amber-400'
+const amberText = 'text-[#9d5e00] dark:text-amber-400'
 
 export function ConditionalBadge({ className }: { className?: string }) {
   return (

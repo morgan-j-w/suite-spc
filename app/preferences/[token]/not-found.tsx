@@ -25,7 +25,7 @@ function NotFoundContent() {
         <Card className="w-full text-center">
           <CardHeader>
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
-              <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+              <AlertTriangle className="h-8 w-8 text-[#9d5e00] dark:text-amber-400" />
             </div>
             <CardTitle className="text-2xl">{content.heading}</CardTitle>
             <CardDescription className="text-base">{content.message}</CardDescription>

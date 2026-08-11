@@ -30,7 +30,7 @@
      edges actually read better than before. */
   --chrome-background: #f4f2ec;
   --chrome-foreground: #1e1d1a;
-  --chrome-muted-foreground: #6b6961;
+  --chrome-muted-foreground: #68665e;
   --chrome-border: #dad7cf;
   --chrome-input: #dad7cf;
   /* Hover/selected surface. A slate tint, not the old brand-blue one: on a warm page a pale

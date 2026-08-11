@@ -75,7 +75,7 @@ export function RequestLinkForm({ type }: RequestLinkFormProps) {
       <Card>
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
-            <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+            <AlertTriangle className="h-8 w-8 text-[#9d5e00] dark:text-amber-400" />
           </div>
           <CardTitle>{alreadyContent.heading}</CardTitle>
           <CardDescription>{alreadyContent.message}</CardDescription>

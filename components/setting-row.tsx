@@ -52,13 +52,13 @@ export function SettingGroup({ title, icon: Icon, action, children, className, c
   const [open, setOpen] = useState(!collapsible || defaultOpen)
   const iconCircle = Icon && (
     <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full', staffOnly ? 'bg-amber-100 dark:bg-amber-950' : 'bg-icon-accent-bg')}>
-      <Icon className={cn('h-4 w-4', staffOnly ? 'text-amber-600 dark:text-amber-400' : 'text-icon-accent')} />
+      <Icon className={cn('h-4 w-4', staffOnly ? 'text-[#9d5e00] dark:text-amber-400' : 'text-icon-accent')} />
     </div>
   )
   const staffBadge = staffOnly && (
     <Badge
       variant="outline"
-      className="shrink-0 gap-1 border-amber-300 bg-amber-50 font-normal text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
+      className="shrink-0 gap-1 border-amber-300 bg-amber-50 font-normal text-[#9d5e00] dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
     >
       <Lock className="h-3 w-3" />
       Staff only
