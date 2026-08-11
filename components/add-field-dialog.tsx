@@ -76,7 +76,7 @@ export function AddFieldDialog({
                       key={def.id}
                       type="button"
                       onClick={() => onPickStandardField(def)}
-                      className="flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-muted/40"
+                      className="flex items-start gap-3 rounded-lg border bg-panel p-3 text-left transition-colors hover:border-primary hover:bg-accent"
                     >
                       {Icon && <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />}
                       <div>
@@ -104,7 +104,7 @@ export function AddFieldDialog({
                         type="button"
                         onClick={() => (isDisplayFieldType(opt.type) ? onPickDisplayType(opt.type) : setSelectedType(opt.type))}
                         className={cn(
-                          'flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:border-primary hover:bg-muted/40',
+                          'flex items-start gap-3 rounded-lg border bg-panel p-3 text-left transition-colors hover:border-primary hover:bg-accent',
                           isSelected && 'border-primary bg-primary/5 ring-2 ring-primary/20'
                         )}
                       >
@@ -125,7 +125,7 @@ export function AddFieldDialog({
 
         {/* Sits outside the scroll area so the fields you can actually pick are always in
             view — the type grid above is long enough that an inline panel scrolls off. */}
-        <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+        <div className="space-y-2 rounded-lg border bg-muted/60 p-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Available fields</p>
@@ -157,11 +157,11 @@ export function AddFieldDialog({
                   key={catalogField.id}
                   type="button"
                   onClick={() => onPickCatalogField(catalogField, selectedType)}
-                  className="rounded-lg border bg-background p-3 text-left transition-colors hover:border-primary hover:bg-muted/40"
+                  className="rounded-lg bg-nav-active p-3 text-left text-nav-active-foreground shadow-sm transition-opacity hover:opacity-90"
                 >
                   <p className="text-sm font-medium">{catalogField.label}</p>
                   {catalogField.options?.length ? (
-                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                    <p className="mt-1 truncate text-xs text-nav-active-foreground/70">
                       {catalogField.options.map((o) => o.label).join(', ')}
                     </p>
                   ) : null}
