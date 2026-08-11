@@ -50,9 +50,12 @@
      feedback stays in the same family as the surface it's on. */
   --chrome-control: #fbfaf7;
   --chrome-control-hover: #ece8dc;
-  /* Track behind segmented controls. Beige-on-beige made them vanish into the page; a slate
-     tint gives the selected white segment something to sit against (1.25:1). */
-  --chrome-track: #e5e6e9;
+  /* Track behind segmented controls. This was a cool slate tint back when the selected
+     segment was near-white and needed contrast from the track itself. The selected segment
+     is dark slate now and carries that on its own (7.3:1), so the track has no reason to be
+     cool — next to a warm select it just read as a different system. Unselected labels still
+     clear AA on it at 4.7:1. */
+  --chrome-track: #ece8dc;
 
   --background: var(--chrome-background);
   --foreground: var(--chrome-foreground);
