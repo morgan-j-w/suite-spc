@@ -23,7 +23,7 @@ interface SegmentedProps<T extends string> {
 // that had drifted apart in padding, radius, and selected-state styling.
 export function Segmented<T extends string>({ options, value, onChange, size = 'xs', className }: SegmentedProps<T>) {
   return (
-    <div className={cn('flex flex-1 gap-1 rounded-md bg-muted p-0.5', className)}>
+    <div className={cn('flex flex-1 gap-1 rounded-md bg-track p-0.5', className)}>
       {options.map((opt) => {
         const Icon = opt.icon
         return (

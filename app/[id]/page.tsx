@@ -467,7 +467,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     // scrolling columns (nav rail / editor / preview). No sticky offsets anywhere —
     // each region owns its scroll context by construction.
     <div className="flex h-dvh flex-col overflow-hidden">
-      <div className="z-20 shrink-0 border-b bg-background">
+      <div className="z-20 shrink-0 border-b bg-panel">
         <div className="px-4 py-3">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
             <div className="shrink-0 md:w-44">
@@ -711,7 +711,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
       <div className="flex min-h-0 flex-1">
         {/* Nav rail — own scroll region */}
-        <nav className="hidden w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r bg-background p-3 md:flex">
+        <nav className="hidden w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r bg-panel p-3 md:flex">
               {SECTIONS.map((section) => (
                 <div key={section.id}>
                   <button

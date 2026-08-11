@@ -33,9 +33,17 @@
   --chrome-muted-foreground: #6b6961;
   --chrome-border: #dad7cf;
   --chrome-input: #dad7cf;
-  --chrome-accent: #e9fafd;
+  /* Hover/selected surface. A slate tint, not the old brand-blue one: on a warm page a pale
+     blue hover read as a mistake rather than an accent. Slate text sits on it at 7.4:1. */
+  --chrome-accent: #e8e9eb;
   --chrome-accent-foreground: #434a54;
   --chrome-ring: #72777f;
+  /* Panels framing the beige canvas — top bar and nav rail — are white, so the canvas reads
+     as the work surface and the chrome as the frame around it. */
+  --chrome-panel: #ffffff;
+  /* Track behind segmented controls. Beige-on-beige made them vanish into the page; a slate
+     tint gives the selected white segment something to sit against (1.25:1). */
+  --chrome-track: #e5e6e9;
 
   --background: var(--chrome-background);
   --foreground: var(--chrome-foreground);
@@ -293,6 +301,8 @@
   --color-publish-foreground: var(--publish-foreground);
   --color-icon-accent: var(--icon-accent);
   --color-icon-accent-bg: var(--icon-accent-bg);
+  --color-panel: var(--chrome-panel);
+  --color-track: var(--chrome-track);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
