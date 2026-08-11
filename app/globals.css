@@ -38,9 +38,11 @@
   --chrome-accent: #e8e9eb;
   --chrome-accent-foreground: #434a54;
   --chrome-ring: #72777f;
-  /* Panels framing the beige canvas — top bar and nav rail — are white, so the canvas reads
-     as the work surface and the chrome as the frame around it. */
+  /* Panels framing the beige canvas. The top bar and outline buttons are white so they read
+     as the frame and as raised controls; the nav rail is a very light tint of the canvas
+     instead, sitting midway between it and the white cards so the split is softer. */
   --chrome-panel: #ffffff;
+  --chrome-rail: #faf9f6;
   /* Track behind segmented controls. Beige-on-beige made them vanish into the page; a slate
      tint gives the selected white segment something to sit against (1.25:1). */
   --chrome-track: #e5e6e9;
@@ -302,6 +304,7 @@
   --color-icon-accent: var(--icon-accent);
   --color-icon-accent-bg: var(--icon-accent-bg);
   --color-panel: var(--chrome-panel);
+  --color-rail: var(--chrome-rail);
   --color-track: var(--chrome-track);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

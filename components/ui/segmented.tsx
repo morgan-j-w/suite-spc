@@ -38,7 +38,10 @@ export function Segmented<T extends string>({ options, value, onChange, size = '
               'disabled:pointer-events-none disabled:opacity-50',
               size === 'xs' ? 'px-2 py-1.5 text-sm' : 'px-3 py-1.5 text-sm',
               value === opt.value
-                ? 'bg-background text-foreground shadow-sm'
+                // Selected shares the nav rail's slate deliberately: one visual language for
+                // "this is the active one" across the whole builder. A near-white pill on a
+                // pale track barely registered as selected.
+                ? 'bg-nav-active text-nav-active-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >

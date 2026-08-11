@@ -711,7 +711,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
       <div className="flex min-h-0 flex-1">
         {/* Nav rail — own scroll region */}
-        <nav className="hidden w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r bg-panel p-3 md:flex">
+        <nav className="hidden w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r bg-rail p-3 md:flex">
               {SECTIONS.map((section) => (
                 <div key={section.id}>
                   <button
