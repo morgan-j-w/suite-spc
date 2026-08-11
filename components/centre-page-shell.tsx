@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { ensureSeedCentre } from '@/lib/subscription-centre-store'
 import type { SubscriptionCentre, StatusPages } from '@/lib/subscription-centre'
 import { getContentMaxWidth } from '@/lib/subscription-centre'
+import { defaultTheme } from '@/lib/brand-config'
 import { RenderedBanner, RenderedFooter } from '@/components/rendered-banner-footer'
 
 export type FlowKey = keyof StatusPages
@@ -27,7 +28,14 @@ export function CentrePageShell({ children, flowKey }: CentrePageShellProps) {
   const bannerBlurb   = flow && 'bannerBlurb'   in flow ? (flow as { bannerBlurb?: string }).bannerBlurb   : undefined
 
   return (
-    <div data-color-theme={centre?.themePresetId ?? undefined} className="flex min-h-screen flex-col" style={{ background: centre?.pageBackgroundColor ?? undefined }}>
+    // bg-background resolves against this element's own [data-color-theme], so the page
+    // paints the centre's background rather than letting <body> (the builder's warm chrome)
+    // show through. A centre's own pageBackgroundColor still wins via the inline style.
+    //
+    // themePresetId falls back to the default rather than leaving the attribute off: with no
+    // scope the page would inherit :root — the builder's palette — outright. Every centre
+    // created since themePresetId became required has one; this only guards legacy data.
+    <div data-color-theme={centre?.themePresetId ?? defaultTheme} className="flex min-h-screen flex-col bg-background" style={{ background: centre?.pageBackgroundColor ?? undefined }}>
       {centre?.banner && (
         <div className={centre.banner.sticky ? 'sticky top-0 z-50' : undefined}>
           <RenderedBanner

@@ -232,7 +232,11 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
     <div
       data-color-theme={centre.themePresetId}
       data-theme-morph={themeMorphing ? '' : undefined}
-      className="flex flex-col"
+      // bg-background resolves against this element's own [data-color-theme], so the preview
+      // shows the centre's page colour instead of letting the builder's chrome show through.
+      // Without it the preview was simply transparent, which only looked right while the
+      // builder's background happened to be near-white too.
+      className="flex flex-col bg-background"
       style={{ background: centre.pageBackgroundColor ?? undefined }}
     >
       {themeMorphing && (

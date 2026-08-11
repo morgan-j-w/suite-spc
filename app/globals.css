@@ -20,12 +20,19 @@
      to be text-safe. */
   /* Chrome copies. No [data-color-theme] scope overrides these, so .builder-chrome below can
      restore them for a builder control that has to render inside a themed preview canvas.
-     :root's own tokens point at them, so there's still one place to edit a value. */
-  --chrome-background: oklch(0.98 0.005 240);
-  --chrome-foreground: oklch(0.2 0.02 240);
-  --chrome-muted-foreground: oklch(0.5 0.02 240);
-  --chrome-border: oklch(0.9 0.01 240);
-  --chrome-input: oklch(0.9 0.01 240);
+     :root's own tokens point at them, so there's still one place to edit a value.
+
+     The neutrals are warm (oklch hue 91.5, taken from the #f4f2ec page background) so the
+     builder sits alongside the rest of the suite rather than reading as a cool grey app
+     dropped into it. Chroma is kept low -- these have to read as warm greys, not browns, and
+     the darker the token the less it carries. Cards stay pure white: on beige that's a
+     bigger step off the page than white-on-cool-grey was (1.12:1 vs 1.05:1), so the card
+     edges actually read better than before. */
+  --chrome-background: #f4f2ec;
+  --chrome-foreground: #1e1d1a;
+  --chrome-muted-foreground: #6b6961;
+  --chrome-border: #dad7cf;
+  --chrome-input: #dad7cf;
   --chrome-accent: #e9fafd;
   --chrome-accent-foreground: #434a54;
   --chrome-ring: #72777f;
@@ -33,14 +40,14 @@
   --background: var(--chrome-background);
   --foreground: var(--chrome-foreground);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 240);
+  --card-foreground: #1e1d1a;
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 240);
+  --popover-foreground: #1e1d1a;
   --primary: #72777f;
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.95 0.01 240);
-  --secondary-foreground: oklch(0.3 0.02 240);
-  --muted: oklch(0.95 0.01 240);
+  --secondary: #eae8e1;
+  --secondary-foreground: #373530;
+  --muted: #eae8e1;
   --muted-foreground: var(--chrome-muted-foreground);
   /* Hover/selected surface for outline + ghost buttons, menu and select items. Was a teal
      pair left over from the old primary; now the same brand-blue tint the setting-group icon
