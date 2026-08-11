@@ -15,7 +15,7 @@ import {
 } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
 import { getContentMaxWidth } from '@/lib/subscription-centre'
-import { getStylePreviews } from '@/lib/style-previews'
+import { getStylePreviews, getStylePreview } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
 import { SubmitButtonPreview } from '@/components/submit-button-preview'
 import { AnimatedVisibility } from '@/components/animated-visibility'
@@ -96,7 +96,7 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
     centre.profileFieldSections.some((s) => s.id === id)
   )
 
-  const singleStylePreview = getStylePreviews(centre.themePresetId)[centre.singleCardStyleIndex ?? 0]
+  const singleStylePreview = getStylePreview(centre.themePresetId, centre.singleCardStyleIndex)
 
   const blocks = centre.sectionOrder.map((id) => {
     const section = centre.profileFieldSections.find((s) => s.id === id)
@@ -124,7 +124,7 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
         )
       }
 
-      const stylePreview = getStylePreviews(centre.themePresetId)[section.cardStyleIndex ?? 0]
+      const stylePreview = getStylePreview(centre.themePresetId, section.cardStyleIndex)
       return (
         <RenderedSection
           key={id}
@@ -157,7 +157,7 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
         )
       }
 
-      const stylePreview = getStylePreviews(centre.themePresetId)[category.cardStyleIndex ?? 0]
+      const stylePreview = getStylePreview(centre.themePresetId, category.cardStyleIndex)
       return (
         <AnimatedVisibility key={id} visible={isCategoryVisible(category, profile, answers)}>
           <RenderedCategory

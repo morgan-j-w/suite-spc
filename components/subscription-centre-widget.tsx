@@ -14,7 +14,7 @@ import {
   isSectionVisible,
 } from '@/lib/subscription-types'
 import type { SubscriptionCentre } from '@/lib/subscription-centre'
-import { getReadableTextColor, getStylePreviews, type StylePreview } from '@/lib/style-previews'
+import { getReadableTextColor, getStylePreviews, getStylePreview, type StylePreview } from '@/lib/style-previews'
 import { renderFormattedText } from '@/lib/format-text'
 import { richTextContentClass } from '@/components/rich-text-editor'
 import { AnimatedVisibility } from '@/components/animated-visibility'
@@ -691,7 +691,7 @@ export function SubscriptionCentreWidget({
           const isFirstSection = section.id === firstSectionId
           const hasVisibleField = section.fields.length === 0 || section.fields.some((field) => isProfileFieldVisible(field, profile))
           const visible = (isFirstSection || isSectionVisible(section, profile, answers)) && hasVisibleField
-          const stylePreview = getStylePreviews(centre.themePresetId)[section.cardStyleIndex ?? 0]
+          const stylePreview = getStylePreview(centre.themePresetId, section.cardStyleIndex)
           return (
             <RenderedSection
               key={id}
@@ -708,7 +708,7 @@ export function SubscriptionCentreWidget({
 
         const category = centre.categories.find((c) => c.id === id)
         if (category) {
-          const stylePreview = getStylePreviews(centre.themePresetId)[category.cardStyleIndex ?? 0]
+          const stylePreview = getStylePreview(centre.themePresetId, category.cardStyleIndex)
           return (
             <AnimatedVisibility key={category.id} visible={isCategoryVisible(category, profile, answers)}>
               <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={onAnswersChange} />

@@ -24,7 +24,7 @@ import {
 import type { SubscriptionCentre, StatusPages, SubmitButtonAlignment, ContentBlock, BannerConfig, FooterConfig, Brand, CardStyle, FormWidth } from '@/lib/subscription-centre'
 import { getContentMaxWidth } from '@/lib/subscription-centre'
 import type { ColorTheme } from '@/lib/brand-config'
-import { getStylePreviews } from '@/lib/style-previews'
+import { getStylePreviews, getStylePreview } from '@/lib/style-previews'
 import { RenderedSection, RenderedCategory } from '@/components/subscription-centre-widget'
 import { RenderedContentBlock } from '@/components/rendered-content-block'
 import { getCardStyleCss, getCardSpacingClass } from '@/lib/card-style'
@@ -186,7 +186,7 @@ export function PreviewEditor({
     onProfileFieldSectionsChange(clearVisibleWhenOnFirstSection(centre.profileFieldSections, newOrder))
   }
 
-  const singleStylePreview = getStylePreviews(centre.themePresetId)[singleCardStyleIndex ?? 0]
+  const singleStylePreview = getStylePreview(centre.themePresetId, singleCardStyleIndex)
   const cardSpacingClass = getCardSpacingClass(centre.cardStyle)
   const cardStyleCss = getCardStyleCss(centre.cardStyle)
 
@@ -204,7 +204,7 @@ export function PreviewEditor({
         )
       }
 
-      const stylePreview = getStylePreviews(centre.themePresetId)[section.cardStyleIndex ?? 0]
+      const stylePreview = getStylePreview(centre.themePresetId, section.cardStyleIndex)
       return (
         <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={section.cardStyleIndex} onCardStyleChange={(i) => onProfileFieldSectionsChange(centre.profileFieldSections.map((s) => s.id === id ? { ...s, cardStyleIndex: i } : s))} isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
           <RenderedSection section={section} stylePreview={stylePreview} profile={profile} onProfileChange={setProfile} visible showValidation={false} formLayout={formLayout} formLabelWidth={formLabelWidth} />
@@ -223,7 +223,7 @@ export function PreviewEditor({
         )
       }
 
-      const stylePreview = getStylePreviews(centre.themePresetId)[category.cardStyleIndex ?? 0]
+      const stylePreview = getStylePreview(centre.themePresetId, category.cardStyleIndex)
       return (
         <SortablePreviewBlock key={id} id={id} theme={centre.themePresetId} cardStyleIndex={category.cardStyleIndex} onCardStyleChange={(i) => onCategoriesChange(centre.categories.map((c) => c.id === id ? { ...c, cardStyleIndex: i } : c))} isFirst={index === 0} isLast={index === centre.sectionOrder.length - 1} onMoveUp={() => moveBlock(id, 'up')} onMoveDown={() => moveBlock(id, 'down')}>
           <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={setAnswers} showValidation={false} />

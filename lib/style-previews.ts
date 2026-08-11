@@ -151,6 +151,20 @@ function withButtonBorder(preview: Omit<StylePreview, 'buttonBorder'>): StylePre
   }
 }
 
+// Resolve one style safely. The catalogues differ in length by theme — coastal has 19
+// entries, every other theme has 14 — so an index chosen under one theme can be out of range
+// under another. Callers were indexing the array directly with `?? 0`, which covers a missing
+// index but not an out-of-range one, and every consumer then reads .heading off the result:
+// switching away from coastal after picking one of its extra styles crashed the renderer.
+//
+// Clamping rather than resetting to 0 keeps the selection at the same end of the catalogue,
+// and leaves the stored index untouched so switching back to coastal restores the original.
+export function getStylePreview(theme: ColorTheme, index?: number): StylePreview {
+  const previews = getStylePreviews(theme)
+  const i = typeof index === 'number' && index > 0 ? Math.min(index, previews.length - 1) : 0
+  return previews[i]
+}
+
 export function getStylePreviews(theme: ColorTheme): StylePreview[] {
   if (theme === 'coastal') return coastalStylePreviews.map(withButtonBorder)
 
