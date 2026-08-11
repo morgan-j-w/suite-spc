@@ -27,7 +27,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, Eye, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Redo2, Share2, Undo2 } from 'lucide-react'
+import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, Eye, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Pencil, Redo2, Share2, Undo2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
 import { ExportEditor } from '@/components/export-editor'
 
@@ -470,21 +470,30 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
       <div className="z-20 shrink-0 border-b bg-panel">
         <div className="px-4 py-3">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
-            <div className="shrink-0 md:w-44">
-              <Button asChild variant="ghost" size="sm" className="-ml-2 gap-2">
-                <Link href="/">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Dashboard
-                </Link>
-              </Button>
+            <div className="shrink-0">
+              <p className="text-sm font-semibold whitespace-nowrap">Subscription builder</p>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-3">
-              <Input
-                value={centre.name}
-                onChange={(e) => setCentre((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
-                className="h-9 w-full bg-background text-base font-semibold md:max-w-md md:flex-1"
-              />
+              {/* The one editable thing in the header, so it says what it is: a placeholder for
+                  the empty case, an accessible name (it had none), and a pencil so it reads as
+                  a field to change rather than a heading that happens to sit in a box. */}
+              <div className="relative min-w-0 w-full md:flex-1">
+                <Input
+                  value={centre.name}
+                  onChange={(e) => setCentre((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
+                  aria-label="Subscription centre name"
+                  placeholder="Name this subscription centre"
+                  className="h-9 w-full bg-background pr-9 text-base font-semibold"
+                />
+                <Pencil className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
+              </div>
               <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="gap-1.5">
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Link>
+              </Button>
               <div className="flex items-center">
                 <Button variant="ghost" size="sm" className="px-2" onClick={() => applyHistory(-1)} disabled={!canUndo} aria-label="Undo" title="Undo (⌘Z)">
                   <Undo2 className="h-4 w-4" />
