@@ -711,7 +711,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
       <div className="flex min-h-0 flex-1">
         {/* Nav rail — own scroll region */}
-        <nav className="hidden w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r bg-rail p-3 md:flex">
+        <nav className="hidden w-48 shrink-0 flex-col gap-1.5 overflow-y-auto border-r bg-rail p-3 md:flex">
               {SECTIONS.map((section) => (
                 <div key={section.id}>
                   <button
@@ -730,7 +730,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
                   {/* Design sub-navigation — only shown when Design is the active section */}
                   {section.id === 'design' && activeSection === 'design' && (
-                    <div className="mt-1 ml-3 flex flex-col gap-0.5 border-l border-border pl-3">
+                    <div className="mt-2 mb-1 ml-3 flex flex-col gap-1 border-l border-border pl-3">
                       {DESIGN_SUBSECTIONS.map((sub) => (
                         <button
                           key={sub.id}
@@ -751,7 +751,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
                   {/* Emails sub-navigation — only shown when Emails is the active section */}
                   {section.id === 'emails' && activeSection === 'emails' && (
-                    <div className="mt-1 ml-3 flex flex-col gap-0.5 border-l border-border pl-3">
+                    <div className="mt-2 mb-1 ml-3 flex flex-col gap-1 border-l border-border pl-3">
                       {EMAIL_SUBSECTIONS.map((sub) => (
                         <button
                           key={sub.id}
