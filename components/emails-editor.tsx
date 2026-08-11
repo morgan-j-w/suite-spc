@@ -218,13 +218,13 @@ const EMAIL_FOOTER_LAYOUTS: { id: EmailFooterLayout; label: string; sketch: Reac
 
 function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle: (v: boolean) => void }) {
   return (
-    <div className="flex gap-1 rounded-md bg-muted p-0.5">
+    <div className="flex gap-1 rounded-md bg-track p-0.5">
       <button
         type="button"
         onClick={() => onToggle(false)}
         className={cn(
           'flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium transition-colors',
-          !sourceMode ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+          !sourceMode ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
         )}
       >
         Visual
@@ -234,7 +234,7 @@ function SourceToggle({ sourceMode, onToggle }: { sourceMode: boolean; onToggle:
         onClick={() => onToggle(true)}
         className={cn(
           'flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium transition-colors',
-          sourceMode ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+          sourceMode ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
         )}
       >
         <Code2 className="h-3 w-3" />

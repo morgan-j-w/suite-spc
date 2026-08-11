@@ -63,7 +63,7 @@ export function LivePreviewPanel({ centre, className, onEditRegion }: LivePrevie
 
       {width === 'desktop' && (
         <div className="fixed inset-0 z-50 flex flex-col bg-background/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between gap-3 border-b bg-background px-6 py-3">
+          <div className="flex items-center justify-between gap-3 border-b bg-panel px-6 py-3">
             <p className="shrink-0 text-sm font-semibold">Live preview — Desktop</p>
             <div className="flex items-center gap-2">
               {toggle}

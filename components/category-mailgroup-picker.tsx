@@ -66,14 +66,14 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
     <div className="space-y-4 border-t pt-4">
       <Label className="text-sm font-medium">Add Mailgroups</Label>
 
-      <div className="flex gap-1 rounded-md bg-muted p-1">
+      <div className="flex gap-1 rounded-md bg-track p-1">
         <button
           type="button"
           onClick={() => setMode('existing')}
           disabled={mailGroups.length === 0}
           className={cn(
             'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50',
-            mode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            mode === 'existing' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
         >
           <FolderOpen className="h-3.5 w-3.5" />
@@ -84,7 +84,7 @@ export function CategoryMailgroupPicker({ category, mailGroups, onAddMailGroup, 
           onClick={() => setMode('new')}
           className={cn(
             'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-            mode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            mode === 'new' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           )}
         >
           <Sparkles className="h-3.5 w-3.5" />

@@ -47,13 +47,13 @@ export function ContentBlockCard({ block, onUpdate, onRemove }: ContentBlockCard
     <div className="rounded-xl border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="flex gap-1 rounded-md bg-muted p-0.5">
+          <div className="flex gap-1 rounded-md bg-track p-0.5">
             <button
               type="button"
               onClick={() => onUpdate({ type: 'text' })}
               className={cn(
                 'flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors',
-                block.type === 'text' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                block.type === 'text' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <Type className="h-3 w-3" />
@@ -64,7 +64,7 @@ export function ContentBlockCard({ block, onUpdate, onRemove }: ContentBlockCard
               onClick={() => onUpdate({ type: 'image' })}
               className={cn(
                 'flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors',
-                block.type === 'image' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                block.type === 'image' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <Image className="h-3 w-3" />
@@ -140,7 +140,7 @@ export function ContentBlockCard({ block, onUpdate, onRemove }: ContentBlockCard
 
             <div className="space-y-1.5">
               <Label className="text-xs">Width</Label>
-              <div className="flex gap-1 rounded-md bg-muted p-0.5">
+              <div className="flex gap-1 rounded-md bg-track p-0.5">
                 {(['contained', 'full'] as const).map((w) => (
                   <button
                     key={w}
@@ -149,7 +149,7 @@ export function ContentBlockCard({ block, onUpdate, onRemove }: ContentBlockCard
                     className={cn(
                       'flex-1 rounded px-2 py-1 text-xs font-medium capitalize transition-colors',
                       (block.imageWidth ?? 'contained') === w
-                        ? 'bg-background shadow-sm'
+                        ? 'bg-nav-active text-nav-active-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >

@@ -606,13 +606,13 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
     <div className="rounded-lg border bg-white p-4 shadow-sm">
       <div className="space-y-4">
       {option.mailGroupId && (
-        <div className="flex gap-1 rounded-md bg-muted p-1">
+        <div className="flex gap-1 rounded-md bg-track p-1">
           <button
             type="button"
             onClick={() => setMode('existing')}
             className={cn(
               'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-              mode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              mode === 'existing' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             <FolderOpen className="h-3.5 w-3.5" />
@@ -623,7 +623,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
             onClick={() => setMode('new')}
             className={cn(
               'flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-              mode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              mode === 'new' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             <Sparkles className="h-3.5 w-3.5" />
@@ -684,16 +684,16 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
               <p className="text-sm font-medium text-orange-800 dark:text-orange-400">
                 Suppress group <span className="text-destructive">*</span>
               </p>
-              <div className="flex gap-1 rounded-md bg-muted p-1">
+              <div className="flex gap-1 rounded-md bg-track p-1">
                 <button type="button" onClick={() => setSuppressEditMode('existing')}
                   className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-                    suppressEditMode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                    suppressEditMode === 'existing' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
                   <FolderOpen className="h-3.5 w-3.5" />
                   Use Existing
                 </button>
                 <button type="button" onClick={() => setSuppressEditMode('new')}
                   className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-                    suppressEditMode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                    suppressEditMode === 'new' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
                   <Sparkles className="h-3.5 w-3.5" />
                   Create New
                 </button>
@@ -794,16 +794,16 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
             <p className="text-xs font-semibold text-orange-800 dark:text-orange-400">
               Suppress group <span className="text-destructive">*</span>
             </p>
-            <div className="flex gap-1 rounded-md bg-muted p-1">
+            <div className="flex gap-1 rounded-md bg-track p-1">
               <button type="button" onClick={() => setNewMailgroupSuppressMode('existing')}
                 className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-                  newMailgroupSuppressMode === 'existing' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                  newMailgroupSuppressMode === 'existing' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
                 <FolderOpen className="h-3.5 w-3.5" />
                 Use Existing
               </button>
               <button type="button" onClick={() => setNewMailgroupSuppressMode('new')}
                 className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-                  newMailgroupSuppressMode === 'new' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
+                  newMailgroupSuppressMode === 'new' ? 'bg-nav-active text-nav-active-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
                 <Sparkles className="h-3.5 w-3.5" />
                 Create New
               </button>

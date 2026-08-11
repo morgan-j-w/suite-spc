@@ -903,7 +903,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
 
         {/* Preview rail — own scroll region, only where a live preview makes sense */}
         {(activeSection === 'build' || activeSection === 'design') && (
-          <aside className="hidden w-[360px] shrink-0 overflow-y-auto border-l bg-background p-4 xl:block">
+          <aside className="hidden w-[360px] shrink-0 overflow-y-auto border-l bg-rail p-4 xl:block">
             <LivePreviewPanel
               centre={centre}
               onEditRegion={handleEditRegion}
