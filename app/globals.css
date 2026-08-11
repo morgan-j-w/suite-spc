@@ -106,10 +106,11 @@
   --publish-foreground: #ffffff;
   /* Setting-group icon circles: dark slate glyph on a sand tint. They were the last cool
      element once the chrome went warm — a bright cyan dot on a beige page read as a leftover
-     rather than an accent. The tint is a shade deeper than the canvas so the circle still
-     reads on a white card (1.23:1, up from the cyan's 1.07:1), and the glyph sits at 7.3:1. */
+     rather than an accent. The tint stays a shade deeper than the canvas so the disc still
+     reads on a white card (1.17:1) without hardening into a filled badge — going all the way
+     to the canvas colour would make it vanish on a card. The glyph sits on it at 7.7:1. */
   --icon-accent: #434a54;
-  --icon-accent-bg: #ece8dc;
+  --icon-accent-bg: #f0ede4;
 }
 
 /* Blue Theme (Default) */
