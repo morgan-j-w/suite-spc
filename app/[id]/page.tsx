@@ -511,22 +511,24 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuItem onClick={handleDemoForm}>
-                    <FlaskConical className="h-3.5 w-3.5" />
-                    Load demo form
-                  </DropdownMenuItem>
+                  {/* Grouped by what they do to the form: the three that put content in,
+                      then the one that takes it out, then the one that sends it elsewhere. */}
                   <DropdownMenuItem onClick={handleSimpleDemoForm}>
                     <Beaker className="h-3.5 w-3.5" />
                     Load simple demo form
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDemoForm}>
+                    <FlaskConical className="h-3.5 w-3.5" />
+                    Load longer demo form
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTemplateDialogOpen(true)}>
+                    <LayoutTemplate className="h-3.5 w-3.5" />
+                    Form Library
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleClearForm}>
                     <Eraser className="h-3.5 w-3.5" />
                     Clear form
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setTemplateDialogOpen(true)}>
-                    <LayoutTemplate className="h-3.5 w-3.5" />
-                    Form library
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleExportSpec}>
