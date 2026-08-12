@@ -87,8 +87,18 @@ export function renderProfileField(
     const isStandardField = STANDARD_PROFILE_FIELDS.includes(field.id)
     const value = getProfileFieldValue(field, profile)
     const fieldId = `field-${field.id}`
+    // radio/checkbox/toggle render a set of controls, not one, so there's no element carrying
+    // fieldId for a `for` to reach — the question's label was pointing at nothing, leaving the
+    // group unnamed for screen readers. Those get an id instead, and the group points back at
+    // it with aria-labelledby.
+    const isGroupField = field.type === 'radio' || field.type === 'checkboxGroup' || field.type === 'toggle'
+    const fieldLabelId = `${fieldId}-label`
     const label = (
-      <Label htmlFor={fieldId} className="sc-field-label" style={{ color: headingColor }}>
+      <Label
+        {...(isGroupField ? { id: fieldLabelId } : { htmlFor: fieldId })}
+        className="sc-field-label"
+        style={{ color: headingColor }}
+      >
         {field.label}
         {field.required && <RequiredAsterisk />}
       </Label>
@@ -243,7 +253,7 @@ export function renderProfileField(
         return (
           <div key={field.id}>
             {wrapField(
-              <RadioGroup value={(value as string) || ''} onValueChange={(v) => updateCustomField(field.id, v)}>
+              <RadioGroup value={(value as string) || ''} onValueChange={(v) => updateCustomField(field.id, v)} aria-labelledby={fieldLabelId} aria-required={field.required || undefined}>
                 <div className={cn('space-y-2 rounded-md', isInvalid && 'ring-1 ring-destructive')}>
                   {field.options?.map((option) => (
                     <div key={option.value} className="flex items-center gap-3">
@@ -264,7 +274,7 @@ export function renderProfileField(
         return (
           <div key={field.id}>
             {wrapField(
-              <div className={cn('space-y-2 rounded-md', isInvalid && 'ring-1 ring-destructive')}>
+              <div className={cn('space-y-2 rounded-md', isInvalid && 'ring-1 ring-destructive')} role="group" aria-labelledby={fieldLabelId}>
                 {field.options?.map((option) => (
                   <div key={option.value} className="flex items-center gap-3">
                     <Checkbox
@@ -324,7 +334,7 @@ export function renderProfileField(
         return (
           <div key={field.id}>
             {wrapField(
-              <div className="space-y-2">
+              <div className="space-y-2" role="group" aria-labelledby={fieldLabelId}>
                 {field.options?.map((option) => (
                   <div key={option.value} className="flex items-center justify-between gap-3">
                     <Label htmlFor={`${field.id}-${option.value}`} className="cursor-pointer font-normal" style={{ color: headingColor }}>
@@ -488,7 +498,15 @@ export function RenderedCategory({ category, stylePreview, answers, onAnswersCha
               {option.label}
             </Label>
           </div>
-          {option.description && <p className="pl-7 text-sm" style={{ color: stylePreview.heading }}>{option.description}</p>}
+          {option.description && (
+            <p
+              className="cursor-pointer pl-7 text-sm"
+              style={{ color: stylePreview.heading }}
+              onClick={() => updateCheckboxAnswer(category.id, option.key, !((answers[category.id] as Record<string, boolean>)?.[option.key] || false))}
+            >
+              {option.description}
+            </p>
+          )}
         </div>
       ))}
     </div>
@@ -508,7 +526,15 @@ export function RenderedCategory({ category, stylePreview, answers, onAnswersCha
                 {option.label}
               </Label>
             </div>
-            {option.description && <p className="pl-7 text-sm" style={{ color: stylePreview.heading }}>{option.description}</p>}
+            {option.description && (
+            <p
+              className="cursor-pointer pl-7 text-sm"
+              style={{ color: stylePreview.heading }}
+              onClick={() => updateRadioAnswer(category.id, option.key)}
+            >
+              {option.description}
+            </p>
+          )}
           </div>
         ))}
       </div>
