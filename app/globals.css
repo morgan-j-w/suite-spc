@@ -111,12 +111,15 @@
   --nav-active: #434a54;              /* selected section in the left rail */
   --switch-on: #434a54;               /* toggle track when on — matches the nav rail */
   --nav-active-foreground: #ffffff;   /* 8.95:1 on the above — clears WCAG AAA */
-  /* The suite's accent, used for Publish and the layout sketch accents. It's too light to
-     carry white text (2.53:1), so the label is near-black instead at 6.66:1 — that keeps the
-     exact brand hex rather than darkening it to suit white type. */
+  /* The suite's accent, used for Publish and the layout sketch accents.
+     White on this measures 2.53:1, below the 4.5:1 AA needs at the label's size. That's a
+     deliberate call, not an oversight: the button has to match the same control in the
+     software this sits inside, and matching it wins over the contrast score here. Please
+     don't "fix" it in isolation — if it changes, it changes with the host system. Near-black
+     (#1e1d1a) would give 6.66:1 on the same background if that ever becomes the priority. */
   --brand-accent: #43b3ae;
   --publish: var(--brand-accent);
-  --publish-foreground: #1e1d1a;
+  --publish-foreground: #ffffff;
   /* Setting-group icon circles: dark slate glyph on a sand tint. They were the last cool
      element once the chrome went warm — a bright cyan dot on a beige page read as a leftover
      rather than an accent. The tint stays a shade deeper than the canvas so the disc still
