@@ -163,7 +163,12 @@ export function CategoryCard({
           </div>
         </div>
         {isExpanded ? (
-          <div className="-mx-6 mt-4 border-t bg-muted/30 px-6 pt-4 pb-2">
+          <div
+            // p-6, not px-6 pt-4 pb-2: the bottom was half the top and a third of the sides, so
+            // the panel visibly ran out under the card. 24 all round rather than 16, because the
+            // horizontal 24 is what lines the inner card's left edge up with the text above it.
+            className="-mx-6 mt-4 border-t bg-muted/30 p-6"
+          >
             <div className="rounded-lg border bg-white p-5 shadow-sm">
               <CategoryEditForm
                 category={category}
