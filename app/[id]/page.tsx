@@ -485,7 +485,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   onChange={(e) => setCentre((prev) => (prev ? { ...prev, name: e.target.value } : prev))}
                   aria-label="Subscription centre name"
                   placeholder="Name this subscription centre"
-                  className="h-9 w-full bg-background pr-9 text-base font-semibold"
+                  className="h-9 w-full bg-field pr-9 text-base font-semibold"
                 />
                 <Pencil className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
               </div>
@@ -789,7 +789,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
         {/* Editor column — own scroll region */}
         <main className="min-w-0 flex-1 overflow-y-auto">
           {/* Mobile nav — horizontal pills, replaces the rail below md */}
-          <div className="flex gap-1 overflow-x-auto border-b bg-background px-3 py-2 md:hidden">
+          <div className="flex gap-1 overflow-x-auto border-b bg-rail px-3 py-2 md:hidden">
             {SECTIONS.map((section) => (
               <button
                 key={section.id}
@@ -808,7 +808,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
             ))}
           </div>
           {activeSection === 'design' && (
-            <div className="flex gap-1 overflow-x-auto border-b bg-background px-3 py-2 md:hidden">
+            <div className="flex gap-1 overflow-x-auto border-b bg-rail px-3 py-2 md:hidden">
               {DESIGN_SUBSECTIONS.map((sub) => (
                 <button key={sub.id} type="button" onClick={() => setDesignSection(sub.id)}
                   className={cn('shrink-0 rounded-md px-3 py-1 text-sm font-medium transition-colors',
@@ -819,7 +819,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
             </div>
           )}
           {activeSection === 'emails' && (
-            <div className="flex gap-1 overflow-x-auto border-b bg-background px-3 py-2 md:hidden">
+            <div className="flex gap-1 overflow-x-auto border-b bg-rail px-3 py-2 md:hidden">
               {EMAIL_SUBSECTIONS.map((sub) => (
                 <button key={sub.id} type="button" onClick={() => setEmailSection(sub.id)}
                   className={cn('shrink-0 rounded-md px-3 py-1 text-sm font-medium transition-colors',

@@ -72,7 +72,7 @@ export function UnitInput({ id, 'aria-label': ariaLabel, value, onChange, min, m
           }
         }}
         className={cn(
-          'h-9 w-full rounded-md border border-input bg-background pr-7 font-mono text-sm tabular-nums text-foreground shadow-xs transition-colors',
+          'h-9 w-full rounded-md border border-input bg-field pr-7 font-mono text-sm tabular-nums text-foreground shadow-xs transition-colors',
           'placeholder:text-muted-foreground/50 hover:border-muted-foreground/40',
           'focus:outline-none focus:border-ring focus:ring-[3px] focus:ring-ring/25',
           '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
