@@ -58,7 +58,7 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
       <div className="flex h-full flex-col justify-between bg-card p-1.5">
         <div className="flex items-center justify-between">
           <div className="h-2 w-8 rounded bg-muted" />
-          <div className="h-1.5 w-10 rounded bg-brand-pink/50" />
+          <div className="h-1.5 w-10 rounded bg-brand-accent/50" />
         </div>
         <div>
           <div className="mb-0.5 h-1.5 w-14 rounded bg-foreground/30" />
@@ -72,7 +72,7 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
     sketch: (
       <div className="flex h-full items-center bg-card px-1.5 py-1 gap-2 border-b border-border">
         <div className="flex items-center gap-1 pr-2 border-r border-border self-stretch py-1 flex-shrink-0">
-          <div className="w-0.5 self-stretch rounded bg-brand-pink" />
+          <div className="w-0.5 self-stretch rounded bg-brand-accent" />
           <div className="h-2 w-6 rounded bg-muted" />
         </div>
         <div className="flex flex-col gap-1 flex-1">
@@ -123,7 +123,7 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
       <div className="flex h-full flex-col bg-card">
         <div className="flex items-center justify-between border-b border-border px-1.5 py-1">
           <div className="h-1.5 w-8 rounded bg-muted" />
-          <div className="h-1 w-8 rounded bg-brand-pink/50" />
+          <div className="h-1 w-8 rounded bg-brand-accent/50" />
         </div>
         <div className="flex flex-1 flex-col items-center justify-center gap-1 bg-muted/30 px-1">
           <div className="h-1.5 w-14 rounded bg-foreground/30" />
@@ -135,7 +135,7 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
   'feature-hero': {
     label: 'Feature hero',
     sketch: (
-      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-brand-pink/80 p-2">
+      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-brand-accent/80 p-2">
         <div className="h-2 w-8 rounded bg-white/50" />
         <div className="h-3 w-16 rounded bg-white/90" />
         <div className="h-1.5 w-12 rounded bg-white/55" />
@@ -155,13 +155,13 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
     sketch: (
       <div className="flex h-full gap-2 bg-card p-1.5 border-b border-border">
         <div className="flex flex-[3] flex-col justify-center gap-1">
-          <div className="h-0.5 w-4 rounded bg-brand-pink mb-0.5" />
+          <div className="h-0.5 w-4 rounded bg-brand-accent mb-0.5" />
           <div className="h-2.5 w-14 rounded bg-foreground/30" />
           <div className="h-1 w-10 rounded bg-muted-foreground/25" />
         </div>
         <div className="flex flex-1 flex-col items-end justify-start gap-1 pt-0.5">
           <div className="h-2 w-7 rounded bg-muted" />
-          <div className="h-1 w-5 rounded bg-brand-pink/40" />
+          <div className="h-1 w-5 rounded bg-brand-accent/40" />
         </div>
       </div>
     ),
@@ -171,7 +171,7 @@ const B: Record<BannerLayout, { label: string; sketch: React.ReactNode }> = {
     sketch: (
       <div className="flex h-full flex-col bg-card">
         <div className="flex items-center justify-end bg-muted/60 px-1.5 py-0.5">
-          <div className="h-1 w-7 rounded bg-brand-pink/40" />
+          <div className="h-1 w-7 rounded bg-brand-accent/40" />
         </div>
         <div className="flex flex-1 items-center justify-center border-b border-t border-border bg-card">
           <div className="h-2.5 w-10 rounded bg-muted" />
@@ -233,7 +233,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
   'dark-band': {
     label: 'Accent band',
     sketch: (
-      <div className="flex h-full items-center justify-between bg-card px-2 py-1.5 gap-1.5 border-t-2 border-brand-pink">
+      <div className="flex h-full items-center justify-between bg-card px-2 py-1.5 gap-1.5 border-t-2 border-brand-accent">
         <div className="h-2 w-6 rounded bg-muted flex-shrink-0" />
         <div className="flex gap-1 flex-shrink-0">{[0,1,2].map(i=><div key={i} className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40"/>)}</div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -261,7 +261,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
           <div className="h-1 w-10 rounded bg-muted-foreground/30"/>
         </div>
         <div className="flex flex-col items-end gap-0.5">
-          <div className="h-2 w-10 rounded bg-brand-pink/50"/>
+          <div className="h-2 w-10 rounded bg-brand-accent/50"/>
           <div className="flex gap-0.5">{[0,1,2].map(i=><div key={i} className="h-1.5 w-1.5 rounded bg-muted-foreground/40"/>)}</div>
         </div>
       </div>
@@ -272,7 +272,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
     sketch: (
       <div className="flex h-full flex-col items-center justify-center gap-1 bg-card p-1.5 border-t border-border">
         <div className="h-1 w-20 rounded bg-muted-foreground/25"/>
-        <div className="flex gap-1">{[0,1].map(i=><div key={i} className="h-1 w-8 rounded bg-brand-pink/40"/>)}</div>
+        <div className="flex gap-1">{[0,1].map(i=><div key={i} className="h-1 w-8 rounded bg-brand-accent/40"/>)}</div>
         <div className="h-1 w-12 rounded bg-muted-foreground/20"/>
       </div>
     ),
@@ -320,7 +320,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
   'inline-logo': {
     label: 'Inline logo',
     sketch: (
-      <div className="flex h-full items-center justify-center gap-1.5 bg-card p-1.5 border-t-2 border-brand-pink">
+      <div className="flex h-full items-center justify-center gap-1.5 bg-card p-1.5 border-t-2 border-brand-accent">
         <div className="h-1.5 w-6 rounded bg-muted" />
         <div className="h-1 w-0.5 rounded bg-muted-foreground/30" />
         {[0,1,2].map(i => <div key={i} className="h-1 w-4 rounded bg-muted-foreground/30"/>)}
@@ -333,13 +333,13 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
     label: 'Left panel',
     sketch: (
       <div className="flex h-full border-t border-border">
-        <div className="flex w-1/4 items-center justify-center bg-brand-pink/70 p-1">
+        <div className="flex w-1/4 items-center justify-center bg-brand-accent/70 p-1">
           <div className="h-2 w-6 rounded bg-white/60" />
         </div>
         <div className="flex flex-1 flex-col justify-center gap-0.5 bg-card p-1.5">
           <div className="h-1 w-12 rounded bg-muted-foreground/30" />
           <div className="h-1 w-9 rounded bg-muted-foreground/20" />
-          <div className="mt-0.5 flex gap-0.5">{[0,1,2].map(i => <div key={i} className="h-1 w-3.5 rounded bg-brand-pink/40"/>)}</div>
+          <div className="mt-0.5 flex gap-0.5">{[0,1,2].map(i => <div key={i} className="h-1 w-3.5 rounded bg-brand-accent/40"/>)}</div>
         </div>
       </div>
     ),
@@ -350,7 +350,7 @@ const F: Record<FooterLayout, { label: string; sketch: React.ReactNode }> = {
       <div className="flex h-full flex-col items-center justify-center gap-1 bg-card p-1.5 border-t border-border">
         <div className="h-2 w-8 rounded bg-muted" />
         <div className="flex gap-1 mt-0.5">
-          <div className="h-2.5 w-10 rounded bg-brand-pink/50" />
+          <div className="h-2.5 w-10 rounded bg-brand-accent/50" />
           <div className="h-2.5 w-8 rounded bg-transparent border border-muted-foreground/30" />
         </div>
         <div className="h-1 w-12 rounded bg-muted-foreground/20" />

@@ -559,7 +559,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   <Button
                     size="sm"
                     onClick={handlePublish}
-                    className="bg-publish text-publish-foreground hover:bg-publish/90 focus-visible:ring-publish/40"
+                    className="bg-publish text-publish-foreground hover:bg-publish/90"
                   >
                     Publish
                   </Button>

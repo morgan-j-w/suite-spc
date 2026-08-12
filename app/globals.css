@@ -56,6 +56,9 @@
      cool — next to a warm select it just read as a different system. Unselected labels still
      clear AA on it at 4.7:1. */
   --chrome-track: #ece8dc;
+  /* Unselected toggle labels sit in the slate family, not the sand one, so they read as the
+     off state of the slate pill rather than as warm text that happens to be nearby. 4.6:1. */
+  --chrome-track-foreground: #606872;
 
   --background: var(--chrome-background);
   --foreground: var(--chrome-foreground);
@@ -104,11 +107,12 @@
   --nav-active: #434a54;              /* selected section in the left rail */
   --switch-on: #434a54;               /* toggle track when on — matches the nav rail */
   --nav-active-foreground: #ffffff;   /* 8.95:1 on the above — clears WCAG AAA */
-  /* #ec2176 darkened ~5%: the brand pink carried white text at only 4.16:1, under AA for
-     the Publish label's size. This clears it at 4.57:1 and is visually near-identical. */
-  --brand-pink: #e01f70;              /* Publish, and the layout sketch accents */
-  --publish: var(--brand-pink);
-  --publish-foreground: #ffffff;
+  /* The suite's accent, used for Publish and the layout sketch accents. It's too light to
+     carry white text (2.53:1), so the label is near-black instead at 6.66:1 — that keeps the
+     exact brand hex rather than darkening it to suit white type. */
+  --brand-accent: #43b3ae;
+  --publish: var(--brand-accent);
+  --publish-foreground: #1e1d1a;
   /* Setting-group icon circles: dark slate glyph on a sand tint. They were the last cool
      element once the chrome went warm — a bright cyan dot on a beige page read as a leftover
      rather than an accent. The tint stays a shade deeper than the canvas so the disc still
@@ -313,7 +317,7 @@
   --color-chart-5: var(--chart-5);
   --color-nav-active: var(--nav-active);
   --color-nav-active-foreground: var(--nav-active-foreground);
-  --color-brand-pink: var(--brand-pink);
+  --color-brand-accent: var(--brand-accent);
   --color-publish: var(--publish);
   --color-publish-foreground: var(--publish-foreground);
   --color-icon-accent: var(--icon-accent);
@@ -323,6 +327,7 @@
   --color-control: var(--chrome-control);
   --color-control-hover: var(--chrome-control-hover);
   --color-track: var(--chrome-track);
+  --color-track-foreground: var(--chrome-track-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

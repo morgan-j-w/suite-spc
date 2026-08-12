@@ -42,7 +42,7 @@ export function Segmented<T extends string>({ options, value, onChange, size = '
                 // "this is the active one" across the whole builder. A near-white pill on a
                 // pale track barely registered as selected.
                 ? 'bg-nav-active text-nav-active-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-track-foreground hover:text-foreground'
             )}
           >
             {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
