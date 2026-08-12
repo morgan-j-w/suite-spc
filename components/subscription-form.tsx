@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { SubscriberProfile, CategoryAnswers, buildDefaultAnswers, flattenProfileFields, isCategoryAnswered, isCategoryVisible, isProfileFieldAnswered, isProfileFieldVisible, serializeProfileForStorage } from '@/lib/subscription-types'
@@ -29,6 +29,10 @@ export function SubscriptionForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [alreadySubscribedToken, setAlreadySubscribedToken] = useState<string | null>(null)
+  // Set by a failed submit. Until then nothing is marked invalid, so the form doesn't scold
+  // anyone for fields they simply haven't reached yet.
+  const [submitted, setSubmitted] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     const active = ensureSeedCentre()
@@ -54,6 +58,32 @@ export function SubscriptionForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // The button stays enabled when the form is incomplete: a disabled one can't be focused,
+    // so keyboard and screen reader users had no way to find out what was blocking them, and
+    // nobody got told which field was missing. Submitting now reveals the errors and jumps to
+    // the first one instead.
+    if (!isFormValid) {
+      setSubmitted(true)
+      setError(null)
+      // after the invalid states have rendered
+      requestAnimationFrame(() => {
+        // One selector, so document order picks the winner. Profile fields mark themselves
+        // aria-invalid; a required category has no single control to mark, so it renders a
+        // role="alert" instead. Querying them separately would skip a category error sitting
+        // above a field one.
+        const target = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')
+        if (!target) return
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Focus the control itself where we can, so the next keystroke lands in the right place.
+        const focusable = target.matches('input, select, textarea, button')
+          ? target
+          : target.querySelector<HTMLElement>('input, select, textarea, button')
+        focusable?.focus({ preventScroll: true })
+      })
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
 
@@ -131,18 +161,25 @@ export function SubscriptionForm() {
           </p>
         </div>
       )}
-      <form onSubmit={handleSubmit} aria-label="Subscription form" className="sc-form mx-auto max-w-2xl space-y-8">
+      <form ref={formRef} onSubmit={handleSubmit} aria-label="Subscription form" noValidate className="sc-form mx-auto max-w-2xl space-y-8">
       <SubscriptionCentreWidget
         centre={centre}
         profile={profile}
         onProfileChange={setProfile}
         answers={answers}
         onAnswersChange={setAnswers}
+        showValidation={submitted}
       />
 
       {error && <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">{error}</div>}
 
-      <SubmitButton centre={centre} disabled={isSubmitting || !isFormValid} isSubmitting={isSubmitting} />
+      {/* Announced on a failed submit — the inline messages are visual only, and moving focus
+          doesn't tell a screen reader user why they were moved. */}
+      <p role="status" aria-live="polite" className="sr-only">
+        {submitted && !isFormValid ? 'Some required questions still need an answer. Moved to the first one.' : ''}
+      </p>
+
+      <SubmitButton centre={centre} disabled={isSubmitting} isSubmitting={isSubmitting} />
     </form>
     </>
   )

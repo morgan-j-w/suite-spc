@@ -41,6 +41,9 @@ interface SubscriptionCentreWidgetProps {
   onProfileChange: (updater: (prev: SubscriberProfile) => SubscriberProfile) => void
   answers: CategoryAnswers
   onAnswersChange: (updater: (prev: CategoryAnswers) => CategoryAnswers) => void
+  // Turned on by the form after a failed submit. The inline messages and aria-invalid states
+  // are already built into RenderedSection/RenderedCategory; this is what reaches them.
+  showValidation?: boolean
 }
 
 const RequiredAsterisk = () => (
@@ -700,6 +703,7 @@ export function SubscriptionCentreWidget({
   onProfileChange,
   answers,
   onAnswersChange,
+  showValidation = false,
 }: SubscriptionCentreWidgetProps) {
   // The first Form Fields section in display order is never conditional -- enforced here too
   // (not just in the builder UI) so a subscriber is always left with at least one section to
@@ -728,6 +732,7 @@ export function SubscriptionCentreWidget({
               profile={profile}
               onProfileChange={onProfileChange}
               visible={visible}
+              showValidation={showValidation}
               formLayout={centre.formLayout}
               formLabelWidth={centre.formLabelWidth}
             />
@@ -739,7 +744,7 @@ export function SubscriptionCentreWidget({
           const stylePreview = getStylePreview(centre.themePresetId, category.cardStyleIndex)
           return (
             <AnimatedVisibility key={category.id} visible={isCategoryVisible(category, profile, answers)}>
-              <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={onAnswersChange} />
+              <RenderedCategory category={category} stylePreview={stylePreview} answers={answers} onAnswersChange={onAnswersChange} showValidation={showValidation} />
             </AnimatedVisibility>
           )
         }
