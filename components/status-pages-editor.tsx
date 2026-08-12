@@ -289,6 +289,10 @@ export function StatusPagesEditor({
                                           value={option.label}
                                           onChange={(e) => updateFeedbackOption(option.key, e.target.value)}
                                           placeholder="e.g., Too many emails"
+                                          // White rather than the usual field fill: these sit on a
+                                          // nested grey panel, where a field-coloured input has
+                                          // nothing to read against and stops looking editable.
+                                          className="bg-panel"
                                         />
                                         <Button
                                           type="button"
