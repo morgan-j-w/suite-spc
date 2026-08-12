@@ -11,12 +11,14 @@ export function getCardStyleCss(cardStyle?: CardStyle): string {
     rules.push(`[data-card-canvas] [data-slot="card"] { border-radius: ${cardStyle.borderRadius}px !important; }`)
   }
 
-  // Border
+  // Border. Undefined means "follow the style preset", which the card already applies inline —
+  // so nothing is emitted and the preset wins. true and false are explicit overrides, and both
+  // have to beat that inline value, hence !important.
   if (cardStyle.borderEnabled === false) {
     rules.push('[data-card-canvas] [data-slot="card"] { border: none !important; }')
   } else {
-    if (cardStyle.borderWidth !== undefined) {
-      rules.push(`[data-card-canvas] [data-slot="card"] { border-width: ${cardStyle.borderWidth}px !important; border-style: solid !important; }`)
+    if (cardStyle.borderEnabled === true || cardStyle.borderWidth !== undefined) {
+      rules.push(`[data-card-canvas] [data-slot="card"] { border-width: ${cardStyle.borderWidth ?? 1}px !important; border-style: solid !important; }`)
     }
     if (cardStyle.borderColor) {
       rules.push(`[data-card-canvas] [data-slot="card"] { border-color: ${cardStyle.borderColor} !important; }`)

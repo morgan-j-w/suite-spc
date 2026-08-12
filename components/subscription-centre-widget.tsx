@@ -563,7 +563,8 @@ export function RenderedCategory({ category, stylePreview, answers, onAnswersCha
       className="sc-category"
       style={{
         backgroundColor: stylePreview.background,
-        ...(stylePreview.cardBorder ? { borderColor: stylePreview.cardBorder, borderWidth: 1 } : {}),
+        borderColor: stylePreview.cardBorder ?? undefined,
+        borderWidth: stylePreview.cardBorder ? 1 : 0,
       }}
     >
       {(category.title.trim() || category.description.trim()) && (
@@ -658,7 +659,8 @@ export function RenderedSection({ section, stylePreview, profile, onProfileChang
         className="sc-section"
         style={{
           backgroundColor: stylePreview.background,
-          ...(stylePreview.cardBorder ? { borderColor: stylePreview.cardBorder, borderWidth: 1 } : {}),
+          borderColor: stylePreview.cardBorder ?? undefined,
+          borderWidth: stylePreview.cardBorder ? 1 : 0,
         }}
       >
         {(section.title.trim() || section.description?.trim()) && (

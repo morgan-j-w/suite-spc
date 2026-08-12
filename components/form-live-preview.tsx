@@ -268,9 +268,8 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
             className="gap-0 py-0"
             style={{
               backgroundColor: singleStylePreview.background,
-              ...(singleStylePreview.cardBorder
-                ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 }
-                : {}),
+              borderColor: singleStylePreview.cardBorder ?? undefined,
+              borderWidth: singleStylePreview.cardBorder ? 1 : 0,
             }}
           >
             <CardContent className="space-y-6 p-6">

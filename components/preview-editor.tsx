@@ -302,8 +302,15 @@ export function PreviewEditor({
                 <SettingGroup title="Form cards" icon={SquareStack} collapsible>
                   <p className="text-sm text-muted-foreground">Applies to every card on the form. Anything left on Auto follows the theme.</p>
                   <SettingRow label="Border">
-                    <Segmented options={onOff} value={cs.borderEnabled === false ? 'off' : 'on'}
-                      onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : undefined })} />
+                    {/* Three states, because there genuinely are three: Auto defers to the
+                        style preset (some have a border, most don't), On and Off override it.
+                        It read "On" for Auto before, which claimed a border the preset often
+                        wasn't drawing. */}
+                    <Segmented
+                      options={[{ value: 'auto', label: 'Auto' }, { value: 'on', label: 'On' }, { value: 'off', label: 'Off' }]}
+                      value={cs.borderEnabled === false ? 'off' : cs.borderEnabled === true ? 'on' : 'auto'}
+                      onChange={(v) => patchCs({ borderEnabled: v === 'off' ? false : v === 'on' ? true : undefined })}
+                    />
                   </SettingRow>
                   <div className={cn('transition-opacity', cs.borderEnabled === false && 'pointer-events-none opacity-40')}>
                     <ColorRow label="Border colour" value={cs.borderColor} onChange={(v) => patchCs({ borderColor: v })} themeId={centre.themePresetId} />
@@ -457,7 +464,7 @@ export function PreviewEditor({
                     <div className="builder-chrome mb-2 flex justify-end" style={{ fontFamily: 'var(--font-sans)' }}>
                       <StylePicker theme={centre.themePresetId} value={singleCardStyleIndex} onChange={onSingleCardStyleIndexChange} size="sm" className="w-[130px] bg-background shadow-sm" />
                     </div>
-                    <Card className="gap-0 py-0" style={{ backgroundColor: singleStylePreview.background, ...(singleStylePreview.cardBorder ? { borderColor: singleStylePreview.cardBorder, borderWidth: 1 } : {}) }}>
+                    <Card className="gap-0 py-0" style={{ backgroundColor: singleStylePreview.background, borderColor: singleStylePreview.cardBorder ?? undefined, borderWidth: singleStylePreview.cardBorder ? 1 : 0 }}>
                       <CardContent className="space-y-6 p-6">
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                           <SortableContext items={centre.sectionOrder} strategy={verticalListSortingStrategy}>
