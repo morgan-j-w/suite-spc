@@ -404,17 +404,30 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   // Clear suppress errors once all issues are resolved by the user
   if (showSuppressErrors && !hasMissingSuppress) setShowSuppressErrors(false)
 
+  // Telling someone their problem is "in the Build tab" isn't much help on a long form where
+  // it may be several screens away. Switching tabs is a re-render, so this waits a frame for
+  // the target to exist before scrolling to it.
+  const revealOnBuildTab = (selector: string) => {
+    setActiveSection('build')
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const target = document.querySelector<HTMLElement>(selector)
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    })
+  }
+
   const handlePublish = () => {
     if (!hasCatchAllMailGroup) {
       toast.error('Choose a parent mailgroup in the Build tab before publishing.')
-      setActiveSection('build')
+      revealOnBuildTab('[data-parent-mailgroup]')
       return
     }
     if (hasMissingSuppress) {
       setShowSuppressErrors(true)
-      setActiveSection('build')
       const n = optionsMissingSuppress.length
-      toast.error(`${n} mailgroup option${n === 1 ? '' : 's'} need a suppress group — highlighted in the Build tab.`)
+      toast.error(`${n} mailgroup option${n === 1 ? '' : 's'} need a suppress group — jumped to the first.`)
+      revealOnBuildTab('[data-suppress-error]')
       return
     }
     setShowSuppressErrors(false)

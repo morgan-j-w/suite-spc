@@ -294,6 +294,9 @@ function MailgroupOptionRow({
     <div
       ref={setRefs}
       style={style}
+      // Marks the row for the publish guard to scroll to. A data attribute rather than the
+      // colour class, so restyling the highlight can't quietly break the jump.
+      data-suppress-error={suppressError || undefined}
       className={cn(
         'rounded-md border bg-muted/50 p-3 transition-shadow duration-700',
         suppressError && 'border-orange-300 dark:border-orange-800',

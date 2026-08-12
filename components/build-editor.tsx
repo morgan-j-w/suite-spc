@@ -205,7 +205,7 @@ export function BuildEditor({
       </div>
 
       {/* Parent mailgroup — lives outside sectionOrder */}
-      <Card className="gap-0 py-0">
+      <Card data-parent-mailgroup className="gap-0 py-0">
         <CardHeader className="px-6 pb-3 pt-4">
           <CardTitle className="text-base">Parent Mailgroup</CardTitle>
           <CardDescription>
