@@ -352,7 +352,11 @@ function CatchAllMailGroupSection({ mailGroups, onAddMailGroup, catchAllMailGrou
 
   if (!isEditing && currentGroup) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+      <div
+        // Same fill and radius as a mailgroup row inside a category card — it is the same kind
+        // of thing, so it should look like one.
+        className="flex items-center justify-between gap-3 rounded-md border bg-muted/50 p-3"
+      >
         <div className="flex items-center gap-2">
           <span className="font-medium">{currentGroup.name}</span>
           <Badge variant="outline" className="flex max-w-[10rem] items-center gap-1 truncate" title={currentGroup.folder}>
