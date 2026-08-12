@@ -27,7 +27,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, Eye, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Pencil, Redo2, Share2, Undo2 } from 'lucide-react'
+import { ArrowLeft, Beaker, Check, Copy, Download, Eraser, ExternalLink, Eye, FileText, FlaskConical, Globe, Layers, LayoutTemplate, Loader2, Mail, MoreHorizontal, Paintbrush, Pencil, Redo2, Save, Share2, Undo2 } from 'lucide-react'
 import { EmailsEditor } from '@/components/emails-editor'
 import { ExportEditor } from '@/components/export-editor'
 
@@ -68,6 +68,7 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
   const router = useRouter()
   const [centre, setCentre] = useState<SubscriptionCentre | null | undefined>(undefined)
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null)
+  const [justSaved, setJustSaved] = useState(false)
   const [activeSection, setActiveSection] = useState<BuilderSection>('build')
   const [designSection, setDesignSection] = useState<DesignSection>('brand')
   const [emailSection, setEmailSection] = useState<EmailSection>('design')
@@ -424,8 +425,20 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
     setJustPublished(true)
     setTimeout(() => setJustPublished(false), 900)
   }
-  // Keep the ⌘S handler pointing at the latest publish function each render
-  saveRef.current = isDirty ? handlePublish : null
+  // Saving keeps the work in the draft, which is private to the builder — the live pages read
+  // the published store only. Drafts already autosave 800ms after each change, but that's
+  // invisible, so this flushes it now and says so. It also gives people a way to stop for the
+  // day without pushing half-finished work to subscribers.
+  const handleSave = () => {
+    saveDraft(centre)
+    toast.success('Saved')
+    setJustSaved(true)
+    setTimeout(() => setJustSaved(false), 900)
+  }
+
+  // ⌘S saves rather than publishes. It used to publish, which meant the most familiar
+  // keyboard shortcut in software pushed changes to a live site with no confirmation.
+  saveRef.current = isDirty ? handleSave : null
 
 
   // A JSON spec of everything shown on the Preview tab -- fields, mailgroup categories,
@@ -558,6 +571,10 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     Unpublished changes
                   </span>
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={handleSave} title="Save (⌘S)">
+                    {justSaved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
+                    {justSaved ? 'Saved' : 'Save'}
+                  </Button>
                   <Button
                     size="sm"
                     onClick={handlePublish}
