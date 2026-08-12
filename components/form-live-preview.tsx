@@ -220,9 +220,14 @@ export function FormLivePreview({ centre, onEditRegion }: FormLivePreviewProps) 
         role="button"
         aria-label={`Edit ${label}`}
       >
-        <div className={cn('pointer-events-none absolute inset-0 z-20 hidden ring-2 ring-inset ring-primary/60 group-hover/edit:block', edgeRounding(region))} />
+        {/* brand-accent, not primary: this is builder chrome sitting inside the centre's theme
+            scope, so --primary resolved to whatever palette the centre is on — orange on
+            coastal, green on green. --brand-accent is only defined on :root, so the edit
+            affordance looks the same whichever theme is being previewed. The label is dark
+            rather than white because at 10px, white on this teal is only 2.53:1. */}
+        <div className={cn('pointer-events-none absolute inset-0 z-20 hidden ring-2 ring-inset ring-brand-accent/70 group-hover/edit:block', edgeRounding(region))} />
         <div className="pointer-events-none absolute right-2 top-2 z-20 hidden group-hover/edit:block">
-          <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground shadow-sm">Edit {label}</span>
+          <span className="rounded bg-brand-accent px-1.5 py-0.5 text-[10px] font-medium text-[#1e1d1a] shadow-sm">Edit {label}</span>
         </div>
         {node}
       </div>
