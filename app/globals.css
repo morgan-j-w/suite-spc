@@ -50,12 +50,11 @@
      feedback stays in the same family as the surface it's on. */
   --chrome-control: #fbfaf7;
   --chrome-control-hover: #ece8dc;
-  /* Track behind segmented controls. This was a cool slate tint back when the selected
-     segment was near-white and needed contrast from the track itself. The selected segment
-     is dark slate now and carries that on its own (7.3:1), so the track has no reason to be
-     cool — next to a warm select it just read as a different system. Unselected labels still
-     clear AA on it at 4.7:1. */
-  --chrome-track: #ece8dc;
+  /* Track behind segmented controls: slate, matching the pill and the labels, so the whole
+     control reads as one slate object sitting on the sand rather than a sand strip with slate
+     parts in it. Kept light (90% toward white) so it stays a soft ground rather than the hard
+     cool block a deeper slate gave. Labels clear AA on it at 4.8:1, the pill at 7.6:1. */
+  --chrome-track: #ecedee;
   /* Unselected toggle labels sit in the slate family, not the sand one, so they read as the
      off state of the slate pill rather than as warm text that happens to be nearby. 4.6:1. */
   --chrome-track-foreground: #606872;
