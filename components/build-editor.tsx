@@ -359,7 +359,7 @@ function CatchAllMailGroupSection({ mailGroups, onAddMailGroup, catchAllMailGrou
       >
         <div className="flex items-center gap-2">
           <span className="font-medium">{currentGroup.name}</span>
-          <Badge variant="outline" className="flex max-w-[10rem] items-center gap-1 truncate" title={currentGroup.folder}>
+          <Badge variant="outline" className="flex max-w-[10rem] items-center gap-1 truncate bg-chip" title={currentGroup.folder}>
             <FolderOpen className="h-3 w-3 shrink-0" />
             <span className="truncate">{currentGroup.folder}</span>
           </Badge>
