@@ -64,7 +64,7 @@ export function ColorRow({
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-background px-2 text-left shadow-xs transition-colors hover:border-muted-foreground/40"
+            className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-field px-2 text-left shadow-xs transition-colors hover:border-muted-foreground/40"
           >
             <span data-color-theme={!isCustom ? themeId : undefined} className="flex-shrink-0">
               {value ? (
@@ -134,7 +134,7 @@ export function ColorRow({
                 }}
                 placeholder="#000000"
                 spellCheck={false}
-                className="w-28 rounded border border-input bg-background px-2 py-1 font-mono text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                className="w-28 rounded border border-input bg-field px-2 py-1 font-mono text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
           </div>

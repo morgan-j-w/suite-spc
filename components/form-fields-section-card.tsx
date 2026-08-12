@@ -110,7 +110,7 @@ export function FormFieldsSectionCard({
                   placeholder="Untitled section"
                   aria-label="Section title"
                   autoFocus={!section.title}
-                  className="h-auto min-w-0 flex-1 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-base font-semibold shadow-none outline-none transition-colors hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
+                  className="h-auto min-w-0 flex-1 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-base font-semibold shadow-none outline-none transition-colors hover:bg-muted/60 focus-visible:bg-field focus-visible:ring-1 focus-visible:ring-ring"
                 />
                 {currentRule ? <ConditionalBadge /> : null}
               </div>
@@ -123,7 +123,7 @@ export function FormFieldsSectionCard({
                   onBlur={() => setDescFocused(false)}
                   placeholder="Add a description (optional)"
                   aria-label="Section description"
-                  className="mt-1 h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm text-muted-foreground shadow-none outline-none transition-colors placeholder:text-muted-foreground/60 hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
+                  className="mt-1 h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm text-muted-foreground shadow-none outline-none transition-colors placeholder:text-muted-foreground/60 hover:bg-muted/60 focus-visible:bg-field focus-visible:ring-1 focus-visible:ring-ring"
                 />
               ) : (
                 <button

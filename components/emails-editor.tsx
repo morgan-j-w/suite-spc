@@ -671,7 +671,7 @@ function EmailTemplateCard({ templateKey, template, emailConfig, brand, themeId,
                 onChange={(e) => onChange({ bodyHtml: e.target.value })}
                 spellCheck={false}
                 placeholder="<p>Email body HTML…</p>"
-                className="h-48 w-full rounded-md border bg-background px-3 py-2 font-mono text-sm focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-ring/50"
+                className="h-48 w-full rounded-md border bg-field px-3 py-2 font-mono text-sm focus:outline focus:outline-2 focus:outline-offset-1 focus:outline-ring/50"
               />
             ) : (
               <RichTextEditor

@@ -166,7 +166,7 @@ export function RichTextEditor({ value, onChange, placeholder, buttonColors }: R
           value={headingValue}
           onChange={handleHeadingChange}
           onMouseDown={(e) => e.stopPropagation()}
-          className="h-7 rounded border bg-background px-1.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="h-7 rounded border bg-field px-1.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="0">Normal</option>
           <option value="1">Heading 1</option>
@@ -327,7 +327,7 @@ export function RichTextEditor({ value, onChange, placeholder, buttonColors }: R
         editor={editor}
         style={buttonColors ? ({ '--email-btn-bg': buttonColors.bg, '--email-btn-text': buttonColors.text } as React.CSSProperties) : undefined}
         className={cn(
-          'min-h-[88px] rounded-md border bg-background px-3 py-2 text-sm focus-within:outline focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-ring/50',
+          'min-h-[88px] rounded-md border bg-field px-3 py-2 text-sm focus-within:outline focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-ring/50',
           richTextContentClass
         )}
       />

@@ -134,7 +134,7 @@ export function CategoryCard({
                 placeholder="Untitled category"
                 aria-label="Category title"
                 autoFocus={!category.title}
-                className="h-auto min-w-0 flex-1 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-base font-semibold shadow-none outline-none transition-colors hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
+                className="h-auto min-w-0 flex-1 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-base font-semibold shadow-none outline-none transition-colors hover:bg-muted/60 focus-visible:bg-field focus-visible:ring-1 focus-visible:ring-ring"
               />
               {category.required && <span className="shrink-0 text-xs font-medium text-destructive">Required</span>}
             </div>
@@ -143,7 +143,7 @@ export function CategoryCard({
               onChange={(e) => onUpdateCategory({ description: e.target.value })}
               placeholder="Add a description (optional)"
               aria-label="Category description"
-              className="mt-1 h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm text-muted-foreground shadow-none outline-none transition-colors placeholder:text-muted-foreground/60 hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-ring"
+              className="mt-1 h-auto w-full min-w-0 -mx-1 rounded border-none bg-transparent px-1 py-0.5 text-sm text-muted-foreground shadow-none outline-none transition-colors placeholder:text-muted-foreground/60 hover:bg-muted/60 focus-visible:bg-field focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -701,7 +701,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
               {suppressEditMode === 'existing' && (
                 <div className="space-y-2">
                   <Select value={suppressExistingFolder} onValueChange={(f) => { setSuppressExistingFolder(f); onUpdateOption({ suppressMailGroupId: undefined }) }}>
-                    <SelectTrigger className="w-full bg-background"><SelectValue placeholder="Select a folder" /></SelectTrigger>
+                    <SelectTrigger className="w-full bg-field"><SelectValue placeholder="Select a folder" /></SelectTrigger>
                     <SelectContent>
                       {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                     </SelectContent>
@@ -711,7 +711,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
                     onValueChange={(v) => onUpdateOption({ suppressMailGroupId: v })}
                     disabled={!suppressExistingFolder}
                   >
-                    <SelectTrigger className="w-full bg-background">
+                    <SelectTrigger className="w-full bg-field">
                       <SelectValue placeholder={suppressExistingFolder ? 'Select mailgroup' : 'Choose a folder first'} />
                     </SelectTrigger>
                     <SelectContent>
@@ -727,19 +727,19 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
                   <div className="space-y-2">
                     <Label>Folder</Label>
                     <Select value={suppressNewFolderChoice} onValueChange={setSuppressNewFolderChoice}>
-                      <SelectTrigger className="w-full bg-background"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-full bg-field"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                         <SelectItem value={NEW_FOLDER}>+ New folder</SelectItem>
                       </SelectContent>
                     </Select>
                     {suppressNewFolderChoice === NEW_FOLDER && (
-                      <Input className="bg-background" placeholder="e.g., Partnerships" value={suppressNewFolderName} onChange={(e) => setSuppressNewFolderName(e.target.value)} />
+                      <Input className="bg-field" placeholder="e.g., Partnerships" value={suppressNewFolderName} onChange={(e) => setSuppressNewFolderName(e.target.value)} />
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label>Mailgroup name</Label>
-                    <Input className="w-full bg-background" placeholder="e.g., Unsubscribe All" value={suppressNewGroupName} onChange={(e) => setSuppressNewGroupName(e.target.value)} />
+                    <Input className="w-full bg-field" placeholder="e.g., Unsubscribe All" value={suppressNewGroupName} onChange={(e) => setSuppressNewGroupName(e.target.value)} />
                   </div>
                   <Button type="button" size="sm" className="gap-2" disabled={!canCreateSuppress} onClick={handleCreateSuppressMailGroup}>
                     <Plus className="h-4 w-4" />
@@ -811,7 +811,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
             {newMailgroupSuppressMode === 'existing' && (
               <div className="space-y-2">
                 <Select value={newMailgroupSuppressExistingFolder} onValueChange={(f) => { setNewMailgroupSuppressExistingFolder(f); setNewMailgroupSuppressExistingId('') }}>
-                  <SelectTrigger className="w-full bg-background"><SelectValue placeholder="Select a folder" /></SelectTrigger>
+                  <SelectTrigger className="w-full bg-field"><SelectValue placeholder="Select a folder" /></SelectTrigger>
                   <SelectContent>
                     {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                   </SelectContent>
@@ -821,7 +821,7 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
                   onValueChange={setNewMailgroupSuppressExistingId}
                   disabled={!newMailgroupSuppressExistingFolder}
                 >
-                  <SelectTrigger className="w-full bg-background">
+                  <SelectTrigger className="w-full bg-field">
                     <SelectValue placeholder={newMailgroupSuppressExistingFolder ? 'Select mailgroup' : 'Choose a folder first'} />
                   </SelectTrigger>
                   <SelectContent>
@@ -837,19 +837,19 @@ function MailgroupOptionEditForm({ option, mailGroups, onAddMailGroup, onUpdateO
                 <div className="space-y-2">
                   <Label>Folder</Label>
                   <Select value={newMailgroupSuppressNewFolderChoice} onValueChange={setNewMailgroupSuppressNewFolderChoice}>
-                    <SelectTrigger className="w-full bg-background"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full bg-field"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {folders.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                       <SelectItem value={NEW_FOLDER}>+ New folder</SelectItem>
                     </SelectContent>
                   </Select>
                   {newMailgroupSuppressNewFolderChoice === NEW_FOLDER && (
-                    <Input className="bg-background" placeholder="e.g., Partnerships" value={newMailgroupSuppressNewFolderName} onChange={(e) => setNewMailgroupSuppressNewFolderName(e.target.value)} />
+                    <Input className="bg-field" placeholder="e.g., Partnerships" value={newMailgroupSuppressNewFolderName} onChange={(e) => setNewMailgroupSuppressNewFolderName(e.target.value)} />
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label>Mailgroup name</Label>
-                  <Input className="w-full bg-background" placeholder="e.g., Unsubscribe All" value={newMailgroupSuppressNewGroupName} onChange={(e) => setNewMailgroupSuppressNewGroupName(e.target.value)} />
+                  <Input className="w-full bg-field" placeholder="e.g., Unsubscribe All" value={newMailgroupSuppressNewGroupName} onChange={(e) => setNewMailgroupSuppressNewGroupName(e.target.value)} />
                 </div>
               </div>
             )}

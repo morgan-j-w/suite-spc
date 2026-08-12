@@ -82,7 +82,7 @@ export function ImageUploadField({ value, onChange, label, hint, previewClassNam
             type="button"
             title="Remove"
             onClick={() => onChange(undefined)}
-            className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm hover:text-foreground"
+            className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-panel text-muted-foreground shadow-sm hover:text-foreground"
           >
             <X className="h-3 w-3" />
           </button>
