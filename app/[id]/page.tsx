@@ -578,16 +578,20 @@ export default function BuilderEditorPage({ params }: BuilderPageProps) {
                   />
                 </>
               )}
+              {/* Save sits outside the dirty check so it never disappears — a control that comes
+                  and goes is one people stop trusting is there. It stays enabled when there's
+                  nothing new to save: saving twice is harmless, and a disabled button would
+                  answer "is my work safe?" with a greyed-out control. */}
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={handleSave} title="Save (⌘S)">
+                {justSaved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
+                {justSaved ? 'Saved' : 'Save'}
+              </Button>
               {isDirty ? (
                 <>
                   <span className="hidden items-center gap-1.5 text-xs font-medium text-[#9d5e00] lg:flex dark:text-amber-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     Unpublished changes
                   </span>
-                  <Button variant="outline" size="sm" className="gap-1.5" onClick={handleSave} title="Save (⌘S)">
-                    {justSaved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
-                    {justSaved ? 'Saved' : 'Save'}
-                  </Button>
                   <Button
                     size="sm"
                     onClick={handlePublish}
